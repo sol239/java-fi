@@ -3,17 +3,12 @@ package com.github.sol239.javafi.postgre;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 
 public class DBHandler {
 
@@ -26,6 +21,9 @@ public class DBHandler {
     private String user;
     private String password;
 
+    public Connection conn;
+
+
     public DBHandler() {
         this.credentials = loadConfig();
         this.checkCredentials(credentials);
@@ -36,6 +34,14 @@ public class DBHandler {
         this.url = "jdbc:postgresql://localhost:5432/" + APP_DB_NAME;
 
         //TODO: 2) connect to the app db
+        this.conn = null;
+
+        try {
+            this.conn = DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            System.out.println("Connection failed: " + e.getMessage());
+        }
+
 
 
         System.out.println("Connection established: " + checkConnection(url, user, password));
@@ -79,6 +85,8 @@ public class DBHandler {
             //System.out.println("Connection failed: " + e.getMessage());
             return false;
         }
+
+
     }
 
     /**
@@ -86,38 +94,101 @@ public class DBHandler {
      */
     public void createAppDb() {
         String sql = String.format("CREATE DATABASE %s;", APP_DB_NAME);
+        try {
+            this.conn.createStatement().execute(sql);
+            System.out.println("Database created successfully.");
+        } catch (SQLException e) {
+            System.out.println("Error creating database: " + e.getMessage());
+        }
+
+        /*
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             connection.createStatement().execute(sql);
             System.out.println("Database created successfully.");
         } catch (SQLException e) {
             System.out.println("Error creating database: " + e.getMessage());
-        }
+        }*/
     }
 
     public void insertCsvData(String tableName, String csvFilePath) throws FileNotFoundException {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
 
+            // Read CSV header
+            String headerLine = br.readLine();
+            if (headerLine == null) {
+                System.out.println("FAIL - Empty CSV file.");
+                return;
+            }
 
+            // Convert CSV headers to lowercase for flexibility
+            String[] csvHeaders = headerLine.toLowerCase().split(",");
 
-        try (Connection conn = DriverManager.getConnection(url, user, password)) {
+            // Expected database columns
+            List<String> dbColumns = Arrays.asList("timestamp", "open", "high", "low", "close", "volume", "date");
 
-            // create table if not exists
-            String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-                    + "timestamp FLOAT,"
-                    + "open FLOAT,"
-                    + "high FLOAT,"
-                    + "low FLOAT,"
-                    + "close FLOAT,"
-                    + "volume FLOAT"
+            // Create table if not exists
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
+                    + "timestamp BIGINT,"
+                    + "open DOUBLE PRECISION,"
+                    + "high DOUBLE PRECISION,"
+                    + "low DOUBLE PRECISION,"
+                    + "close DOUBLE PRECISION,"
+                    + "volume DOUBLE PRECISION,"
+                    + "date TIMESTAMP"
                     + ");";
 
-            conn.createStatement().execute(sql);
+            try (Statement stmt = this.conn.createStatement()) {
+                stmt.execute(createTableSQL);
+            }
 
+            // Find matching columns and their positions
+            Map<String, Integer> columnIndexMap = new HashMap<>();
+            for (int i = 0; i < csvHeaders.length; i++) {
+                if (dbColumns.contains(csvHeaders[i])) {
+                    columnIndexMap.put(csvHeaders[i], i);
+                }
+            }
 
-            FileReader fileReader = new FileReader(csvFilePath);
+            // Build dynamic SQL query based on available columns
+            List<String> matchedColumns = new ArrayList<>(columnIndexMap.keySet());
+            if (matchedColumns.isEmpty()) {
+                System.out.println("FAIL - No matching columns found.");
+                return;
+            }
 
-            CopyManager copyManager = new CopyManager((BaseConnection) conn);
-            String copySql = "COPY " + tableName + " FROM STDIN WITH CSV HEADER DELIMITER ','";
-            copyManager.copyIn(copySql, fileReader);
+            String sql = "INSERT INTO " + tableName + " (" + String.join(",", matchedColumns) + ") VALUES (" +
+                    String.join(",", Collections.nCopies(matchedColumns.size(), "?")) + ")";
+
+            // Prepare SQL statement
+            try (PreparedStatement pstmt = this.conn.prepareStatement(sql)) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] values = line.split(",");
+                    int paramIndex = 1;
+
+                    // Assign only matched columns
+                    for (String col : matchedColumns) {
+                        int csvIndex = columnIndexMap.get(col);
+                        String value = csvIndex < values.length ? values[csvIndex] : null;
+
+                        // Convert types correctly
+                        if (value == null || value.isEmpty()) {
+                            pstmt.setNull(paramIndex, Types.NULL);
+                        } else if (col.equals("timestamp")) {
+                            pstmt.setLong(paramIndex, Long.parseLong(value));
+                        } else if (Arrays.asList("open", "high", "low", "close", "volume").contains(col)) {
+                            pstmt.setDouble(paramIndex, Double.parseDouble(value));
+                        } else if (col.equals("date")) {
+                            pstmt.setTimestamp(paramIndex, Timestamp.valueOf(value));
+                        }
+
+                        paramIndex++;
+                    }
+
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            }
 
             System.out.println("SUCCESS - InsertCsvData: " + tableName + " from " + csvFilePath);
 
@@ -125,7 +196,33 @@ public class DBHandler {
             System.out.println("FAIL - InsertCsvData: " + e.getMessage());
         }
 
+        /*
+         try  {
 
+            // create table if not exists
+            String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
+                    + "timestamp BIGINT,"
+                    + "open DOUBLE PRECISION,"
+                    + "high DOUBLE PRECISION,"
+                    + "low DOUBLE PRECISION,"
+                    + "close DOUBLE PRECISION,"
+                    + "volume DOUBLE PRECISION,"
+                    + "date TIMESTAMP"
+                    + ");";
+
+            this.conn.createStatement().execute(sql);
+
+
+            FileReader fileReader = new FileReader(csvFilePath);
+
+            CopyManager copyManager = new CopyManager((BaseConnection) this.conn);
+            String copySql = "COPY " + tableName + " FROM STDIN WITH CSV HEADER DELIMITER ','";
+            copyManager.copyIn(copySql, fileReader);
+
+            System.out.println("SUCCESS - InsertCsvData: " + tableName + " from " + csvFilePath);
+
+        } catch (SQLException | IOException e) {
+            System.out.println("FAIL - InsertCsvData: " + e.getMessage());
+         */
     }
-
 }
