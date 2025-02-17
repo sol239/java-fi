@@ -1,5 +1,11 @@
 package com.github.sol239.javafi.postgre;
 
+import org.postgresql.copy.CopyManager;
+import org.postgresql.core.BaseConnection;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +30,6 @@ public class DBHandler {
         this.credentials = loadConfig();
         this.checkCredentials(credentials);
 
-        //TODO: 1) create app db if it doesn't exist
         if (!checkConnection("jdbc:postgresql://localhost:5432/" + APP_DB_NAME, user, password)) {
             createAppDb();
         }
@@ -89,14 +94,38 @@ public class DBHandler {
         }
     }
 
-    public void insertCsvData(String tableName, String csvFilePath) {
-        String sql = String.format("COPY %s FROM '%s' DELIMITER ',' CSV HEADER;", tableName, csvFilePath);
-        try (Connection connection = DriverManager.getConnection(this.url, user, password)) {
-            connection.createStatement().execute(sql);
-            System.out.println("SUCCESS - Data inserted successfully.");
-        } catch (SQLException e) {
-            System.out.println("FAIL - Error inserting data: " + e.getMessage());
+    public void insertCsvData(String tableName, String csvFilePath) throws FileNotFoundException {
+
+
+
+        try (Connection conn = DriverManager.getConnection(url, user, password)) {
+
+            // create table if not exists
+            String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
+                    + "timestamp FLOAT,"
+                    + "open FLOAT,"
+                    + "high FLOAT,"
+                    + "low FLOAT,"
+                    + "close FLOAT,"
+                    + "volume FLOAT"
+                    + ");";
+
+            conn.createStatement().execute(sql);
+
+
+            FileReader fileReader = new FileReader(csvFilePath);
+
+            CopyManager copyManager = new CopyManager((BaseConnection) conn);
+            String copySql = "COPY " + tableName + " FROM STDIN WITH CSV HEADER DELIMITER ','";
+            copyManager.copyIn(copySql, fileReader);
+
+            System.out.println("SUCCESS - InsertCsvData: " + tableName + " from " + csvFilePath);
+
+        } catch (SQLException | IOException e) {
+            System.out.println("FAIL - InsertCsvData: " + e.getMessage());
         }
+
+
     }
 
 }

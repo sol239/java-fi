@@ -1,5 +1,7 @@
-package com.github.sol239.javafi;
+package com.github.sol239.javafi.server;
 
+import com.github.sol239.javafi.CmdController;
+import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.postgre.DBHandler;
 
 import java.io.IOException;
@@ -7,6 +9,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ServerParallel {
     private static int sum = 0; // Shared resource, needs synchronization
@@ -15,7 +20,6 @@ public class ServerParallel {
 
     public static void main(String[] args) {
         int port = 12345;
-        DBHandler dbc = new DBHandler();
 
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -59,8 +63,11 @@ public class ServerParallel {
 
                             // Cast the object to DataObject
                             DataObject data = (DataObject) input;
+                            System.out.println(data);
+                            int id = data.getNumber();
+                            String cmd = data.getCmd();
+                            operationSelector(id, cmd);
 
-                            int cmd = data.getNumber();
 
                             objectOutputStream.writeObject("Sum updated to " + sum + " by " + data.getClientId());
                         } else {
@@ -74,5 +81,51 @@ public class ServerParallel {
                 System.out.println("Error handling client: " + e.getMessage());
             }
         }
+    }
+
+    private static void operationSelector(int id, String cmd)
+    {
+        switch (id) {
+            case 1 -> insertToDB(cmd);
+        }
+    }
+
+    private static void insertToDB(String cmd)
+    {
+
+        // cmd:
+        // btc X C/Users/user/Downloads/BTC-USD.csv
+        String[] cmdArray = cmd.split(" X ");
+        DBHandler db = new DBHandler();
+        String tableName;
+        String csvPath;
+
+
+
+
+        try {
+            tableName = cmdArray[0];
+        } catch (Exception e) {
+            System.out.println("FAIL - " + e.getMessage());
+            return;
+        }
+
+        try {
+            csvPath = cmdArray[1];
+        } catch (Exception e) {
+            System.out.println("FAIL - " + e.getMessage());
+            return;
+        }
+
+        System.out.println("Operation: insertToDB");
+        System.out.println(tableName);
+        System.out.println(csvPath);
+
+        try {
+            db.insertCsvData(tableName, csvPath);
+        } catch (Exception e) {
+            System.out.println("FAIL - " + e.getMessage());
+        }
+
     }
 }

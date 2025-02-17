@@ -8,12 +8,12 @@ public class DataObject implements Serializable {
 
     private final int number;
     private final String clientId;
-    private final HashMap<String, String> commands = new HashMap<>();
+    private final String cmd;
 
-
-    public DataObject(int number, String clientId) {
+    public DataObject(int number, String clientId, String cmd) {
         this.number = number;
         this.clientId = clientId;
+        this.cmd = cmd;
     }
 
     public int getNumber() {
@@ -24,9 +24,17 @@ public class DataObject implements Serializable {
         return clientId;
     }
 
+    public String getCmd() {
+        return cmd;
+    }
+
     @Override
     public String toString() {
-        return "Client ID: " + clientId + ", Number: " + number;
+        return "DataObject{" +
+                "number=" + number +
+                ", clientId='" + clientId + '\'' +
+                ", cmd='" + cmd + '\'' +
+                '}';
     }
 }
 

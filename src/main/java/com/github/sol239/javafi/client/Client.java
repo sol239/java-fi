@@ -1,5 +1,7 @@
-package com.github.sol239.javafi;
+package com.github.sol239.javafi.client;
 
+import com.github.sol239.javafi.CmdController;
+import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.csv.CsvHandler;
 
 import java.io.IOException;
@@ -43,6 +45,8 @@ public class Client {
             put(1, "VIEW DATASETS");
         }
     };
+
+
 
     public static void main(String[] args) {
 
@@ -93,7 +97,23 @@ public class Client {
                             System.out.println("Enter the path to the CSV file: ");
                             String path = scanner.nextLine();
                             System.out.println("Path: " + path);
-                            CsvHandler.readCsv(path);
+
+                            System.out.println("Set the name of the table: ");
+                            String tableName = scanner.nextLine();
+                            System.out.println("Table Name: " + tableName);
+
+                            //TODO: send path to server and make server insert it into the db
+                            DataObject dataObject = new DataObject(1, clientId, tableName + " X " + path);
+                            objectOutputStream.writeObject(dataObject);
+
+
+
+
+                            // Receive the response from the server
+                            Object response = objectInputStream.readObject();
+                            if (response instanceof String) {
+                                System.out.println(response);
+                            }
                         }
                         case "2" -> CsvHandler.printValidCsvPaths();
                         case "3" -> {
@@ -109,6 +129,7 @@ public class Client {
                                 System.out.println("Enter the number of the CSV file to remove: ");
                                 int number = Integer.parseInt(scanner.nextLine());
                                 CsvHandler.removeCsvPath(csvPaths.get(number));
+
                             }
                         }
                     }
@@ -146,31 +167,14 @@ public class Client {
 
                 }
 
-
-
-
-
-                    /*
-
-                        // dataObject will be sent to the server
-                        DataObject dataObject = new DataObject(number, clientId);
-                        // Send the dataObject to the server
-                        objectOutputStream.writeObject(dataObject);
-
-                        // Receive the response from the server
-                        Object response = objectInputStream.readObject();
-                        if (response instanceof String) {
-                            System.out.println(response);
-                        }
-
-                        */
-
             }
         } catch (UnknownHostException e) {
             System.out.println("Server not found: " + e.getMessage());
         } catch (IOException e) {
             // for example, this exception will be thrown if the server is not running
             System.out.println("IOException: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }
