@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.json;
+package com.github.sol239.javafi.utils.csv.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -1,7 +1,7 @@
-package com.github.sol239.javafi.csv;
+package com.github.sol239.javafi.utils.csv;
 
-import com.github.sol239.javafi.json.CsvPathsDataClass;
-import com.github.sol239.javafi.json.JsonUtils;
+import com.github.sol239.javafi.utils.csv.json.CsvPathsDataClass;
+import com.github.sol239.javafi.utils.csv.json.JsonUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

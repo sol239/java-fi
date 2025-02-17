@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.csv;
+package com.github.sol239.javafi.utils.csv;
 
 public class CsvPathValidator {
 

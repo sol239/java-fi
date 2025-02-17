@@ -100,9 +100,6 @@ public class ServerParallel {
         String tableName;
         String csvPath;
 
-
-
-
         try {
             tableName = cmdArray[0];
         } catch (Exception e) {
@@ -126,6 +123,6 @@ public class ServerParallel {
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
         }
-
     }
+
 }

@@ -2,7 +2,7 @@ package com.github.sol239.javafi.client;
 
 import com.github.sol239.javafi.CmdController;
 import com.github.sol239.javafi.DataObject;
-import com.github.sol239.javafi.csv.CsvHandler;
+import com.github.sol239.javafi.utils.csv.CsvHandler;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

@@ -1,6 +1,6 @@
 package com.github.sol239.javafi;
 
-import com.github.sol239.javafi.csv.CsvHandler;
+import com.github.sol239.javafi.utils.csv.CsvHandler;
 
 import java.util.HashMap;
 import java.util.Scanner;
