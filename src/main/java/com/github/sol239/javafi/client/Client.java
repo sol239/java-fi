@@ -19,7 +19,8 @@ public class Client {
             put(1, "ADD CSV");
             put(2, "ANALYSE CSV");
             put(3, "SETTINGS");
-            put(4, "EXIT");
+            put(4, "CONSOLE");
+            put(5, "EXIT");
         }
     };
 
@@ -78,7 +79,7 @@ public class Client {
                     System.out.print("> ");
                     input = scanner.nextLine();
 
-                    if (input.equals("4")) {
+                    if (input.equals("5")) {
                         break;
                     } else {
                         currentMenu = Integer.parseInt(input);
@@ -155,6 +156,31 @@ public class Client {
                     switch (input) {
                         case "0" -> currentMenu = 0;
                     }
+                }
+                else if (currentMenu == 4) {
+                    System.out.println("CONSOLE");
+
+                    try (Scanner consoleScanner = new Scanner(System.in)) {
+                        while (true) {
+                            System.out.print("> ");
+                            String consoleInput = consoleScanner.nextLine();
+                            if (consoleInput.strip().equals("x")) {
+                                break;
+                            }
+                            else {
+                                DataObject dataObject = new DataObject(2, clientId, consoleInput);
+                                objectOutputStream.writeObject(dataObject);
+                            }
+
+                            //Object response = objectInputStream.readObject();
+                            //System.out.println(response);
+                        }
+
+                        currentMenu = 0;
+
+
+                    }
+
 
                 } else {
                     System.out.print("> ");

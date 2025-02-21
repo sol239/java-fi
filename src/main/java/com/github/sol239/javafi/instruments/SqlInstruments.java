@@ -1,31 +1,35 @@
 package com.github.sol239.javafi.instruments;
 
+import com.github.sol239.javafi.postgre.DBHandler;
+
+import java.lang.reflect.Array;
+
 public class SqlInstruments {
 
+    public String  sma(String tableName, double _period) {
 
-
-    public static void  SimpleMovingAverage(String tableName, int period) {
-
+        int period = (int) _period;
         String query = String.format(
+                "ALTER TABLE %s DROP COLUMN IF EXISTS sma%d; " +
+                        "ALTER TABLE %s ADD COLUMN sma%d DOUBLE PRECISION; " +
+                        "WITH sma_%d AS ( " +
+                        "    SELECT date, close, " +
+                        "           AVG(close) OVER (ORDER BY date ROWS BETWEEN %d PRECEDING AND CURRENT ROW) AS sma%d " +
+                        "    FROM %s " +
+                        ") " +
+                        "UPDATE %s " +
+                        "SET sma%d = sma_%d.sma%d " +
+                        "FROM sma_%d " +
+                        "WHERE %s.date = sma_%d.date;",
+                tableName, period, // DROP COLUMN
+                tableName, period, // ADD COLUMN
+                period, period - 1, period, tableName, // CTE (Common Table Expression)
+                tableName, period, period, period, period, // UPDATE statement
+                tableName, period // WHERE clause
+        );
 
-
-        "ALTER TABLE" + tableName + "DROP COLUMN IF EXISTS sma" + period + ";" +
-        "ALTER TABLE" + tableName + "ADD COLUMN sma" + period + " DOUBLE PRECISION;" +
-
-        """
-                WITH sma_30 AS (
-                SELECT
-                datetime,
-                close,
-                AVG(close) OVER (ORDER BY datetime ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS sma30
-                FROM
-                btc
-        )
-        UPDATE btc
-        SET sma30 = sma_30.sma30
-        FROM sma_30
-        WHERE btc.datetime = sma_30.datetime;""");
-
+        return query;
     }
+
 
 }

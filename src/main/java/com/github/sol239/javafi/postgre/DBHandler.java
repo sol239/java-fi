@@ -89,6 +89,24 @@ public class DBHandler {
 
     }
 
+    public void closeConnection() {
+        try {
+            this.conn.close();
+            System.out.println("Connection closed.");
+        } catch (SQLException e) {
+            System.out.println("Error closing connection: " + e.getMessage());
+        }
+    }
+
+    public void executeQuery(String query) {
+        try {
+            this.conn.createStatement().execute(query);
+            System.out.println("Query executed successfully.");
+        } catch (SQLException e) {
+            System.out.println("Error executing query: " + e.getMessage());
+        }
+    }
+
     /**
      * Creates the application database.
      */
