@@ -192,6 +192,12 @@ public class ServerParallel {
                 }
             }
 
+            // insert csv into db
+            case "in" -> {
+                String dbInsertString = tables + " X " + operationString;
+                return insertToDB(dbInsertString);
+            }
+
             // store operation for instruments
             case "st" -> {
                 String[] tableArray = tables.split(",");
