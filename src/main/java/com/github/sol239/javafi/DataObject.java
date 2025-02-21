@@ -28,13 +28,11 @@ public class DataObject implements Serializable {
         return cmd;
     }
 
+
     @Override
     public String toString() {
-        return "DataObject{" +
-                "number=" + number +
-                ", clientId='" + clientId + '\'' +
-                ", cmd='" + cmd + '\'' +
-                '}';
+        String str = String.format("[%d] | clientID=%s | cmd=%s", number, clientId, cmd);
+        return str;
     }
 }
 

@@ -18,7 +18,12 @@ import java.util.*;
 
 public class ServerParallel {
     private static int sum = 0; // Shared resource, needs synchronization
-    private CmdController cc = new CmdController();
+    private CmdController cc;
+
+
+    public ServerParallel() {
+        cc = new CmdController();
+    }
 
 
     public static void main(String[] args) {
@@ -41,14 +46,23 @@ public class ServerParallel {
         }
     }
 
-    private static void operationSelector(int id, String cmd) {
+    private static DataObject operationSelector(int id, String cmd) {
+
+        DataObject response = null;
+
         switch (id) {
-            case 1 -> insertToDB(cmd);
-            case 2 -> runConsoleOperation(cmd);
+            case 1 -> {
+                response = insertToDB(cmd);
+            }
+            case 2 -> {
+                response = runConsoleOperation(cmd);
+            }
         }
+
+        return response;
     }
 
-    private static void insertToDB(String cmd) {
+    private static DataObject insertToDB(String cmd) {
 
         // cmd:
         // btc X C/Users/user/Downloads/BTC-USD.csv
@@ -61,14 +75,20 @@ public class ServerParallel {
             tableName = cmdArray[0];
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
-            return;
+
+            DataObject errorObject = new DataObject(400, "server", "Invalid command format");
+
+            return errorObject;
         }
 
         try {
             csvPath = cmdArray[1];
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
-            return;
+
+            DataObject errorObject = new DataObject(400, "server", "Invalid command format");
+
+            return errorObject;
         }
 
         System.out.println("Operation: insertToDB");
@@ -77,9 +97,18 @@ public class ServerParallel {
 
         try {
             db.insertCsvData(tableName, csvPath);
+            DataObject dataObject = new DataObject(200, "server", "Data inserted to " + tableName);
+            return dataObject;
+
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
+
+            DataObject errorObject = new DataObject(400, "server", "Error inserting data to " + tableName);
+            return errorObject;
+
         }
+
+
     }
 
     public static String getIndicatorString(String indicatorString) {
@@ -93,40 +122,77 @@ public class ServerParallel {
     /**
      * @param cmd
      */
-    public static void runConsoleOperation(String cmd) {
+    public static DataObject runConsoleOperation(String cmd) {
         String[] cmdArray = cmd.split(" X ");
 
+        System.out.println(Arrays.toString(cmdArray));
 
-        String operationName;
-        String tables;
-        String operationString;
+        String operationName = "";
+        String tables = "";
+        String operationString = "";
 
         try {
             operationName = cmdArray[0];
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
-            return;
+
+            DataObject errorObject = new DataObject(400, "server", "Invalid command format");
+
+            return errorObject;
         }
 
-        try {
-            tables = cmdArray[1];
-        } catch (Exception e) {
-            System.out.println("FAIL - " + e.getMessage());
-            return;
+        if (cmdArray.length > 1) {
+            try {
+                tables = cmdArray[1];
+            } catch (Exception e) {
+                System.out.println("FAIL - " + e.getMessage());
+
+                DataObject errorObject = new DataObject(400, "server", "Invalid command format");
+
+                return errorObject;
+            }
+
+            try {
+                operationString = cmdArray[2];
+            } catch (Exception e) {
+                System.out.println("FAIL - " + e.getMessage());
+
+                DataObject errorObject = new DataObject(400, "server", "Invalid command format");
+
+                return errorObject;
+            }
         }
 
-        try {
-            operationString = cmdArray[2];
-        } catch (Exception e) {
-            System.out.println("FAIL - " + e.getMessage());
-            return;
-        }
-
-        System.out.println("Operation: " + operationName);
-        System.out.println("Tables: " + tables);
-        System.out.println("Operation String: " + operationString);
 
         switch (operationName) {
+            // checks whether the client is still connected to the server
+            case "cn" -> {
+                DataObject dataObject = new DataObject(200, "server", "Connection Open");
+                return dataObject;
+            }
+
+            // checks if it is possible to connect to the database
+            case "db" -> {
+                DBHandler db = new DBHandler();
+                try {
+                    db.connect();
+                    if (db.conn != null) {
+                        DataObject dataObject = new DataObject(200, "server", "Database connection successful");
+                        return dataObject;
+                    } else {
+                        DataObject errorObject = new DataObject(400, "server", "Database connection failed");
+                        return errorObject;
+                    }
+
+                } catch (Exception e) {
+                    DataObject errorObject = new DataObject(400, "server", "Database connection failed");
+                    return errorObject;
+                } finally {
+                    db.closeConnection();
+                }
+            }
+
+            // store operation for instruments
             case "st" -> {
                 String[] tableArray = tables.split(",");
                 String[] instrumentArray = operationString.split(",");
@@ -187,12 +253,11 @@ public class ServerParallel {
                                 //System.out.println(parameters[i].getType());
                             }
 
-                            System.out.print(method.getName() + "(" );
+                            System.out.print(method.getName() + "(");
                             for (int i = 0; i < arguments.length - 1; i++) {
                                 System.out.print(arguments[i] + ", ");
                             }
                             System.out.println(arguments[arguments.length - 1] + ")");
-
 
 
                             String result = "";
@@ -200,7 +265,7 @@ public class ServerParallel {
 
                             // invoke
                             try {
-                               result = (String) method.invoke(obj, arguments);
+                                result = (String) method.invoke(obj, arguments);
                             } catch (Exception e) {
                                 //System.out.println("FAIL - " + e.getMessage());
                                 e.printStackTrace();
@@ -223,9 +288,13 @@ public class ServerParallel {
                 }
 
 
+                DataObject dataObject = new DataObject(200, "server", "Operation completed");
+                return dataObject;
+
             }
         }
-
+        DataObject errorObject = new DataObject(400, "server", "Operation not found");
+        return errorObject;
     }
 
     public static Object convertToType(String input, Class<?> type) {
@@ -282,10 +351,11 @@ public class ServerParallel {
                             System.out.println(data);
                             int id = data.getNumber();
                             String cmd = data.getCmd();
-                            operationSelector(id, cmd);
+                            DataObject response = operationSelector(id, cmd);
 
+                            // Send the response back to the client
+                            objectOutputStream.writeObject(response);
 
-                            objectOutputStream.writeObject("Sum updated to " + sum + " by " + data.getClientId());
                         } else {
                             objectOutputStream.writeObject("Invalid object. Please send a valid DataObject.");
                         }

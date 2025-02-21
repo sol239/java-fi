@@ -48,7 +48,6 @@ public class Client {
     };
 
 
-
     public static void main(String[] args) {
 
         // server settings
@@ -108,8 +107,6 @@ public class Client {
                             objectOutputStream.writeObject(dataObject);
 
 
-
-
                             // Receive the response from the server
                             Object response = objectInputStream.readObject();
                             if (response instanceof String) {
@@ -156,32 +153,25 @@ public class Client {
                     switch (input) {
                         case "0" -> currentMenu = 0;
                     }
-                }
-                else if (currentMenu == 4) {
+                } else if (currentMenu == 4) {
                     System.out.println("CONSOLE");
 
-                    try (Scanner consoleScanner = new Scanner(System.in)) {
-                        while (true) {
-                            System.out.print("> ");
-                            String consoleInput = consoleScanner.nextLine();
-                            if (consoleInput.strip().equals("x")) {
-                                break;
-                            }
-                            else {
-                                DataObject dataObject = new DataObject(2, clientId, consoleInput);
-                                objectOutputStream.writeObject(dataObject);
-                            }
-
-                            //Object response = objectInputStream.readObject();
-                            //System.out.println(response);
+                    while (true) {
+                        System.out.print("> ");
+                        String consoleInput = scanner.nextLine();
+                        if (consoleInput.strip().equals("x")) {
+                            break;
+                        } else {
+                            DataObject dataObject = new DataObject(2, clientId, consoleInput);
+                            objectOutputStream.writeObject(dataObject);
                         }
 
-                        currentMenu = 0;
-
-
+                        // Receive the response from the server
+                        DataObject response = (DataObject) objectInputStream.readObject();
+                        System.out.println(response.toString());
                     }
 
-
+                    currentMenu = 0;
                 } else {
                     System.out.print("> ");
                     input = scanner.nextLine();
@@ -189,9 +179,8 @@ public class Client {
                     switch (input) {
                         case "0" -> currentMenu = 0;
                     }
-
-
                 }
+
 
             }
         } catch (UnknownHostException e) {

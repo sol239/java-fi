@@ -33,18 +33,20 @@ public class DBHandler {
         }
         this.url = "jdbc:postgresql://localhost:5432/" + APP_DB_NAME;
 
-        //TODO: 2) connect to the app db
-        this.conn = null;
+        this.connect();
+        System.out.println("Connection established: " + checkConnection(url, user, password));
+    }
 
+    /**
+     * Establishes a connection to the database.
+     */
+    public void connect() {
+        this.conn = null;
         try {
             this.conn = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
             System.out.println("Connection failed: " + e.getMessage());
         }
-
-
-
-        System.out.println("Connection established: " + checkConnection(url, user, password));
     }
 
     public List<String> loadConfig() {
