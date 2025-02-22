@@ -207,7 +207,7 @@ public class ServerParallel {
                 DBHandler db = new DBHandler();
                 try {
                     db.connect();
-                    String[] tablesToClean = db.getAllTables();
+                    List<String> tablesToClean = db.getAllTables();
                     for (String table : tablesToClean) {
                         db.clean(table);
                     }

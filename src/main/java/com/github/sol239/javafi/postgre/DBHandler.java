@@ -25,7 +25,7 @@ public class DBHandler {
     /**
      * List of database credentials: url, user, password.
      */
-    private final List<String> credentials;
+    public final List<String> credentials;
 
     /**
      * Database's url, probably 'jdbc:postgresql://localhost:5432/APP_DB_NAME'.
@@ -76,6 +76,14 @@ public class DBHandler {
     }
 
     /**
+     * Checks if the connection to the database is successful.
+     * @return true if connection is successful, false otherwise.
+     */
+    public boolean isConnected() {
+        return this.conn != null;
+    }
+
+    /**
      * Loads the database credentials from the configuration file.
      * @return List of database credentials: url, user, password.
      */
@@ -93,7 +101,7 @@ public class DBHandler {
      * Returns all tables in the database.
      * @return Array of table names.
      */
-    public String[] getAllTables() {
+    public List<String> getAllTables() {
         try {
             DatabaseMetaData dbmd = this.conn.getMetaData();
             ResultSet rs = dbmd.getTables(null, null, "%", new String[] {"TABLE"});
@@ -101,7 +109,7 @@ public class DBHandler {
             while (rs.next()) {
                 tables.add(rs.getString(3));
             }
-            return tables.toArray(new String[0]);
+            return tables;
         } catch (SQLException e) {
             System.out.println("Error getting tables: " + e.getMessage());
             return null;
@@ -224,6 +232,7 @@ public class DBHandler {
     public void closeConnection() {
         try {
             this.conn.close();
+            this.conn = null;
             System.out.println("Connection closed.");
         } catch (SQLException e) {
             System.out.println("Error closing connection: " + e.getMessage());

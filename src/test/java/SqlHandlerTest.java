@@ -2,6 +2,8 @@ import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.postgre.DBHandler;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 public class SqlHandlerTest {
 
     /**
@@ -12,7 +14,7 @@ public class SqlHandlerTest {
         SqlHandler.executeQuery("CREATE TABLE test_table (id SERIAL PRIMARY KEY, name VARCHAR(50))");
 
         DBHandler db = new DBHandler();
-        String[] tables = db.getAllTables();
+        List<String> tables = db.getAllTables();
         boolean found = false;
 
         for (String table : tables) {
@@ -24,6 +26,11 @@ public class SqlHandlerTest {
 
         SqlHandler.executeQuery("DROP TABLE test_table");
         assert(found);
+    }
+
+    @Test
+    public void cleanTest() {
+
     }
 
 }
