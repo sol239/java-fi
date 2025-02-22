@@ -59,6 +59,59 @@ public class DBHandler {
         return null;
     }
 
+    public String[] getAllTables() {
+        try {
+            DatabaseMetaData dbmd = this.conn.getMetaData();
+            ResultSet rs = dbmd.getTables(null, null, "%", new String[] {"TABLE"});
+            List<String> tables = new ArrayList<>();
+            while (rs.next()) {
+                tables.add(rs.getString(3));
+            }
+            return tables.toArray(new String[0]);
+        } catch (SQLException e) {
+            System.out.println("Error getting tables: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Deletes all strategies and indicator columns from the database.
+     * Only columns timestamp, open, high, low, close, volume, date are preserved.
+     * @param tableName
+     */
+    public void clean(String tableName) {
+
+        // sql query to get all columns in the table
+        String sql = "SELECT column_name FROM information_schema.columns WHERE table_name = '" + tableName + "';";
+        try {
+            ResultSet rs = this.conn.createStatement().executeQuery(sql);
+            List<String> columns = new ArrayList<>();
+            while (rs.next()) {
+                columns.add(rs.getString(1));
+            }
+
+            // remove all columns that are not in the list
+            columns.remove("timestamp");
+            columns.remove("open");
+            columns.remove("high");
+            columns.remove("low");
+            columns.remove("close");
+            columns.remove("volume");
+            columns.remove("date");
+
+            for (String column : columns) {
+                String dropSql = "ALTER TABLE " + tableName + " DROP COLUMN " + column + ";";
+                this.conn.createStatement().execute(dropSql);
+            }
+
+            System.out.println("Table cleaned successfully.");
+
+        } catch (SQLException e) {
+            System.out.println("Error cleaning table: " + e.getMessage());
+        }
+
+    }
+
     public void checkCredentials(List<String> credentials) {
         if (credentials.size() != 3) {
             throw new IllegalArgumentException("Invalid number of credentials.");
@@ -68,16 +121,24 @@ public class DBHandler {
         this.password = credentials.get(2);
     }
 
-    public static boolean checkConnection(String url, String user, String password) {
-        /*
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            return true;
+    public ResultSet getResultSet(String query) {
+        try {
+            return conn.createStatement().executeQuery(query);
         } catch (SQLException e) {
-            System.out.println("Connection failed: " + e.getMessage());
-            return false;
+            System.out.println("Error executing query: " + e.getMessage());
+            return null;
         }
-        */
+    }
 
+    public void setFetchSize(int size) {
+        try {
+            conn.createStatement().setFetchSize(size);
+        } catch (SQLException e) {
+            System.out.println("Error setting fetch size: " + e.getMessage());
+        }
+    }
+
+    public static boolean checkConnection(String url, String user, String password) {
         Connection connection = null;
         try {
             Class.forName("org.postgresql.Driver");
@@ -87,8 +148,6 @@ public class DBHandler {
             //System.out.println("Connection failed: " + e.getMessage());
             return false;
         }
-
-
     }
 
     public void closeConnection() {
@@ -120,14 +179,6 @@ public class DBHandler {
         } catch (SQLException e) {
             System.out.println("Error creating database: " + e.getMessage());
         }
-
-        /*
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            connection.createStatement().execute(sql);
-            System.out.println("Database created successfully.");
-        } catch (SQLException e) {
-            System.out.println("Error creating database: " + e.getMessage());
-        }*/
     }
 
     public void insertCsvData(String tableName, String csvFilePath) throws FileNotFoundException {

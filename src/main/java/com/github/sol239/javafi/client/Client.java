@@ -54,7 +54,7 @@ public class Client {
         int port = 12345;
         String clientId = "client-" + System.currentTimeMillis();
 
-        int DELAY = 5000;
+        int DELAY = 2000;
         int MAX_TRIES = 5;
 
         int tries = 0;
@@ -68,7 +68,7 @@ public class Client {
                 e.printStackTrace();
             }
 
-            System.out.println("Reconnecting in 5 seconds...");
+            System.out.println("Reconnecting in 2 seconds...");
             try {
                 Thread.sleep(DELAY);
             } catch (InterruptedException e) {

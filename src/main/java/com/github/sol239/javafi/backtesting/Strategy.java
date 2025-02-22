@@ -2,15 +2,31 @@ package com.github.sol239.javafi.backtesting;
 
 public class Strategy {
     public String name;
-    public String description;
-    public String personalNote;
 
-    double initialBalance;
-    double balance;
+    public double initialBalance;
+    public double balance;
 
-    double profit;
-    double loss;
+    double assetBalance;
+
+    public double profit;
+    public double loss;
     double riskRewardRatio;
 
-    String sqlWhereClause;
+
+    public Strategy(String name, double initialBalance, double profit, double loss) {
+        this.name = name;
+        this.initialBalance = initialBalance;
+        this.balance = initialBalance;
+
+        this.profit = profit;
+        this.loss = loss;
+
+        this.assetBalance = 0;
+    }
+
+
+
+
+
+
 }

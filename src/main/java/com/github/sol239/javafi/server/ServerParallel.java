@@ -2,6 +2,8 @@ package com.github.sol239.javafi.server;
 
 import com.github.sol239.javafi.CmdController;
 import com.github.sol239.javafi.DataObject;
+import com.github.sol239.javafi.backtesting.Strategy;
+import com.github.sol239.javafi.backtesting.Trade;
 import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
@@ -13,6 +15,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -196,6 +202,27 @@ public class ServerParallel {
                 }
             }
 
+            // removes everything from the database except the schema
+            case "clean" -> {
+                DBHandler db = new DBHandler();
+                try {
+                    db.connect();
+                    String[] tablesToClean = db.getAllTables();
+                    for (String table : tablesToClean) {
+                        db.clean(table);
+                    }
+
+                    DataObject dataObject = new DataObject(200, "server", "Database cleaned");
+                    return dataObject;
+                } catch (Exception e) {
+                    DataObject errorObject = new DataObject(400, "server", "Database cleaning failed");
+                    return errorObject;
+                } finally {
+                    db.closeConnection();
+                }
+
+            }
+
             // insert csv into db
             case "in" -> {
                 String dbInsertString = tables + " X " + operationString;
@@ -327,7 +354,97 @@ public class ServerParallel {
 
                     SqlHandler.executeQuery(sellSql);
                     SqlHandler.executeQuery(buySql);
+
+                    DBHandler db = new DBHandler();
+                    db.setFetchSize(100);
+                    String sql = String.format("SELECT * FROM %s ORDER BY date", tableName);
+
+                    ResultSet rs = db.getResultSet(sql);
+
+                    Strategy strategy = new Strategy(strategyName, 1_000_000, 0.08, 0.03);
+
+                    List<Trade> trades = new Stack<>();
+                    List<Trade> successfulTrades = new ArrayList<>();
+                    List<Trade> unsuccessfulTrades = new ArrayList<>();
+
+                    double successfullTrades = 0;
+                    double unsuccessfullTrades = 0;
+
+                    try {
+                        while (rs.next()) {
+                            boolean buySignal = rs.getBoolean(buyStrategyName);
+                            boolean sellSignal = rs.getBoolean(sellStrategyName);
+                            double close = rs.getDouble("close");
+
+                            // Use an Iterator to safely remove trades
+                            Iterator<Trade> iterator = trades.iterator();
+                            while (iterator.hasNext()) {
+                                Trade trade = iterator.next();
+                                if (trade.takeProfit >= close) {
+                                    strategy.balance += trade.takeProfit;
+                                    iterator.remove(); // Safe removal
+                                    successfullTrades++;
+                                    trade.closeDate = formatCloseDate(rs, "date");
+
+                                    successfulTrades.add(trade);
+                                } else if (trade.stopLoss <= close) {
+                                    strategy.balance -= trade.stopLoss;
+                                    iterator.remove(); // Safe removal
+                                    unsuccessfullTrades++;
+                                    trade.closeDate = formatCloseDate(rs, "date");
+
+                                    unsuccessfulTrades.add(trade);
+                                }
+                            }
+
+                            if (buySignal) {
+                                Trade trade = new Trade(close, close * (1 + strategy.profit), close * (1 - strategy.loss));
+                                trade.openDate = formatCloseDate(rs, "date");
+                                trades.add(trade);
+                            }
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    finally {
+                        db.closeConnection();
+                        System.out.println("\nStrategy: " + strategy.name);
+                        System.out.println("Balance: " + strategy.balance);
+                        System.out.println("Successfull Trades: " + successfullTrades);
+                        System.out.println("Unsuccessfull Trades: " + unsuccessfullTrades);
+                        System.out.println("Win rate: " + (successfullTrades / (successfullTrades + unsuccessfullTrades)));
+                    }
+
+                    // add trade date into the db:
+                    // - boolean
+                    // - where date of trade = date of close
+                    List<String> datesToUpdate = new ArrayList<>();
+                    for (Trade trade : successfulTrades) {
+                        datesToUpdate.add(trade.openDate.toString());
+                        //System.out.println(trade);
+                    }
+
+
+                    String createSql = String.format("ALTER TABLE %s ADD COLUMN IF NOT EXISTS %s boolean default false;", tableName, buyStrategyName + "_trade");
+                    SqlHandler.executeQuery(createSql);
+
+
+                    /*
+                    for (Trade trade : successfulTrades) {
+                        String date = trade.date.toString();
+                        String createSql = String.format("ALTER TABLE %s ADD COLUMN IF NOT EXISTS %s boolean default false", tableName, buyStrategyName + "_trade");
+                        String updateSql = String.format("\nUPDATE %s SET %s = true WHERE date = '%s'", tableName, buyStrategyName + "_trade", date);
+                        SqlHandler.executeQuery(createSql + updateSql);
+                    }
+                    */
+
+
                 }
+
+
+
+
 
                 DataObject dataObject = new DataObject(200, "server", "Operation completed");
                 return dataObject;
@@ -336,8 +453,24 @@ public class ServerParallel {
             }
         }
 
+
         DataObject errorObject = new DataObject(400, "server", "Operation not found");
         return errorObject;
+    }
+
+    public static String formatCloseDate(ResultSet rs, String columnName) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        try {
+            Timestamp timestamp = rs.getTimestamp(columnName); // Use getTimestamp to include time
+            if (timestamp != null) {
+                return simpleDateFormat.format(timestamp);
+            } else {
+                return null; // Handle null case
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Handle SQL exception
+            return null; // Return null in case of an error
+        }
     }
 
     public static String getSqlStrategyString(String tableName, String strategyName, String strategyClause) {
