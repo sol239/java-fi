@@ -132,7 +132,7 @@ public class ServerParallel {
         String operationString = "";
 
         try {
-            operationName = cmdArray[0];
+            operationName = cmdArray[0].trim();
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
 
@@ -162,7 +162,11 @@ public class ServerParallel {
                 return errorObject;
             }
         }
-
+        /*
+        System.out.println("Operation: " + operationName);
+        System.out.println("Tables: " + tables);
+        System.out.println("Operation String: " + operationString);
+*/
 
         switch (operationName) {
             // checks whether the client is still connected to the server
@@ -301,11 +305,68 @@ public class ServerParallel {
 
             // backtest operation
             case "bt" -> {
+                String[] tableArray = tables.split(",");
+
+                for (String tableName : tableArray) {
+                    String strategyName = cmdArray[2];
+                    String buyClause = extractStrategyClause("BUY", cmdArray[3]);
+                    String sellClause = extractStrategyClause("SELL", cmdArray[4]);
+
+                    System.out.println("Buy Clause: " + buyClause);
+                    System.out.println("Sell Clause: " + sellClause);
+
+                    String sellStrategyName = strategyName + "_sell_" + tableName;
+                    String buyStrategyName = strategyName + "_buy_" + tableName;
+
+
+
+                    String sellSql = getSqlStrategyString(tableName, sellStrategyName, sellClause);
+                    String buySql = getSqlStrategyString(tableName, buyStrategyName, buyClause);
+
+                    System.out.println("Buy SQL: \n" + buySql);
+
+                    SqlHandler.executeQuery(sellSql);
+                    SqlHandler.executeQuery(buySql);
+                }
+
+                DataObject dataObject = new DataObject(200, "server", "Operation completed");
+                return dataObject;
+
 
             }
         }
+
         DataObject errorObject = new DataObject(400, "server", "Operation not found");
         return errorObject;
+    }
+
+    public static String getSqlStrategyString(String tableName, String strategyName, String strategyClause) {
+        String sql = String.format(
+                "alter table %s " +
+                        "drop column if exists %s; " +
+
+                        "ALTER TABLE %s " +
+                        "ADD %s boolean default false; " +
+
+                        "update %s " +
+                        "set %s = true " +
+                        "where %s; ",
+                tableName,
+                strategyName,
+                tableName,
+                strategyName,
+                tableName,
+                strategyName,
+                strategyClause
+        );
+
+        return sql;
+    }
+
+    public static String extractStrategyClause(String type, String clause) {
+        String x = clause.split(type)[1];
+        x = x.substring(1, x.length() - 1);
+        return x;
     }
 
     public static Object convertToType(String input, Class<?> type) {
