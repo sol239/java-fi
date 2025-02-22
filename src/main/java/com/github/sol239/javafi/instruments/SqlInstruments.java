@@ -1,11 +1,16 @@
 package com.github.sol239.javafi.instruments;
 
-import com.github.sol239.javafi.postgre.DBHandler;
-import java.lang.reflect.Array;
-
 public class SqlInstruments {
 
-    public String  sma(String tableName, double _period) {
+    /**
+     * Calculate the Simple Moving Average (SMA) of a given table
+     *
+     * @param tableName The name of the table to calculate the SMA for
+     * @param _period   The period to calculate the SMA over
+     * @return The SQL query to calculate the SMA
+     * @see <a href="https://www.investopedia.com/terms/s/sma.asp">Investopedia</a>
+     */
+    public String sma(String tableName, double _period) {
 
         int period = (int) _period;
         String query = String.format(
@@ -30,10 +35,17 @@ public class SqlInstruments {
         return query;
     }
 
+    /**
+     * Calculate the Relative Strength Index (RSI) of a given table
+     * @see <a href="https://www.investopedia.com/terms/r/rsi.asp">Investopedia</a>
+     * @param tableName The name of the table to calculate the RSI for
+     * @param period The period to calculate the RSI over
+     * @return The SQL query to calculate the RSI
+     */
     public String rsi(String tableName, int period) {
         String query = String.format(
-                "ALTER TABLE %s DROP COLUMN IF EXISTS rsi%d; " + // Drop the column if it exists
-                        "ALTER TABLE %s ADD COLUMN rsi%d DOUBLE PRECISION; " + // Add the column
+                "ALTER TABLE %s DROP COLUMN IF EXISTS rsi%d; " +
+                        "ALTER TABLE %s ADD COLUMN rsi%d DOUBLE PRECISION; " +
                         "WITH price_changes AS ( " +
                         "    SELECT date, close, " +
                         "           LAG(close) OVER (ORDER BY date) AS prev_price " +
@@ -73,6 +85,13 @@ public class SqlInstruments {
         return query;
     }
 
+    /**
+     * Calculate the Exponential Moving Average (EMA) of a given table
+     * @see <a href="https://www.investopedia.com/terms/e/ema.asp">Investopedia</a>
+     * @param tableName The name of the table to calculate the EMA for
+     * @param period The period to calculate the EMA over
+     * @return The SQL query to calculate the EMA
+     */
     public String ema(String tableName, int period) {
         String query = String.format(
                 "ALTER TABLE %s DROP COLUMN IF EXISTS ema%d; " +
@@ -97,6 +116,14 @@ public class SqlInstruments {
         return query;
     }
 
+    /**
+     * Calculate the Bollinger Bands of a given table
+     * @see <a href="https://www.investopedia.com/terms/b/bollingerbands.asp">Investopedia</a>
+     * @param tableName The name of the table to calculate the Bollinger Bands for
+     * @param period The period to calculate the Bollinger Bands over
+     * @param multiplier The multiplier to calculate the Bollinger Bands with
+     * @return The SQL query to calculate the Bollinger Bands
+     */
     public String bollingerBands(String tableName, int period, double multiplier) {
         String query = String.format(
                 "ALTER TABLE %s DROP COLUMN IF EXISTS bb_middle%d; " +
@@ -130,6 +157,15 @@ public class SqlInstruments {
         return query;
     }
 
+    /**
+     * Calculate the Moving Average Convergence Divergence (MACD) of a given table
+     * @see <a href="https://www.investopedia.com/terms/m/macd.asp">Investopedia</a>
+     * @param tableName The name of the table to calculate the MACD for
+     * @param shortPeriod The short period to calculate the MACD over
+     * @param longPeriod The long period to calculate the MACD over
+     * @param signalPeriod The signal period to calculate the MACD over
+     * @return The SQL query to calculate the MACD
+     */
     public String macd(String tableName, int shortPeriod, int longPeriod, int signalPeriod) {
         String query = String.format(
                 "ALTER TABLE %s DROP COLUMN IF EXISTS macd_line; " +
@@ -171,8 +207,6 @@ public class SqlInstruments {
         );
         return query;
     }
-
-
 
 
 }
