@@ -1,29 +1,55 @@
 package com.github.sol239.javafi.postgre;
 
-import org.postgresql.copy.CopyManager;
-import org.postgresql.core.BaseConnection;
-
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * Class that handles the connection to the database.
+ * It can execute queries, check the connection, load the database credentials from the configuration file, etc.
+ */
 public class DBHandler {
 
-    // CONSTANTS
+    /**
+     * Application's database name.
+     */
     public static final String APP_DB_NAME = "java_fi";
+
+    /**
+     * Path to the database configuration file.
+     */
     public static final String CONFIG_FILE_PATH = "C:\\Users\\david_dyn8g78\\Desktop\\Java\\db_config";
 
+    /**
+     * List of database credentials: url, user, password.
+     */
     private final List<String> credentials;
+
+    /**
+     * Database's url, probably 'jdbc:postgresql://localhost:5432/APP_DB_NAME'.
+     */
     private String url;
+
+    /**
+     * Database's user, if local postgreSQL database, then probably 'postgres'.
+     */
     private String user;
+
+    /**
+     * Database's password.
+     */
     private String password;
 
+    /**
+     * Connection to the database.
+     */
     public Connection conn;
 
-
+    /**
+     * Constructor that loads the database credentials from the configuration file and establishes a connection to the database.
+     */
     public DBHandler() {
         this.credentials = loadConfig();
         this.checkCredentials(credentials);
@@ -49,6 +75,10 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Loads the database credentials from the configuration file.
+     * @return List of database credentials: url, user, password.
+     */
     public List<String> loadConfig() {
         try {
             List<String> config = Files.readAllLines(Paths.get(CONFIG_FILE_PATH));
@@ -59,6 +89,10 @@ public class DBHandler {
         return null;
     }
 
+    /**
+     * Returns all tables in the database.
+     * @return Array of table names.
+     */
     public String[] getAllTables() {
         try {
             DatabaseMetaData dbmd = this.conn.getMetaData();
@@ -77,7 +111,7 @@ public class DBHandler {
     /**
      * Deletes all strategies and indicator columns from the database.
      * Only columns timestamp, open, high, low, close, volume, date are preserved.
-     * @param tableName
+     * @param tableName Name of the table to clean.
      */
     public void clean(String tableName) {
 
@@ -111,6 +145,10 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Deletes the table from the database.
+     * @param tableName Name of the table to delete.
+     */
     public void deleteTable(String tableName) {
         try {
             String sql = "DROP TABLE " + tableName + ";";
@@ -121,6 +159,10 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Checks if credentials list is complete.
+     * @param credentials List of database credentials: url, user, password.
+     */
     public void checkCredentials(List<String> credentials) {
         if (credentials.size() != 3) {
             throw new IllegalArgumentException("Invalid number of credentials.");
@@ -130,6 +172,11 @@ public class DBHandler {
         this.password = credentials.get(2);
     }
 
+    /**
+     * Returns the result set of the query.
+     * @param query SQL query.
+     * @return Result set of the query.
+     */
     public ResultSet getResultSet(String query) {
         try {
             return conn.createStatement().executeQuery(query);
@@ -139,6 +186,11 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Sets the fetch size of the connection.
+     * It is used to limit the number of rows fetched from the database - used with result sets.
+     * @param size Fetch size.
+     */
     public void setFetchSize(int size) {
         try {
             conn.createStatement().setFetchSize(size);
@@ -147,6 +199,13 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Checks if the connection to the database is successful.
+     * @param url to the database, probably 'jdbc:postgresql://localhost:5432/APP_DB_NAME'
+     * @param user the user, probably 'postgres'
+     * @param password the password
+     * @return true if connection is successful, false otherwise
+     */
     public static boolean checkConnection(String url, String user, String password) {
         Connection connection = null;
         try {
@@ -154,11 +213,14 @@ public class DBHandler {
             connection = DriverManager.getConnection(url, user, password);
             return connection != null;
         } catch (SQLException | ClassNotFoundException e) {
-            //System.out.println("Connection failed: " + e.getMessage());
+            System.out.println("Connection failed: " + e.getMessage());
             return false;
         }
     }
 
+    /**
+     * Closes the connection to the database.
+     */
     public void closeConnection() {
         try {
             this.conn.close();
@@ -168,6 +230,10 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Executes the SQL query.
+     * @param query SQL query.
+     */
     public void executeQuery(String query) {
         try {
             this.conn.createStatement().execute(query);
@@ -190,6 +256,12 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Inserts data from a CSV file into the database.
+     * @param tableName Name of the table to insert data into.
+     * @param csvFilePath Path to the CSV file.
+     * @throws FileNotFoundException if the file is not found
+     */
     public void insertCsvData(String tableName, String csvFilePath) throws FileNotFoundException {
         try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
 
@@ -275,34 +347,6 @@ public class DBHandler {
         } catch (SQLException | IOException e) {
             System.out.println("FAIL - InsertCsvData: " + e.getMessage());
         }
-
-        /*
-         try  {
-
-            // create table if not exists
-            String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-                    + "timestamp BIGINT,"
-                    + "open DOUBLE PRECISION,"
-                    + "high DOUBLE PRECISION,"
-                    + "low DOUBLE PRECISION,"
-                    + "close DOUBLE PRECISION,"
-                    + "volume DOUBLE PRECISION,"
-                    + "date TIMESTAMP"
-                    + ");";
-
-            this.conn.createStatement().execute(sql);
-
-
-            FileReader fileReader = new FileReader(csvFilePath);
-
-            CopyManager copyManager = new CopyManager((BaseConnection) this.conn);
-            String copySql = "COPY " + tableName + " FROM STDIN WITH CSV HEADER DELIMITER ','";
-            copyManager.copyIn(copySql, fileReader);
-
-            System.out.println("SUCCESS - InsertCsvData: " + tableName + " from " + csvFilePath);
-
-        } catch (SQLException | IOException e) {
-            System.out.println("FAIL - InsertCsvData: " + e.getMessage());
-         */
     }
+
 }
