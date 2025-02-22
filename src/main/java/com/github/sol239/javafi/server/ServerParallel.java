@@ -298,6 +298,11 @@ public class ServerParallel {
                 return dataObject;
 
             }
+
+            // backtest operation
+            case "bt" -> {
+
+            }
         }
         DataObject errorObject = new DataObject(400, "server", "Operation not found");
         return errorObject;
