@@ -1,5 +1,8 @@
 package com.github.sol239.javafi.instruments;
 
+/**
+ * A class to generate SQL queries for financial instruments
+ */
 public class SqlInstruments {
 
     /**
