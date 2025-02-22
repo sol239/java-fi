@@ -1,19 +1,16 @@
 package com.github.sol239.javafi.client;
 
-import com.github.sol239.javafi.CmdController;
 import com.github.sol239.javafi.DataObject;
-import com.github.sol239.javafi.utils.csv.CsvHandler;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class Client {
-
+    /*
     public static final HashMap<Integer, String> mainMenu = new HashMap<>() {
         {
             put(1, "ADD CSV");
@@ -47,6 +44,8 @@ public class Client {
         }
     };
 
+    */
+
 
     public static void main(String[] args) {
 
@@ -55,17 +54,86 @@ public class Client {
         int port = 12345;
         String clientId = "client-" + System.currentTimeMillis();
 
-        CmdController cc = new CmdController();
+        int DELAY = 5000;
+        int MAX_TRIES = 5;
 
+        int tries = 0;
+
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            try {
+                connectToServer(hostname, port, clientId, scanner);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("Reconnecting in 5 seconds...");
+            try {
+                Thread.sleep(DELAY);
+            } catch (InterruptedException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+            tries++;
+            if (tries >= MAX_TRIES) {
+                System.out.println("Max tries reached. Exiting...");
+                break;
+            }
+        }
+
+    }
+
+    public static void connectToServer(String hostname, int port, String clientId, Scanner scanner) {
 
         try (
                 Socket socket = new Socket(hostname, port);
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-                Scanner scanner = new Scanner(System.in)
         ) {
             System.out.println("Connected to the server as " + clientId);
 
+
+            // console loop
+            System.out.println("CONSOLE");
+
+            while (true) {
+                System.out.print("> ");
+
+                if (!scanner.hasNextLine()) {
+                    System.out.println("No input detected. Exiting...");
+                    break;
+                }
+
+                String consoleInput = scanner.nextLine().trim();
+                if (consoleInput.equalsIgnoreCase("x")) {
+                    break;
+                }
+
+                DataObject dataObject = new DataObject(2, clientId, consoleInput);
+
+                try {
+                    objectOutputStream.writeObject(dataObject);
+                    objectOutputStream.flush();
+                } catch (IOException e) {
+                    System.out.println("Error sending command to server: " + e.getMessage());
+                    break;
+                }
+
+                try {
+                    DataObject response = (DataObject) objectInputStream.readObject();
+                    System.out.println(response);
+                } catch (EOFException e) {
+                    System.out.println("Server disconnected.");
+                    break;
+                } catch (IOException | ClassNotFoundException e) {
+                    System.out.println("Error receiving response: " + e.getMessage());
+                    break;
+                }
+            }
+
+
+            // DEPRECATED
+            /*
             int currentMenu = 0;
             String input;
 
@@ -154,22 +222,7 @@ public class Client {
                         case "0" -> currentMenu = 0;
                     }
                 } else if (currentMenu == 4) {
-                    System.out.println("CONSOLE");
 
-                    while (true) {
-                        System.out.print("> ");
-                        String consoleInput = scanner.nextLine();
-                        if (consoleInput.strip().equals("x")) {
-                            break;
-                        } else {
-                            DataObject dataObject = new DataObject(2, clientId, consoleInput);
-                            objectOutputStream.writeObject(dataObject);
-                        }
-
-                        // Receive the response from the server
-                        DataObject response = (DataObject) objectInputStream.readObject();
-                        System.out.println(response.toString());
-                    }
 
                     currentMenu = 0;
                 } else {
@@ -182,14 +235,11 @@ public class Client {
                 }
 
 
-            }
-        } catch (UnknownHostException e) {
-            System.out.println("Server not found: " + e.getMessage());
+            }*/
         } catch (IOException e) {
-            // for example, this exception will be thrown if the server is not running
-            System.out.println("IOException: " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println("I/O error: " + e.getMessage());
+        } finally {
+            System.out.println("Connection closed.");
         }
     }
 }
