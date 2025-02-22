@@ -1,6 +1,6 @@
 package com.github.sol239.javafi.server;
 
-import com.github.sol239.javafi.CmdController;
+import com.github.sol239.javafi.utils.csv.CmdController;
 import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.backtesting.Strategy;
 import com.github.sol239.javafi.backtesting.Trade;
@@ -220,7 +220,6 @@ public class ServerParallel {
                 } finally {
                     db.closeConnection();
                 }
-
             }
 
             // insert csv into db
