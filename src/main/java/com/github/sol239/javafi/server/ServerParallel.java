@@ -1,12 +1,12 @@
 package com.github.sol239.javafi.server;
 
-import com.github.sol239.javafi.utils.csv.CmdController;
 import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.backtesting.Strategy;
 import com.github.sol239.javafi.backtesting.Trade;
 import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
+import com.github.sol239.javafi.utils.csv.CmdController;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -137,42 +137,22 @@ public class ServerParallel {
         String tables = "";
         String operationString = "";
 
+        operationName = cmdArray[0].trim();
         try {
-            operationName = cmdArray[0].trim();
+            tables = cmdArray[1];
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
-
-            DataObject errorObject = new DataObject(400, "server", "Invalid command format");
-
-            return errorObject;
+        }
+        try {
+            operationString = cmdArray[2];
+        } catch (Exception e) {
+            System.out.println("FAIL - " + e.getMessage());
         }
 
-        if (cmdArray.length > 1) {
-            try {
-                tables = cmdArray[1];
-            } catch (Exception e) {
-                System.out.println("FAIL - " + e.getMessage());
 
-                DataObject errorObject = new DataObject(400, "server", "Invalid command format");
-
-                return errorObject;
-            }
-
-            try {
-                operationString = cmdArray[2];
-            } catch (Exception e) {
-                System.out.println("FAIL - " + e.getMessage());
-
-                DataObject errorObject = new DataObject(400, "server", "Invalid command format");
-
-                return errorObject;
-            }
-        }
-        /*
         System.out.println("Operation: " + operationName);
         System.out.println("Tables: " + tables);
         System.out.println("Operation String: " + operationString);
-*/
 
         switch (operationName) {
             // checks whether the client is still connected to the server
@@ -196,6 +176,26 @@ public class ServerParallel {
 
                 } catch (Exception e) {
                     DataObject errorObject = new DataObject(400, "server", "Database connection failed");
+                    return errorObject;
+                } finally {
+                    db.closeConnection();
+                }
+            }
+
+            // deletes the table from db
+            case "del" -> {
+                DBHandler db = new DBHandler();
+                try {
+                    db.connect();
+
+                    for (String table : tables.split(",")) {
+                        db.deleteTable(table);
+                    }
+
+                    DataObject dataObject = new DataObject(200, "server", "Table deleted");
+                    return dataObject;
+                } catch (Exception e) {
+                    DataObject errorObject = new DataObject(400, "server", "Table deletion failed");
                     return errorObject;
                 } finally {
                     db.closeConnection();
@@ -345,7 +345,6 @@ public class ServerParallel {
                     String buyStrategyName = strategyName + "_buy_" + tableName;
 
 
-
                     String sellSql = getSqlStrategyString(tableName, sellStrategyName, sellClause);
                     String buySql = getSqlStrategyString(tableName, buyStrategyName, buyClause);
 
@@ -405,8 +404,7 @@ public class ServerParallel {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                    }
-                    finally {
+                    } finally {
                         db.closeConnection();
                         System.out.println("\nStrategy: " + strategy.name);
                         System.out.println("Balance: " + strategy.balance);
@@ -440,9 +438,6 @@ public class ServerParallel {
 
 
                 }
-
-
-
 
 
                 DataObject dataObject = new DataObject(200, "server", "Operation completed");

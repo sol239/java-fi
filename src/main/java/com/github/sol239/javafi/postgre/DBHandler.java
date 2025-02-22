@@ -109,7 +109,16 @@ public class DBHandler {
         } catch (SQLException e) {
             System.out.println("Error cleaning table: " + e.getMessage());
         }
+    }
 
+    public void deleteTable(String tableName) {
+        try {
+            String sql = "DROP TABLE " + tableName + ";";
+            this.conn.createStatement().execute(sql);
+            System.out.println("Table deleted successfully.");
+        } catch (SQLException e) {
+            System.out.println("Error deleting table: " + e.getMessage());
+        }
     }
 
     public void checkCredentials(List<String> credentials) {
