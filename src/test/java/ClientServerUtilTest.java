@@ -18,7 +18,7 @@ public class ClientServerUtilTest {
     }
 
     @Test
-    void receiveObjectTest() throws IOException, ClassNotFoundException {
+    void receiveObjectTest() throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 
