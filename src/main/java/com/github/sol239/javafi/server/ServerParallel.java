@@ -1,9 +1,6 @@
 package com.github.sol239.javafi.server;
 
 import com.github.sol239.javafi.DataObject;
-import com.github.sol239.javafi.backtesting.Strategy;
-import com.github.sol239.javafi.backtesting.Trade;
-import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.postgre.DBHandler;
 import com.github.sol239.javafi.utils.ClientServerUtil;
 
@@ -12,10 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
