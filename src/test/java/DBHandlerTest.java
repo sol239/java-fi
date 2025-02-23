@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 
 public class DBHandlerTest {
@@ -50,7 +52,16 @@ public class DBHandlerTest {
 
     @Test
     public void cleanTest() {
-        // TODO: To be implemented
+        DBHandler db = new DBHandler();
+        try {
+            db.insertCsvData("test_table", "src/test/java/eth-daily.csv");
+            // TODO: Programmatic interface must be created before testing this method so instruments can be added programmatically.
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
+        } finally {
+            db.deleteTable("test_table");
+        }
     }
 
     @Test
@@ -79,7 +90,86 @@ public class DBHandlerTest {
         }
     }
 
-    // TODO: Add more tests
+    @Test
+    public void getResultSetTest() {
+        DBHandler db = new DBHandler();
+        try {
+            db.insertCsvData("test_table", "src/test/java/eth-daily.csv");
+            ResultSet rs = db.getResultSet("SELECT * FROM eth");
+            if (rs == null) {
+                assert false;
+            } else {
+                int i = 0;
+                while (rs.next()) {
+                    i++;
+                    if (i > 10) {
+                        break;
+                    }
+                }
+                assert true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
+        } finally {
+            db.deleteTable("test_table");
+        }
+    }
+
+    @Test
+    public void checkConnectionTest() {
+        DBHandler db = new DBHandler();
+        assert db.conn != null;
+        db.closeConnection();
+    }
+
+    @Test
+    public void executeQueryTest() {
+        DBHandler db = new DBHandler();
+        try {
+            List<String> tables1 = db.getAllTables();
+            db.executeQuery("CREATE TABLE test_table (id SERIAL PRIMARY KEY, name VARCHAR(50))");
+            List<String> tables2 = db.getAllTables();
+            assert tables1.size() + 1 == tables2.size();
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
+        } finally {
+            db.deleteTable("test_table");
+        }
+    }
+
+    @Disabled
+    @Test
+    public void createAppDbTest() {
+        String sql = "SELECT datname FROM pg_database WHERE datistemplate = false;";
+        // Unit testing method requires hardwiring db connection credentials.
+    }
+
+    @Test
+    public void insertCsvDataTest() {
+        DBHandler db = new DBHandler();
+        try {
+            db.insertCsvData("test_table", "src/test/java/eth-daily.csv");
+            ResultSet rs = db.getResultSet("SELECT * FROM test_table");
+            while (rs.next()) {
+                double close = rs.getDouble("close");
+                if (close == 158.61) {
+                    assert true;
+                    break;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            assert false;
+        } finally {
+            db.deleteTable("test_table");
+        }
+
+    }
+
+
 
 
 

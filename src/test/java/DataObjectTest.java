@@ -12,7 +12,7 @@ public class DataObjectTest {
      * Test the getNumber method.
      */
     @Test
-    public void testGetNumber() {
+    public void getNumberTest() {
         DataObject dataObject = new DataObject(1, "client", "cmd");
         assertEquals(1, dataObject.getNumber());
     }
@@ -21,7 +21,7 @@ public class DataObjectTest {
      * Test the getClientId method.
      */
     @Test
-    public void testGetClientId() {
+    public void getClientIdTest() {
         DataObject dataObject = new DataObject(1, "client", "cmd");
         assertEquals("client", dataObject.getClientId());
     }
@@ -30,7 +30,7 @@ public class DataObjectTest {
      * Test the getCmd method.
      */
     @Test
-    public void testGetCmd() {
+    public void getCmdTest() {
         DataObject dataObject = new DataObject(1, "client", "cmd");
         assertEquals("cmd", dataObject.getCmd());
     }
@@ -39,7 +39,7 @@ public class DataObjectTest {
      * Test the toString method.
      */
     @Test
-    public void testToString() {
+    public void toStringTest() {
         DataObject dataObject = new DataObject(1, "client", "cmd");
         assertEquals("[1] | clientID=client | cmd=cmd", dataObject.toString());
     }
