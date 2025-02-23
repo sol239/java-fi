@@ -120,7 +120,11 @@ public class ServerParallel {
 
     }
 
-    // TODO: Method clean up is needed.
+    /**
+     * Method used to run client commands.
+     * @param cmd the command string
+     * @return the response to be sent back to the client
+     */
     public static DataObject runConsoleOperation(String cmd) {
         String[] cmdArray = cmd.split(" X ");
 
@@ -248,7 +252,6 @@ public class ServerParallel {
             }
         }
     }
-
 }
 
 
