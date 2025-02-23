@@ -20,18 +20,36 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
+/**
+ * Server class.
+ */
 public class ServerParallel {
 
-    public static void main(String[] args) {
-        int port = 12345;
+    /**
+     * Server port.
+     */
+    public static final int PORT = 12345;
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
+    /**
+     * List of clients.
+     * Synchronized for improved safety.
+     */
+    private static final List<Socket> clients = Collections.synchronizedList(new ArrayList<>());
+
+    /**
+     * Main method.
+     *
+     * @param args command line arguments
+     */
+    public static void main(String[] args) {
+
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Server is listening on port " + PORT);
 
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("New client connected.");
+                clients.add(socket);
+                System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
                 // Handle each client in a separate thread
                 new Thread(new ClientHandler(socket)).start();
             }
@@ -46,14 +64,10 @@ public class ServerParallel {
         DataObject response = null;
 
         switch (id) {
-            case 1 -> {
-                response = insertToDB(cmd);
-            }
             case 2 -> {
                 response = runConsoleOperation(cmd);
             }
         }
-
         return response;
     }
 
@@ -498,23 +512,27 @@ public class ServerParallel {
         return null;
     }
 
-    public static Map<String, Double[]> getIndicators(String[] indicatorStrings) {
-        Map<String, Double[]> indicators = new java.util.HashMap<>();
-        System.out.println("getIndicators");
-        for (String indicator : indicatorStrings) {
-            System.out.println(indicator);
-        }
-        return indicators;
-
-    }
-
+    /**
+     * ClientHandler class.
+     */
     private static class ClientHandler implements Runnable {
+        /**
+         * The client socket.
+         */
         private final Socket socket;
 
+        /**
+         * Constructor.
+         *
+         * @param socket the client socket
+         */
         public ClientHandler(Socket socket) {
             this.socket = socket;
         }
 
+        /**
+         * Run method of the thread.
+         */
         @Override
         public void run() {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
@@ -549,6 +567,13 @@ public class ServerParallel {
                 }
             } catch (IOException e) {
                 System.out.println("Error handling client: " + e.getMessage());
+            } finally {
+                clients.remove(socket);
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    System.out.println("Error closing the socket: " + e.getMessage());
+                }
             }
         }
     }
