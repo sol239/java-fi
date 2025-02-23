@@ -99,26 +99,35 @@ public class Client {
             while (true) {
                 System.out.print("> ");
 
+                // exit if no input detected -> try to reconnect
                 if (!scanner.hasNextLine()) {
                     System.out.println("No input detected. Exiting...");
                     return true;
                 }
 
                 String consoleInput = scanner.nextLine().trim();
+
+                // exit if the input is "exit" -> won't reconnect
                 if (consoleInput.equalsIgnoreCase("exit")) {
                     return false;
                 }
 
+                // prepare and send the data object
                 DataObject dataObject = new DataObject(2, clientId, consoleInput);
                 ClientServerUtil.sendObject(objectOutputStream, dataObject);
+
+                // receive the response
                 DataObject response = (DataObject) ClientServerUtil.receiveObject(objectInputStream);
                 System.out.println(response);
 
+                // exit if the response is null -> try to reconnect
                 if (response == null) {
                     return true;
                 }
             }
         } catch (IOException e) {
+            // The most common error, happens each time when client successfully connects
+            // to the server and then disconnects and still tries to send console input.
             System.out.println("I/O error: " + e.getMessage());
             return true;
         } finally {
