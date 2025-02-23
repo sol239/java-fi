@@ -13,19 +13,23 @@ public class ClientServerUtil {
      * Send an object to the server
      * @param objectOutputStream the object output stream
      * @param dataObject the object to be sent
-     * @return true if the object was sent successfully, false otherwise
      */
-    public static boolean sendObject(ObjectOutputStream objectOutputStream, Object dataObject) {
+    public static void sendObject(ObjectOutputStream objectOutputStream, Object dataObject) {
         try {
             objectOutputStream.writeObject(dataObject);
-            //objectOutputStream.flush();
-            return true;
+            // objectOutputStream.flush();
+            // return true;
         } catch (IOException e) {
             System.out.println("Error sending command to server: " + e.getMessage());
-            return false;
+            // return false;
         }
     }
 
+    /**
+     * Receive an object from the server
+     * @param objectInputStream the object input stream
+     * @return the object received from the server
+     */
     public static Object receiveObject(ObjectInputStream objectInputStream) {
         try {
             return objectInputStream.readObject();
