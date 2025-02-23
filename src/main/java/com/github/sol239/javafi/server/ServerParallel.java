@@ -4,15 +4,12 @@ import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.backtesting.Strategy;
 import com.github.sol239.javafi.backtesting.Trade;
 import com.github.sol239.javafi.instruments.SqlHandler;
-import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
 import com.github.sol239.javafi.utils.ClientServerUtil;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -86,7 +83,13 @@ public class ServerParallel {
         return response;
     }
 
-    // TODO: It should be in a DBHandler Class.
+    /**
+     * Insert data to the database.
+     * It parses the command string and inserts the data to the database.
+     *
+     * @param cmd the command string
+     * @return the response to be sent back to the client
+     */
     private static DataObject insertToDB(String cmd) {
 
         String[] cmdArray = cmd.split(" X ");
@@ -96,25 +99,12 @@ public class ServerParallel {
 
         try {
             tableName = cmdArray[0];
-        } catch (Exception e) {
-            System.out.println("FAIL - " + e.getMessage());
-            DataObject errorObject = new DataObject(400, "server", "Invalid command format");
-            return errorObject;
-        }
-
-        try {
             csvPath = cmdArray[1];
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
-
             DataObject errorObject = new DataObject(400, "server", "Invalid command format");
-
             return errorObject;
         }
-
-        System.out.println("Operation: insertToDB");
-        System.out.println(tableName);
-        System.out.println(csvPath);
 
         try {
             db.insertCsvData(tableName, csvPath);
@@ -123,10 +113,8 @@ public class ServerParallel {
 
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
-
             DataObject errorObject = new DataObject(400, "server", "Error inserting data to " + tableName);
             return errorObject;
-
         }
 
 
@@ -135,8 +123,6 @@ public class ServerParallel {
     // TODO: Method clean up is needed.
     public static DataObject runConsoleOperation(String cmd) {
         String[] cmdArray = cmd.split(" X ");
-
-        System.out.println(Arrays.toString(cmdArray));
 
         String operationName = "";
         String tables = "";
@@ -154,77 +140,25 @@ public class ServerParallel {
             System.out.println("FAIL - " + e.getMessage());
         }
 
-
-        System.out.println("Operation: " + operationName);
-        System.out.println("Tables: " + tables);
-        System.out.println("Operation String: " + operationString);
-
         switch (operationName) {
             // checks whether the client is still connected to the server
             case "cn" -> {
-                DataObject dataObject = new DataObject(200, "server", "Connection Open");
-                return dataObject;
+                return ServerUtil.cnCommand();
             }
 
             // checks if it is possible to connect to the database
             case "db" -> {
-                DBHandler db = new DBHandler();
-                try {
-                    db.connect();
-                    if (db.conn != null) {
-                        DataObject dataObject = new DataObject(200, "server", "Database connection successful");
-                        return dataObject;
-                    } else {
-                        DataObject errorObject = new DataObject(400, "server", "Database connection failed");
-                        return errorObject;
-                    }
-
-                } catch (Exception e) {
-                    DataObject errorObject = new DataObject(400, "server", "Database connection failed");
-                    return errorObject;
-                } finally {
-                    db.closeConnection();
-                }
+                return ServerUtil.dbCommand();
             }
 
             // deletes the table from db
             case "del" -> {
-                DBHandler db = new DBHandler();
-                try {
-                    db.connect();
-
-                    for (String table : tables.split(",")) {
-                        db.deleteTable(table);
-                    }
-
-                    DataObject dataObject = new DataObject(200, "server", "Table deleted");
-                    return dataObject;
-                } catch (Exception e) {
-                    DataObject errorObject = new DataObject(400, "server", "Table deletion failed");
-                    return errorObject;
-                } finally {
-                    db.closeConnection();
-                }
+                return ServerUtil.delCommand(tables);
             }
 
             // removes everything from the database except the schema
             case "clean" -> {
-                DBHandler db = new DBHandler();
-                try {
-                    db.connect();
-                    List<String> tablesToClean = db.getAllTables();
-                    for (String table : tablesToClean) {
-                        db.clean(table);
-                    }
-
-                    DataObject dataObject = new DataObject(200, "server", "Database cleaned");
-                    return dataObject;
-                } catch (Exception e) {
-                    DataObject errorObject = new DataObject(400, "server", "Database cleaning failed");
-                    return errorObject;
-                } finally {
-                    db.closeConnection();
-                }
+                return ServerUtil.cleanCommand();
             }
 
             // insert csv into db
@@ -235,278 +169,16 @@ public class ServerParallel {
 
             // store operation for instruments
             case "st" -> {
-                String[] tableArray = tables.split(",");
-                String[] instrumentArray = operationString.split(",");
-
-                List<String> symbols = new ArrayList<>();
-                List<List<String>> argumentsArray = new ArrayList<>();
-
-                for (String x : instrumentArray) {
-                    String symbol = x.split(":")[0];
-                    String[] arguments = x.split(":")[1].split(";");
-
-                    symbols.add(symbol);
-                    argumentsArray.add(Arrays.asList(arguments));
-                }
-
-                HashMap<String, List<String>> paramsMap = new HashMap<>();
-                for (int i = 0; i < symbols.size(); i++) {
-                    String symbol = symbols.get(i);
-                    List<String> arguments = argumentsArray.get(i);
-                    paramsMap.put(symbol, arguments);
-                }
-
-                SqlInstruments obj = new SqlInstruments();
-                Class<?> cls = obj.getClass();
-
-                /*for (int i = 0; i < symbols.size(); i++) {
-                    String symbol = symbols.get(i);
-                    List<String> arguments = argumentsArray.get(i);
-
-                }*/
-
-
-                // reflection
-                for (String tableName : tableArray) {
-                    for (String methodName : symbols) {
-                        for (Method method : cls.getDeclaredMethods()) {
-
-                            if (!method.getName().equals(methodName)) {
-                                continue;
-                            }
-
-                            List<String> _arguments = new ArrayList<>();
-                            _arguments.add(tableName);
-                            _arguments.addAll(paramsMap.get(methodName));
-
-                            //System.out.println("Table: " + tableName);
-                            //System.out.println("Method: " + method.getName());
-                            //System.out.println("Arguments:");
-                            for (String arg : _arguments) {
-                                System.out.println(arg);
-                            }
-
-                            Parameter[] parameters = method.getParameters();
-                            Object[] arguments = new Object[parameters.length];
-
-                            for (int i = 0; i < parameters.length; i++) {
-                                arguments[i] = convertToType(_arguments.get(i), parameters[i].getType());
-                                //System.out.println(parameters[i].getType());
-                            }
-
-                            System.out.print(method.getName() + "(");
-                            for (int i = 0; i < arguments.length - 1; i++) {
-                                System.out.print(arguments[i] + ", ");
-                            }
-                            System.out.println(arguments[arguments.length - 1] + ")");
-
-
-                            String result = "";
-
-
-                            // invoke
-                            try {
-                                result = (String) method.invoke(obj, arguments);
-                            } catch (Exception e) {
-                                //System.out.println("FAIL - " + e.getMessage());
-                                e.printStackTrace();
-                            }
-                            System.out.println("Result: ");
-                            System.out.println(result);
-
-                            SqlHandler.executeQuery(result);
-
-                            /*
-                            System.out.print("Method: " + method.getName());
-                            System.out.print(" | Return Type: " + method.getReturnType().getSimpleName());
-                            System.out.print(" | Parameters: ");
-                            System.out.print(" | Param Types: " + Arrays.toString(arguments));
-                            */
-
-
-                        }
-                    }
-                }
-
-
-                DataObject dataObject = new DataObject(200, "server", "Operation completed");
-                return dataObject;
-
+                ServerUtil.stCommand(tables, operationString);
             }
 
             // backtest operation
             case "bt" -> {
-                String[] tableArray = tables.split(",");
-
-                for (String tableName : tableArray) {
-                    String strategyName = cmdArray[2];
-                    String buyClause = extractStrategyClause("BUY", cmdArray[3]);
-                    String sellClause = extractStrategyClause("SELL", cmdArray[4]);
-
-                    System.out.println("Buy Clause: " + buyClause);
-                    System.out.println("Sell Clause: " + sellClause);
-
-                    String sellStrategyName = strategyName + "_sell_" + tableName;
-                    String buyStrategyName = strategyName + "_buy_" + tableName;
-
-
-                    String sellSql = DBHandler.getSqlStrategyString(tableName, sellStrategyName, sellClause);
-                    String buySql = DBHandler.getSqlStrategyString(tableName, buyStrategyName, buyClause);
-
-                    System.out.println("Buy SQL: \n" + buySql);
-
-                    SqlHandler.executeQuery(sellSql);
-                    SqlHandler.executeQuery(buySql);
-
-                    DBHandler db = new DBHandler();
-                    db.setFetchSize(100);
-                    String sql = String.format("SELECT * FROM %s ORDER BY date", tableName);
-
-                    ResultSet rs = db.getResultSet(sql);
-
-                    Strategy strategy = new Strategy(strategyName, 1_000_000, 0.08, 0.03);
-
-                    List<Trade> trades = new Stack<>();
-                    List<Trade> successfulTrades = new ArrayList<>();
-                    List<Trade> unsuccessfulTrades = new ArrayList<>();
-
-                    double successfullTrades = 0;
-                    double unsuccessfullTrades = 0;
-
-                    try {
-                        while (rs.next()) {
-                            boolean buySignal = rs.getBoolean(buyStrategyName);
-                            boolean sellSignal = rs.getBoolean(sellStrategyName);
-                            double close = rs.getDouble("close");
-
-                            // Use an Iterator to safely remove trades
-                            Iterator<Trade> iterator = trades.iterator();
-                            while (iterator.hasNext()) {
-                                Trade trade = iterator.next();
-                                if (trade.takeProfit >= close) {
-                                    strategy.balance += trade.takeProfit;
-                                    iterator.remove(); // Safe removal
-                                    successfullTrades++;
-                                    trade.closeDate = formatCloseDate(rs, "date");
-
-                                    successfulTrades.add(trade);
-                                } else if (trade.stopLoss <= close) {
-                                    strategy.balance -= trade.stopLoss;
-                                    iterator.remove(); // Safe removal
-                                    unsuccessfullTrades++;
-                                    trade.closeDate = formatCloseDate(rs, "date");
-
-                                    unsuccessfulTrades.add(trade);
-                                }
-                            }
-
-                            if (buySignal) {
-                                Trade trade = new Trade(close, close * (1 + strategy.profit), close * (1 - strategy.loss));
-                                trade.openDate = formatCloseDate(rs, "date");
-                                trades.add(trade);
-                            }
-
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        db.closeConnection();
-                        System.out.println("\nStrategy: " + strategy.name);
-                        System.out.println("Balance: " + strategy.balance);
-                        System.out.println("Successfull Trades: " + successfullTrades);
-                        System.out.println("Unsuccessfull Trades: " + unsuccessfullTrades);
-                        System.out.println("Win rate: " + (successfullTrades / (successfullTrades + unsuccessfullTrades)));
-                    }
-
-                    // add trade date into the db:
-                    // - boolean
-                    // - where date of trade = date of close
-                    List<String> datesToUpdate = new ArrayList<>();
-                    for (Trade trade : successfulTrades) {
-                        datesToUpdate.add(trade.openDate.toString());
-                        //System.out.println(trade);
-                    }
-
-
-                    String createSql = String.format("ALTER TABLE %s ADD COLUMN IF NOT EXISTS %s boolean default false;", tableName, buyStrategyName + "_trade");
-                    SqlHandler.executeQuery(createSql);
-
-
-                    /*
-                    for (Trade trade : successfulTrades) {
-                        String date = trade.date.toString();
-                        String createSql = String.format("ALTER TABLE %s ADD COLUMN IF NOT EXISTS %s boolean default false", tableName, buyStrategyName + "_trade");
-                        String updateSql = String.format("\nUPDATE %s SET %s = true WHERE date = '%s'", tableName, buyStrategyName + "_trade", date);
-                        SqlHandler.executeQuery(createSql + updateSql);
-                    }
-                    */
-
-
-                }
-
-
-                DataObject dataObject = new DataObject(200, "server", "Operation completed");
-                return dataObject;
-
-
+                return ServerUtil.btCommand(tables, operationString, cmdArray);
             }
         }
-
         DataObject errorObject = new DataObject(400, "server", "Operation not found");
         return errorObject;
-    }
-
-    /**
-     * Method used to get exact datetime from the ResultSet.
-     * .getDate operation returns only the date without the time.
-     * @param rs ResultSet
-     * @param columnName Column name
-     * @return String representation of the date
-     */
-    public static String formatCloseDate(ResultSet rs, String columnName) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        try {
-            Timestamp timestamp = rs.getTimestamp(columnName);
-            if (timestamp != null) {
-                return simpleDateFormat.format(timestamp);
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    // TODO: Needs to be reworked so long and short trades are possible.
-    public static String extractStrategyClause(String type, String clause) {
-        String x = clause.split(type)[1];
-        x = x.substring(1, x.length() - 1);
-        return x;
-    }
-
-    /**
-     * Convert the input string to the specified type.
-     * It's used for reflection to convert the string input to the correct type.
-     * @param input the input string
-     * @param type the type to convert to
-     * @return the object of the specified type
-     */
-    public static Object convertToType(String input, Class<?> type) {
-        if (type == int.class || type == Integer.class) {
-            return Integer.parseInt(input);
-        } else if (type == double.class || type == Double.class) {
-            return Double.parseDouble(input);
-        } else if (type == boolean.class || type == Boolean.class) {
-            return Boolean.parseBoolean(input);
-        } else if (type == long.class || type == Long.class) {
-            return Long.parseLong(input);
-        } else if (type == float.class || type == Float.class) {
-            return Float.parseFloat(input);
-        } else if (type == String.class) {
-            return input;
-        }
-        return null;
     }
 
     /**
