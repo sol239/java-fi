@@ -1,7 +1,10 @@
 import com.github.sol239.javafi.instruments.SqlHandler;
+import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SqlHandlerTest {
@@ -29,8 +32,32 @@ public class SqlHandlerTest {
     }
 
     @Test
-    public void cleanTest() {
+    public void getAllSqlInstrumentsTest() {
+        List<String> instruments = new ArrayList<>();
+        List<String> expectedInstruments = new ArrayList<>() {
+            {
+                add("ema");
+                add("rsi");
+                add("sma");
+                add("macd");
+                add("bollingerBands");
+            }
+        };
 
+        boolean found = true;
+
+        SqlInstruments sqlInstruments = new SqlInstruments();
+        for (Method method : sqlInstruments.getClass().getDeclaredMethods()) {
+            instruments.add(method.getName());
+        }
+
+        for (String instrument : expectedInstruments) {
+            if (!instruments.contains(instrument)) {
+                found = false;
+                break;
+            }
+        }
+
+        assert (found);
     }
-
 }

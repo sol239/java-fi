@@ -6,7 +6,6 @@ import com.github.sol239.javafi.backtesting.Trade;
 import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
-import com.github.sol239.javafi.utils.csv.CmdController;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -23,18 +22,9 @@ import java.util.*;
 
 
 public class ServerParallel {
-    private static int sum = 0; // Shared resource, needs synchronization
-    private CmdController cc;
-
-
-    public ServerParallel() {
-        cc = new CmdController();
-    }
-
 
     public static void main(String[] args) {
         int port = 12345;
-
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is listening on port " + port);
@@ -42,7 +32,6 @@ public class ServerParallel {
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("New client connected.");
-
                 // Handle each client in a separate thread
                 new Thread(new ClientHandler(socket)).start();
             }
@@ -70,8 +59,6 @@ public class ServerParallel {
 
     private static DataObject insertToDB(String cmd) {
 
-        // cmd:
-        // btc X C/Users/user/Downloads/BTC-USD.csv
         String[] cmdArray = cmd.split(" X ");
         DBHandler db = new DBHandler();
         String tableName;
@@ -81,9 +68,7 @@ public class ServerParallel {
             tableName = cmdArray[0];
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
-
             DataObject errorObject = new DataObject(400, "server", "Invalid command format");
-
             return errorObject;
         }
 

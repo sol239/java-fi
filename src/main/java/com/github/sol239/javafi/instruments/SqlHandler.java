@@ -2,6 +2,7 @@ package com.github.sol239.javafi.instruments;
 
 import com.github.sol239.javafi.postgre.DBHandler;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +23,15 @@ public class SqlHandler {
 
     /**
      * Returns all the SQL instruments available
-     * @return an array with all the SQL instruments available
+     * @return a list with all the SQL instruments available
      */
     public static List<String> getAllSqlInstruments() {
         List<String> instruments = new ArrayList<>();
-        // TODO: implement the logic
+        SqlInstruments sqlInstruments = new SqlInstruments();
+        for (Method method : sqlInstruments.getClass().getDeclaredMethods()) {
+            instruments.add(method.getName());
+        }
         return instruments;
-
     }
 
 
