@@ -6,6 +6,7 @@ import com.github.sol239.javafi.backtesting.Trade;
 import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
+import com.github.sol239.javafi.utils.ClientServerUtil;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -537,47 +538,36 @@ public class ServerParallel {
         public void run() {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                  ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
-                System.out.println("Client connected.");
 
                 while (true) {
-                    try {
 
-                        // Reads the object from the client
-                        Object input = objectInputStream.readObject();
-
-                        // Check whether the object is an instance of DataObject
-                        if (input instanceof DataObject) {
-
-                            // Cast the object to DataObject
-                            DataObject data = (DataObject) input;
-                            System.out.println(data);
-                            int id = data.getNumber();
-                            String cmd = data.getCmd();
-                            DataObject response = operationSelector(id, cmd);
-
-                            // Send the response back to the client
-                            objectOutputStream.writeObject(response);
-
-                        } else {
-                            objectOutputStream.writeObject("Invalid object. Please send a valid DataObject.");
-                        }
-                    } catch (ClassNotFoundException e) {
-                        objectOutputStream.writeObject("Error: Received unknown object type.");
+                    // Read the dataObject from client
+                    DataObject dataObject = (DataObject) ClientServerUtil.receiveObject(objectInputStream);
+                    DataObject response;
+                    if (dataObject != null) {
+                        response = operationSelector(dataObject.getNumber(), dataObject.getCmd());
+                    } else {
+                        response = new DataObject(400, "server", "Invalid command format");
                     }
+
+                    // Send the response to the client
+                    ClientServerUtil.sendObject(objectOutputStream, response);
+
                 }
             } catch (IOException e) {
                 System.out.println("Error handling client: " + e.getMessage());
             } finally {
+                // Close the socket
                 clients.remove(socket);
                 try {
                     socket.close();
+                    System.out.println("Client [" + socket.getInetAddress().getHostAddress() + "] disconnected.");
                 } catch (IOException e) {
                     System.out.println("Error closing the socket: " + e.getMessage());
                 }
             }
         }
     }
-
 
 }
 
