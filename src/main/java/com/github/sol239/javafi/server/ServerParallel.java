@@ -63,10 +63,21 @@ public class ServerParallel {
         }
     }
 
+    /**
+     * Operation selector based on the number received from client.
+     * Currently only one operation is implemented since all commands
+     * from client are sent as a single string.
+     * It can be used in the future to implement more operations.
+     *
+     * @param id  the number of operation received from the client
+     * @param cmd the command received from the client
+     * @return the response to be sent back to the client
+     */
     private static DataObject operationSelector(int id, String cmd) {
 
         DataObject response = null;
-
+        // Switch is redundant for now, but it can be used in the future
+        // to add more operations.
         switch (id) {
             case 2 -> {
                 response = runConsoleOperation(cmd);
@@ -75,6 +86,7 @@ public class ServerParallel {
         return response;
     }
 
+    // TODO: It should be in a DBHandler Class.
     private static DataObject insertToDB(String cmd) {
 
         String[] cmdArray = cmd.split(" X ");
@@ -120,17 +132,7 @@ public class ServerParallel {
 
     }
 
-    public static String getIndicatorString(String indicatorString) {
-        return indicatorString.split(":")[0];
-    }
-
-    public static String[] getIndicatorArguments(String indicatorString) {
-        return indicatorString.split(":")[1].split(";");
-    }
-
-    /**
-     * @param cmd
-     */
+    // TODO: Method clean up is needed.
     public static DataObject runConsoleOperation(String cmd) {
         String[] cmdArray = cmd.split(" X ");
 
@@ -240,8 +242,8 @@ public class ServerParallel {
                 List<List<String>> argumentsArray = new ArrayList<>();
 
                 for (String x : instrumentArray) {
-                    String symbol = getIndicatorString(x);
-                    String[] arguments = getIndicatorArguments(x);
+                    String symbol = x.split(":")[0];
+                    String[] arguments = x.split(":")[1].split(";");
 
                     symbols.add(symbol);
                     argumentsArray.add(Arrays.asList(arguments));
@@ -450,26 +452,33 @@ public class ServerParallel {
             }
         }
 
-
         DataObject errorObject = new DataObject(400, "server", "Operation not found");
         return errorObject;
     }
 
+    /**
+     * Method used to get exact datetime from the ResultSet.
+     * .getDate operation returns only the date without the time.
+     * @param rs ResultSet
+     * @param columnName Column name
+     * @return String representation of the date
+     */
     public static String formatCloseDate(ResultSet rs, String columnName) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
         try {
-            Timestamp timestamp = rs.getTimestamp(columnName); // Use getTimestamp to include time
+            Timestamp timestamp = rs.getTimestamp(columnName);
             if (timestamp != null) {
                 return simpleDateFormat.format(timestamp);
             } else {
-                return null; // Handle null case
+                return null;
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Handle SQL exception
-            return null; // Return null in case of an error
+            e.printStackTrace();
+            return null;
         }
     }
 
+    // TODO: Separation of sql logic from the server logic.
     public static String getSqlStrategyString(String tableName, String strategyName, String strategyClause) {
         String sql = String.format(
                 "alter table %s " +
@@ -493,12 +502,20 @@ public class ServerParallel {
         return sql;
     }
 
+    // TODO: Needs to be reworked so long and short trades are possible.
     public static String extractStrategyClause(String type, String clause) {
         String x = clause.split(type)[1];
         x = x.substring(1, x.length() - 1);
         return x;
     }
 
+    /**
+     * Convert the input string to the specified type.
+     * It's used for reflection to convert the string input to the correct type.
+     * @param input the input string
+     * @param type the type to convert to
+     * @return the object of the specified type
+     */
     public static Object convertToType(String input, Class<?> type) {
         if (type == int.class || type == Integer.class) {
             return Integer.parseInt(input);
@@ -521,6 +538,10 @@ public class ServerParallel {
      */
     private static class ClientHandler implements Runnable {
         /**
+         * Number of tries to receive a non-null response from the client.
+         */
+        public static final int CLIENT_TIMEOUT_TRIES = 10;
+        /**
          * The client socket.
          */
         private final Socket socket;
@@ -533,11 +554,6 @@ public class ServerParallel {
         public ClientHandler(Socket socket) {
             this.socket = socket;
         }
-
-        /**
-         * Number of tries to receive a non-null response from the client.
-         */
-        public static final int CLIENT_TIMEOUT_TRIES = 10;
 
         /**
          * Run method of the thread.
@@ -567,7 +583,6 @@ public class ServerParallel {
 
                     // Send the response to the client
                     ClientServerUtil.sendObject(objectOutputStream, response);
-
 
 
                 }
