@@ -350,8 +350,8 @@ public class ServerParallel {
                     String buyStrategyName = strategyName + "_buy_" + tableName;
 
 
-                    String sellSql = getSqlStrategyString(tableName, sellStrategyName, sellClause);
-                    String buySql = getSqlStrategyString(tableName, buyStrategyName, buyClause);
+                    String sellSql = DBHandler.getSqlStrategyString(tableName, sellStrategyName, sellClause);
+                    String buySql = DBHandler.getSqlStrategyString(tableName, buyStrategyName, buyClause);
 
                     System.out.println("Buy SQL: \n" + buySql);
 
@@ -476,30 +476,6 @@ public class ServerParallel {
             e.printStackTrace();
             return null;
         }
-    }
-
-    // TODO: Separation of sql logic from the server logic.
-    public static String getSqlStrategyString(String tableName, String strategyName, String strategyClause) {
-        String sql = String.format(
-                "alter table %s " +
-                        "drop column if exists %s; " +
-
-                        "ALTER TABLE %s " +
-                        "ADD %s boolean default false; " +
-
-                        "update %s " +
-                        "set %s = true " +
-                        "where %s; ",
-                tableName,
-                strategyName,
-                tableName,
-                strategyName,
-                tableName,
-                strategyName,
-                strategyClause
-        );
-
-        return sql;
     }
 
     // TODO: Needs to be reworked so long and short trades are possible.

@@ -253,6 +253,36 @@ public class DBHandler {
     }
 
     /**
+     * Get the SQL query string for creating a strategy column.
+     * @param tableName Name of the table.
+     * @param strategyName Name of the strategy column.
+     * @param strategyClause SQL clause for the strategy.
+     * @return SQL query string.
+     */
+    public static String getSqlStrategyString(String tableName, String strategyName, String strategyClause) {
+        String sql = String.format(
+                "alter table %s " +
+                        "drop column if exists %s; " +
+
+                        "ALTER TABLE %s " +
+                        "ADD %s boolean default false; " +
+
+                        "update %s " +
+                        "set %s = true " +
+                        "where %s; ",
+                tableName,
+                strategyName,
+                tableName,
+                strategyName,
+                tableName,
+                strategyName,
+                strategyClause
+        );
+
+        return sql;
+    }
+
+    /**
      * Creates the application database.
      */
     public void createAppDb() {
