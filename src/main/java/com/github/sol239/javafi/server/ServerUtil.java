@@ -7,7 +7,6 @@ import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
 
-import javax.xml.crypto.Data;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.sql.ResultSet;
