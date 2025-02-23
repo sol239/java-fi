@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Server class.
@@ -46,13 +47,15 @@ public class ServerParallel {
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server is listening on port " + PORT);
+            serverSocket.setReuseAddress(true);
+            ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();
 
             while (true) {
                 Socket socket = serverSocket.accept();
                 clients.add(socket);
                 System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
                 // Handle each client in a separate thread
-                new Thread(new ClientHandler(socket)).start();
+                executorService.execute(new ClientHandler(socket));
             }
 
         } catch (IOException e) {
@@ -532,13 +535,18 @@ public class ServerParallel {
         }
 
         /**
+         * Number of tries to receive a non-null response from the client.
+         */
+        public static final int CLIENT_TIMEOUT_TRIES = 10;
+
+        /**
          * Run method of the thread.
          */
         @Override
         public void run() {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
                  ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
-
+                int tries = 0;
                 while (true) {
 
                     // Read the dataObject from client
@@ -548,10 +556,19 @@ public class ServerParallel {
                         response = operationSelector(dataObject.getNumber(), dataObject.getCmd());
                     } else {
                         response = new DataObject(400, "server", "Invalid command format");
+
+                        // if the client force closes the connection, the server will keep trying to send a response
+                        // needs to be closed manually after a certain number of received null objects
+                        tries++;
+                        if (tries > CLIENT_TIMEOUT_TRIES) {
+                            break;
+                        }
                     }
 
                     // Send the response to the client
                     ClientServerUtil.sendObject(objectOutputStream, response);
+
+
 
                 }
             } catch (IOException e) {
