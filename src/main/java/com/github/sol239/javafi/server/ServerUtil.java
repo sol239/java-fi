@@ -7,6 +7,9 @@ import com.github.sol239.javafi.instruments.SqlHandler;
 import com.github.sol239.javafi.instruments.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.sql.ResultSet;
@@ -21,6 +24,7 @@ public class ServerUtil {
     /**
      * Method used to check client-server connection.
      * Can be called with 'cn' client console command.
+     *
      * @return DataObject with the command "Connection Open"
      */
     public static DataObject cnCommand() {
@@ -31,30 +35,32 @@ public class ServerUtil {
     /**
      * Method used to check database connection.
      * Can be called with 'db' client console command.
+     *
      * @return DataObject with the command "Connection Closed"
      */
     public static DataObject dbCommand() {
-        DBHandler db = new DBHandler();
+        DBHandler db;
         try {
-            db.connect();
+            db = new DBHandler();
             if (db.conn != null) {
                 DataObject dataObject = new DataObject(200, "server", "Database connection successful");
+                db.closeConnection();
                 return dataObject;
             } else {
                 DataObject errorObject = new DataObject(400, "server", "Database connection failed");
+                db.closeConnection();
                 return errorObject;
             }
 
         } catch (Exception e) {
             DataObject errorObject = new DataObject(400, "server", "Database connection failed");
             return errorObject;
-        } finally {
-            db.closeConnection();
         }
     }
 
     /**
      * Method used to delete a table from the database.
+     *
      * @param tables String with table names separated by commas.
      * @return DataObject with the result of the operation.
      */
@@ -79,6 +85,7 @@ public class ServerUtil {
 
     /**
      * Method used to delete all instruments and strategies columns from all tables.
+     *
      * @return DataObject with the result of the operation.
      */
     public static DataObject cleanCommand() {
@@ -102,7 +109,8 @@ public class ServerUtil {
 
     /**
      * Method used to create columns for given strategies in corresponding tables.
-     * @param tables String with table names separated by commas.
+     *
+     * @param tables          String with table names separated by commas.
      * @param operationString String with instrument names and arguments separated by commas.
      * @return DataObject with the result of the operation.
      */
@@ -199,9 +207,10 @@ public class ServerUtil {
 
     /**
      * Method used to run back-testing (bt) on the given tables with the given strategy.
-     * @param tables String with table names separated by commas.
+     *
+     * @param tables          String with table names separated by commas.
      * @param operationString String with the strategy name and arguments.
-     * @param cmdArray Array with the buy and sell clauses.
+     * @param cmdArray        Array with the buy and sell clauses.
      * @return DataObject with the result of the operation.
      */
     public static DataObject btCommand(String tables, String operationString, String[] cmdArray) {
@@ -325,5 +334,27 @@ public class ServerUtil {
         String x = clause.split(type)[1];
         x = x.substring(1, x.length() - 1);
         return x;
+    }
+
+    public static DataObject dbcCommand(String[] cmdArray) {
+        String operationName = cmdArray[0];
+        String dbUrl = cmdArray[1];
+        String username = cmdArray[2];
+        String password = cmdArray[3];
+
+        final String dbConfigFileName = "db_config";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(dbConfigFileName))) {
+            writer.write(dbUrl);
+            writer.newLine();
+            writer.write(username);
+            writer.newLine();
+            writer.write(password);
+            return new DataObject(200, "server", "DB Config updated succesfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new DataObject(400, "server", "DB Config update failed.");
+
+        }
+
     }
 }

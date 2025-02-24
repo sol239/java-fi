@@ -20,7 +20,7 @@ public class DBHandler {
     /**
      * Path to the database configuration file.
      */
-    public static final String CONFIG_FILE_PATH = "C:\\Users\\david_dyn8g78\\Desktop\\Java\\db_config";
+    public static final String CONFIG_FILE_PATH = "db_config";
 
     /**
      * List of database credentials: url, user, password.

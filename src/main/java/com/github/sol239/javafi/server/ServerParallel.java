@@ -143,6 +143,11 @@ public class ServerParallel {
                 return ServerUtil.cnCommand();
             }
 
+            // updates db credentials
+            case "dbc" -> {
+                return ServerUtil.dbcCommand(cmdArray);
+            }
+
             // checks if it is possible to connect to the database
             case "db" -> {
                 return ServerUtil.dbCommand();
