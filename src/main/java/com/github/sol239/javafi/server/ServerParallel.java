@@ -247,6 +247,13 @@ public class ServerParallel {
                     DataObject dataObject = (DataObject) ClientServerUtil.receiveObject(objectInputStream);
                     DataObject response;
                     if (dataObject != null) {
+
+                        if (dataObject.getCmd().equalsIgnoreCase("exit")) {
+                            response = new DataObject(0, "server", "exit");
+                            ClientServerUtil.sendObject(objectOutputStream, response);
+                            break;
+                        }
+
                         response = operationSelector(dataObject.getNumber(), dataObject.getCmd());
                     } else {
                         response = new DataObject(400, "server", "Invalid command format");
