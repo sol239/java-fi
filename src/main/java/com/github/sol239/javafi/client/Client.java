@@ -32,12 +32,12 @@ public class Client {
     /**
      * Server hostname.
      */
-    public static final String hostname = "localhost";
+    public static final String HOSTNAME = "localhost";
 
     /**
      * The ID of the client.
      */
-    public static final String clientId = "client-" + System.currentTimeMillis();
+    public static final String CLIENT_ID = "client-" + System.currentTimeMillis();
 
     /**
      * Main method.
@@ -54,7 +54,7 @@ public class Client {
 
             // Connect to the server
             try {
-                reconnect = connectToServer(hostname, PORT, clientId, scanner);
+                reconnect = connectToServer(HOSTNAME, PORT, CLIENT_ID, scanner);
             } catch (Exception e) {
                 e.printStackTrace();
             }

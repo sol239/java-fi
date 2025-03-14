@@ -205,6 +205,9 @@ public class ServerUtil {
         return null;
     }
 
+
+
+    //TODO: Create seperate command
     /**
      * Method used to run back-testing (bt) on the given tables with the given strategy.
      *

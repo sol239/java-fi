@@ -5,7 +5,4 @@ package com.github.sol239.javafi.instruments;
  */
 public class Instruments {
 
-
-
-
 }

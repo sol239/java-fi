@@ -1,6 +1,7 @@
 package com.github.sol239.javafi.server;
 
 import com.github.sol239.javafi.DataObject;
+import com.github.sol239.javafi.cmd.Shell;
 import com.github.sol239.javafi.postgre.DBHandler;
 import com.github.sol239.javafi.utils.ClientServerUtil;
 
@@ -29,6 +30,11 @@ public class ServerParallel {
     private static final List<Socket> clients = Collections.synchronizedList(new ArrayList<>());
 
     /**
+     * Shell instance to execute commands.
+     */
+    private static Shell sh = new Shell();
+
+    /**
      * Main method.
      *
      * @param args command line arguments
@@ -55,7 +61,7 @@ public class ServerParallel {
 
     /**
      * Operation selector based on the number received from client.
-     * Currently only one operation is implemented since all commands
+     * Currently only one operation is implemented since all commands_to_load
      * from client are sent as a single string.
      * It can be used in the future to implement more operations.
      *
@@ -114,18 +120,39 @@ public class ServerParallel {
     }
 
     /**
-     * Method used to run client commands.
+     * Method used to run client commands_to_load.
      * @param cmd the command string
      * @return the response to be sent back to the client
      */
     public static DataObject runConsoleOperation(String cmd) {
-        String[] cmdArray = cmd.split(" X ");
+        String[] cmdArray = cmd.split(" ");
 
-        String operationName = "";
+        String cmdName = "";
         String tables = "";
         String operationString = "";
 
-        operationName = cmdArray[0].trim();
+        List<String> flags = new ArrayList<>();
+        List<String> args = new ArrayList<>();
+
+        cmdName = cmdArray[0].trim();
+
+        for (int i = 1; i < cmdArray.length; i++) {
+            if (cmdArray[i].startsWith("-")) {
+                flags.add(cmdArray[i]);
+            } else {
+                args.add(cmdArray[i]);
+            }
+        }
+
+        try {
+            DataObject response = sh.runCommand(cmdName, args, flags);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new DataObject(400, "server", "Error running command: " + cmdName);
+        }
+
+        /*
         try {
             tables = cmdArray[1];
         } catch (Exception e) {
@@ -136,8 +163,10 @@ public class ServerParallel {
         } catch (Exception e) {
             System.out.println("FAIL - " + e.getMessage());
         }
+        */
 
-        switch (operationName) {
+        /*
+        switch (cmdName) {
             // checks whether the client is still connected to the server
             case "cn" -> {
                 return ServerUtil.cnCommand();
@@ -179,8 +208,7 @@ public class ServerParallel {
                 return ServerUtil.btCommand(tables, operationString, cmdArray);
             }
         }
-        DataObject errorObject = new DataObject(400, "server", "Operation not found");
-        return errorObject;
+        */
     }
 
     /**

@@ -1,0 +1,6 @@
+com.github.sol239.javafi.cmd.Commands.DbCommand
+com.github.sol239.javafi.cmd.Commands.CnCommand
+com.github.sol239.javafi.cmd.Commands.CleanCommand
+com.github.sol239.javafi.cmd.Commands.DelCommand
+com.github.sol239.javafi.cmd.Commands.StoreCommand
+com.github.sol239.javafi.cmd.Commands.InsertCommand
