@@ -33,7 +33,9 @@ public class BtCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "The command executes back-testing logic.";
+        return "Usage: bt [OPTION]...\n" +
+                getParameters() + "\n" +
+                "The command executes back-testing logic.\n";
     }
 
     /**
@@ -43,7 +45,10 @@ public class BtCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -h, --help\n" +
+                "  -t, --tables=TABLES\n" +
+                "  -s, --strategy=STRATEGY\n";
     }
 
     /**
@@ -63,11 +68,11 @@ public class BtCommand implements Command {
         String strategyName = "";
 
         for (String flag : flags) {
-            if (flag.startsWith("-h") || flag.startsWith("-help")) {
+            if (flag.startsWith("-h") || flag.startsWith("--help")) {
                 return new DataObject(200, "server", getDescription());
-            } else if (flag.startsWith("--t=") || flag.startsWith("--tables=")) {
+            } else if (flag.startsWith("-t=") || flag.startsWith("--tables=")) {
                 tables = flag.split("=")[1];
-            } else if (flag.startsWith("--s=") || flag.startsWith("--strategy=")) {
+            } else if (flag.startsWith("-s=") || flag.startsWith("--strategy=")) {
                 strategyName = flag.split("=")[1];
             }
         }

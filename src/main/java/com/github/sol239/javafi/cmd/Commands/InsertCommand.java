@@ -27,7 +27,10 @@ public class InsertCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "The command inserts a csv file into the database.";
+        return "Usage: insert [OPTION]...\n" +
+                getParameters() + "\n" +
+                "The command inserts data from a CSV file to the database.\n";
+
     }
 
     /**
@@ -37,7 +40,12 @@ public class InsertCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+
+        return "Options:\n" +
+                "  -h, --help\n" +
+                "  -t, --table=TABLE_NAME\n" +
+                "  -p, --path=CSV_FILE_PATH\n";
+
     }
 
     /**
@@ -56,11 +64,11 @@ public class InsertCommand implements Command {
         DBHandler db = new DBHandler();
 
         for (String flag : flags) {
-            if (flag.equals("-h") || flag.equals("-help")) {
+            if (flag.equals("-h") || flag.equals("--help")) {
                 return new DataObject(200, "server", this.getDescription());
-            } else if (flag.startsWith("--tn=") || flag.startsWith("--table_name=")) {
+            } else if (flag.startsWith("-t=") || flag.startsWith("--table=")) {
                 tableName = flag.split("=")[1];
-            } else if (flag.startsWith("--p=") || flag.startsWith("--path=")) {
+            } else if (flag.startsWith("-p=") || flag.startsWith("--path=")) {
                 csvFilePath = flag.split("=")[1];
             }
         }

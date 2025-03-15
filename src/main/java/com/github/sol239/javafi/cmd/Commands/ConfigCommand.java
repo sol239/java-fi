@@ -2,10 +2,11 @@ package com.github.sol239.javafi.cmd.Commands;
 
 import com.github.sol239.javafi.DataObject;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
-public class ExitCommand implements Command {
-
+public class ConfigCommand implements Command {
     /**
      * Method to get the name of the command.
      *
@@ -13,7 +14,7 @@ public class ExitCommand implements Command {
      */
     @Override
     public String getName() {
-        return "exit";
+        return "config";
     }
 
     /**
@@ -23,9 +24,7 @@ public class ExitCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "Usage: exit [OPTION]...\n" +
-                getParameters() + "\n" +
-                "The command to exit the application and close the connection to the server.\n";
+        return "The command sets path to the configuration file.";
     }
 
     /**
@@ -35,9 +34,7 @@ public class ExitCommand implements Command {
      */
     @Override
     public String getParameters() {
-
-        return "Options:\n" +
-                "  -h, --help\n";
+        return "";
     }
 
     /**
@@ -49,13 +46,17 @@ public class ExitCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
+        File configFile = new File(Path.of(args.getFirst()).toString());
 
-        for (String flag : flags) {
-            if (flag.startsWith("-h") || flag.startsWith("--help")) {
-                return new DataObject(200, "server", getDescription());
-            }
+        if (configFile.exists()) {
+            return new DataObject(200, "server", "Configuration file path set successfully");
+        } else {
+            return new DataObject(400, "server", "Configuration file does not exist");
         }
 
-        return new DataObject(0, "server", "exit");
+
+
+
+
     }
 }

@@ -23,7 +23,9 @@ public class DbCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "The command to check connection to the database.";
+        return "Usage: db [OPTION]...\n" +
+                getParameters() + "\n" +
+                "The command to check connection to the database.\n";
     }
 
     /**
@@ -33,7 +35,8 @@ public class DbCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -h, --help\n";
     }
 
     /**
@@ -44,6 +47,13 @@ public class DbCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
+
+        for (String flag : flags) {
+            if (flag.startsWith("-h") || flag.startsWith("--help")) {
+                return new DataObject(200, "server", getDescription());
+            }
+        }
+
         DBHandler db;
         try {
             db = new DBHandler();

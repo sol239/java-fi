@@ -10,6 +10,19 @@ import java.util.List;
  * Class for help command which prints all available commands_to_load.
  */
 public class HelpCommand implements Command {
+
+    private static final String HELP_MSG = """
+               //     ////  //    //     ////              ////////   //
+              //    // //  //    //    // //              //         //
+             //   //  //  //   //    //  //              ///////    //
+            //  ///////  //  //    ///////   //////     //         //
+    //     // //    //  // //    //    //              //         //
+     /////// //    //  ////     //    //              //         //
+     
+    java-fi is an application that allows you to back-test trading strategies.
+    The app uses postgres-sql as a database to store the data.
+    """;
+
     /**
      * Method to get the name of the command.
      *
@@ -27,7 +40,8 @@ public class HelpCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "The help command prints all available commands.";
+        return "Usage: help [OPTION]...\n" +
+                "The command prints the help to the app.\n";
     }
 
     /**
@@ -37,7 +51,8 @@ public class HelpCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -h, --help\n";
     }
 
     /**
@@ -48,14 +63,26 @@ public class HelpCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
+
+        for (String flag : flags) {
+            if (flag.startsWith("-h") || flag.startsWith("--help")) {
+                return new DataObject(200, "server", getDescription());
+            }
+        }
+
         String path = Shell.COMMANDS_TO_LOAD;
         List<Command> cmds = Shell.loadPlugins(Command.class, path);
         StringBuilder sb = new StringBuilder();
-        sb.append("help\n");
+
+        sb.append("\n");
+        sb.append(HELP_MSG);
         for (Command cmd : cmds) {
             sb.append(cmd.getName());
             sb.append("\n");
+            sb.append(cmd.getDescription());
+            sb.append("\n");
         }
+
         // remove last newline
         sb.deleteCharAt(sb.length() - 1);
         DataObject dataObject = new DataObject(200, "server", sb.toString());

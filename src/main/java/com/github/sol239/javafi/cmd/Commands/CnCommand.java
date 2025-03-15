@@ -22,7 +22,9 @@ public class CnCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "Checks connection to the server.";
+        return "Usage: cn [Option]...\n" +
+               getParameters() + "\n" +
+                "Checks the connection to the server.\n";
     }
 
     /**
@@ -32,7 +34,8 @@ public class CnCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -h, --help\n";
     }
 
     /**
@@ -43,6 +46,13 @@ public class CnCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
+
+        for (String flag : flags) {
+            if (flag.startsWith("-h") || flag.startsWith("--help")) {
+                return new DataObject(200, "server", getDescription());
+            }
+        }
+
         DataObject dataObject = new DataObject(200, "server", "Connection Open");
         return dataObject;
     }

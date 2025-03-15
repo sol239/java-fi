@@ -23,7 +23,9 @@ public class CleanCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "The command cleans the database - removes ALL strategy and indicator columns.";
+        return "Usage: clean [OPTION]...\n" +
+                getParameters() + "\n" +
+                "The command cleans the database - removes ALL strategy and indicator columns.\n";
     }
 
     /**
@@ -33,7 +35,8 @@ public class CleanCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -h, --help\n";
     }
 
     /**
@@ -45,6 +48,13 @@ public class CleanCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
+
+        for (String flag : flags) {
+            if (flag.startsWith("-h") || flag.startsWith("--help")) {
+                return new DataObject(200, "server", getDescription());
+            }
+        }
+
         DBHandler db = new DBHandler();
         try {
             db.connect();

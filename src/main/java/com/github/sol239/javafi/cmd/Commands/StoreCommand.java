@@ -29,7 +29,9 @@ public class StoreCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "The command stores the data in the database.";
+        return "Usage: store [OPTION]...\n" +
+                getParameters() + "\n" +
+                "The command to store data in the database.\n";
     }
 
     /**
@@ -39,7 +41,10 @@ public class StoreCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -i=, --instruments=INSTRUMENTS\n" +
+                "  -t=, --tables=TABLES\n" +
+                "  -h, --help\n";
     }
 
     /**
@@ -57,9 +62,9 @@ public class StoreCommand implements Command {
             if (flag.equals("-h") || flag.equals("--help")) {
                 DataObject dataObject = new DataObject(200, "server", getDescription());
                 return dataObject;
-            } else if (flag.startsWith("--i=") || flag.startsWith("--instruments=")) {
+            } else if (flag.startsWith("-i=") || flag.startsWith("--instruments=")) {
                 instruments = flag.split("=")[1];
-            } else if (flag.startsWith("--t=") || flag.startsWith("--tables=")) {
+            } else if (flag.startsWith("-t=") || flag.startsWith("--tables=")) {
                 tables = flag.split("=")[1];
             }
         }

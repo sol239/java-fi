@@ -13,7 +13,7 @@ public class DelCommand implements Command {
      */
     @Override
     public String getName() {
-        return "";
+        return "del";
     }
 
     /**
@@ -23,7 +23,9 @@ public class DelCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "";
+        return "Usage: del [OPTION]... [TABLE]...\n" +
+                getParameters() + "\n" +
+                "The command to delete a TABLEs from the database.\n";
     }
 
     /**
@@ -33,7 +35,8 @@ public class DelCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -h, --help\n";
     }
 
     /**
@@ -44,6 +47,13 @@ public class DelCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
+
+        for (String flag : flags) {
+            if (flag.startsWith("-h") || flag.startsWith("--help")) {
+                return new DataObject(200, "server", getDescription());
+            }
+        }
+
         DBHandler db = new DBHandler();
         try {
             db.connect();
