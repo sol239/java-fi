@@ -1,5 +1,6 @@
 package com.github.sol239.javafi.cmd.Commands;
 
+import com.github.sol239.javafi.Config;
 import com.github.sol239.javafi.DataObject;
 
 import java.io.File;
@@ -24,7 +25,9 @@ public class ConfigCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "The command sets path to the configuration file.";
+        return "Usage: config [OPTION]...\n" +
+                "The command displays the current configuration.\n" +
+                getParameters() + "\n";
     }
 
     /**
@@ -34,7 +37,11 @@ public class ConfigCommand implements Command {
      */
     @Override
     public String getParameters() {
-        return "";
+        return "Options:\n" +
+                "  -h, --help\n" +
+                "  -u=URL, --url=URL\n" +
+                "  -p=PASSWORD, --password=PASSWORD\n" +
+                "  -n=USERNAME, --username=USERNAME\n";
     }
 
     /**
@@ -46,14 +53,27 @@ public class ConfigCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
-        File configFile = new File(Path.of(args.getFirst()).toString());
 
-        if (configFile.exists()) {
-            return new DataObject(200, "server", "Configuration file path set successfully");
-        } else {
-            return new DataObject(400, "server", "Configuration file does not exist");
+        Config cfg = new Config();
+        cfg.loadConfigMap();
+
+        for (String flag : flags) {
+            if (flag.equals("-h") || flag.equals("--help")) {
+                return new DataObject(200, "server", getDescription());
+            } else if (flag.startsWith("-u=") || flag.startsWith("--url=")) {
+                cfg.url = flag.substring(flag.indexOf("=") + 1);
+                cfg.configMap.put("url", cfg.url);
+            } else if (flag.startsWith("-p=") || flag.startsWith("--password=")) {
+                cfg.password = flag.substring(flag.indexOf("=") + 1);
+                cfg.configMap.put("password", cfg.password);
+            } else if (flag.startsWith("-n=") || flag.startsWith("--username=")) {
+                cfg.username = flag.substring(flag.indexOf("=") + 1);
+                cfg.configMap.put("username", cfg.username);
+            }
         }
+        cfg.writeConfigMap();
 
+        return new DataObject(200, "server", cfg.toString());
 
 
 

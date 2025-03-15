@@ -12,12 +12,14 @@ import java.util.List;
 
 public class Demo {
 
-    // TODO: Demo file using just programmatic interface.
-
     public static void main(String[] args) {
-        SqlInstruments sql = new SqlInstruments();
-        String sma = sql.sma("eth", 30);
-        System.out.println(sma);
+        Config cf = new Config();
+        cf.createConfigFile();
+        cf.fillConfigMap();
+        cf.writeConfigMap();
 
+        Config cfg = new Config();
+        cfg.loadConfigMap();
+        cfg.printConfigMap();
     }
 }

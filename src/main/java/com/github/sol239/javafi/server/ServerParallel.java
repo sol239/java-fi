@@ -1,5 +1,6 @@
 package com.github.sol239.javafi.server;
 
+import com.github.sol239.javafi.Config;
 import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.cmd.Shell;
 import com.github.sol239.javafi.postgre.DBHandler;
@@ -34,6 +35,8 @@ public class ServerParallel {
      */
     private static Shell sh = new Shell();
 
+    private static Config cfg = new Config();
+
     /**
      * Main method.
      *
@@ -42,6 +45,12 @@ public class ServerParallel {
     public static void main(String[] args) {
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+
+            cfg.createConfigFile();
+            cfg.loadConfigMap();
+            cfg.printConfigMap();
+
+
             System.out.println("Server is listening on port " + PORT);
             serverSocket.setReuseAddress(true);
             ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();

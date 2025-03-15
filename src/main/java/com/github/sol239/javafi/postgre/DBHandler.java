@@ -1,6 +1,11 @@
 package com.github.sol239.javafi.postgre;
 
-import java.io.*;
+import com.github.sol239.javafi.Config;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -20,39 +25,41 @@ public class DBHandler {
     /**
      * Path to the database configuration file.
      */
-    public static final String CONFIG_FILE_PATH = "db_config";
+    public static final String CONFIG_FILE_PATH = Config.CONFIG_FILE;
 
     /**
      * List of database credentials: url, user, password.
      */
     public final List<String> credentials;
-
-    /**
-     * Database's url, probably 'jdbc:postgresql://localhost:5432/APP_DB_NAME'.
-     */
-    private String url;
-
-    /**
-     * Database's user, if local postgreSQL database, then probably 'postgres'.
-     */
-    private String user;
-
-    /**
-     * Database's password.
-     */
-    private String password;
-
     /**
      * Connection to the database.
      */
     public Connection conn;
+    /**
+     * Database's url, probably 'jdbc:postgresql://localhost:5432/APP_DB_NAME'.
+     */
+    private String url;
+    /**
+     * Database's user, if local postgreSQL database, then probably 'postgres'.
+     */
+    private String user;
+    /**
+     * Database's password.
+     */
+    private String password;
+    private Config cfg;
 
     /**
      * Constructor that loads the database credentials from the configuration file and establishes a connection to the database.
      */
     public DBHandler() {
+
+        this.cfg = new Config();
+        this.cfg.loadConfigMap();
+
         this.credentials = loadConfig();
         this.checkCredentials(credentials);
+
 
         if (!checkConnection("jdbc:postgresql://localhost:5432/" + APP_DB_NAME, user, password)) {
             createAppDb();
@@ -61,6 +68,57 @@ public class DBHandler {
 
         this.connect();
         System.out.println("Connection established: " + checkConnection(url, user, password));
+    }
+
+    /**
+     * Checks if the connection to the database is successful.
+     *
+     * @param url      to the database, probably 'jdbc:postgresql://localhost:5432/APP_DB_NAME'
+     * @param user     the user, probably 'postgres'
+     * @param password the password
+     * @return true if connection is successful, false otherwise
+     */
+    public static boolean checkConnection(String url, String user, String password) {
+        Connection connection = null;
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(url, user, password);
+            return connection != null;
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("Connection failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get the SQL query string for creating a strategy column.
+     *
+     * @param tableName      Name of the table.
+     * @param strategyName   Name of the strategy column.
+     * @param strategyClause SQL clause for the strategy.
+     * @return SQL query string.
+     */
+    public static String getSqlStrategyString(String tableName, String strategyName, String strategyClause) {
+        String sql = String.format(
+                "alter table %s " +
+                        "drop column if exists %s; " +
+
+                        "ALTER TABLE %s " +
+                        "ADD %s boolean default false; " +
+
+                        "update %s " +
+                        "set %s = true " +
+                        "where %s; ",
+                tableName,
+                strategyName,
+                tableName,
+                strategyName,
+                tableName,
+                strategyName,
+                strategyClause
+        );
+
+        return sql;
     }
 
     /**
@@ -77,6 +135,7 @@ public class DBHandler {
 
     /**
      * Checks if the connection to the database is successful.
+     *
      * @return true if connection is successful, false otherwise.
      */
     public boolean isConnected() {
@@ -85,6 +144,7 @@ public class DBHandler {
 
     /**
      * Loads the database credentials from the configuration file.
+     *
      * @return List of database credentials: url, user, password.
      */
     public List<String> loadConfig() {
@@ -99,12 +159,13 @@ public class DBHandler {
 
     /**
      * Returns all tables in the database.
+     *
      * @return Array of table names.
      */
     public List<String> getAllTables() {
         try {
             DatabaseMetaData dbmd = this.conn.getMetaData();
-            ResultSet rs = dbmd.getTables(null, null, "%", new String[] {"TABLE"});
+            ResultSet rs = dbmd.getTables(null, null, "%", new String[]{"TABLE"});
             List<String> tables = new ArrayList<>();
             while (rs.next()) {
                 tables.add(rs.getString(3));
@@ -119,6 +180,7 @@ public class DBHandler {
     /**
      * Deletes all strategies and indicator columns from the database.
      * Only columns timestamp, open, high, low, close, volume, date are preserved.
+     *
      * @param tableName Name of the table to clean.
      */
     public void clean(String tableName) {
@@ -155,6 +217,7 @@ public class DBHandler {
 
     /**
      * Deletes the table from the database.
+     *
      * @param tableName Name of the table to delete.
      */
     public void deleteTable(String tableName) {
@@ -169,19 +232,18 @@ public class DBHandler {
 
     /**
      * Checks if credentials list is complete.
+     *
      * @param credentials List of database credentials: url, user, password.
      */
     public void checkCredentials(List<String> credentials) {
-        if (credentials.size() != 3) {
-            throw new IllegalArgumentException("Invalid number of credentials.");
-        }
-        this.url = credentials.get(0);
-        this.user = credentials.get(1);
-        this.password = credentials.get(2);
+        this.url = this.cfg.configMap.get("url");
+        this.user = this.cfg.configMap.get("username");
+        this.password = this.cfg.configMap.get("password");
     }
 
     /**
      * Returns the result set of the query.
+     *
      * @param query SQL query.
      * @return Result set of the query.
      */
@@ -197,6 +259,7 @@ public class DBHandler {
     /**
      * Sets the fetch size of the connection.
      * It is used to limit the number of rows fetched from the database - used with result sets.
+     *
      * @param size Fetch size.
      */
     public void setFetchSize(int size) {
@@ -204,25 +267,6 @@ public class DBHandler {
             conn.createStatement().setFetchSize(size);
         } catch (SQLException e) {
             System.out.println("Error setting fetch size: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Checks if the connection to the database is successful.
-     * @param url to the database, probably 'jdbc:postgresql://localhost:5432/APP_DB_NAME'
-     * @param user the user, probably 'postgres'
-     * @param password the password
-     * @return true if connection is successful, false otherwise
-     */
-    public static boolean checkConnection(String url, String user, String password) {
-        Connection connection = null;
-        try {
-            Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection(url, user, password);
-            return connection != null;
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("Connection failed: " + e.getMessage());
-            return false;
         }
     }
 
@@ -241,6 +285,7 @@ public class DBHandler {
 
     /**
      * Executes the SQL query.
+     *
      * @param query SQL query.
      */
     public void executeQuery(String query) {
@@ -250,36 +295,6 @@ public class DBHandler {
         } catch (SQLException e) {
             System.out.println("Error executing query: " + e.getMessage());
         }
-    }
-
-    /**
-     * Get the SQL query string for creating a strategy column.
-     * @param tableName Name of the table.
-     * @param strategyName Name of the strategy column.
-     * @param strategyClause SQL clause for the strategy.
-     * @return SQL query string.
-     */
-    public static String getSqlStrategyString(String tableName, String strategyName, String strategyClause) {
-        String sql = String.format(
-                "alter table %s " +
-                        "drop column if exists %s; " +
-
-                        "ALTER TABLE %s " +
-                        "ADD %s boolean default false; " +
-
-                        "update %s " +
-                        "set %s = true " +
-                        "where %s; ",
-                tableName,
-                strategyName,
-                tableName,
-                strategyName,
-                tableName,
-                strategyName,
-                strategyClause
-        );
-
-        return sql;
     }
 
     /**
@@ -297,7 +312,8 @@ public class DBHandler {
 
     /**
      * Inserts data from a CSV file into the database.
-     * @param tableName Name of the table to insert data into.
+     *
+     * @param tableName   Name of the table to insert data into.
      * @param csvFilePath Path to the CSV file.
      * @throws FileNotFoundException if the file is not found
      */

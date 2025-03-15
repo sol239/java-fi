@@ -6,3 +6,4 @@ com.github.sol239.javafi.cmd.Commands.StoreCommand
 com.github.sol239.javafi.cmd.Commands.InsertCommand
 com.github.sol239.javafi.cmd.Commands.BtCommand
 com.github.sol239.javafi.cmd.Commands.ExitCommand
+com.github.sol239.javafi.cmd.Commands.ConfigCommand
