@@ -30,8 +30,8 @@ public class StoreCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: store [OPTION]...\n" +
-                getParameters() + "\n" +
-                "The command to store data in the database.\n";
+                "The command to store data in the database.\n" +
+                getParameters();
     }
 
     /**
@@ -44,7 +44,7 @@ public class StoreCommand implements Command {
         return "Options:\n" +
                 "  -i=, --instruments=INSTRUMENTS\n" +
                 "  -t=, --tables=TABLES\n" +
-                "  -h, --help\n";
+                "  -h, --help";
     }
 
     /**

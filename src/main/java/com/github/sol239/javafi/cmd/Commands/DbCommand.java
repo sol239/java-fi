@@ -24,8 +24,8 @@ public class DbCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: db [OPTION]...\n" +
-                getParameters() + "\n" +
-                "The command to check connection to the database.\n";
+                "The command to check connection to the database.\n" +
+                getParameters();
     }
 
     /**
@@ -36,7 +36,7 @@ public class DbCommand implements Command {
     @Override
     public String getParameters() {
         return "Options:\n" +
-                "  -h, --help\n";
+                "  -h, --help";
     }
 
     /**

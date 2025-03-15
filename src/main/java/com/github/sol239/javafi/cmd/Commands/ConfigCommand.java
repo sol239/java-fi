@@ -3,8 +3,6 @@ package com.github.sol239.javafi.cmd.Commands;
 import com.github.sol239.javafi.Config;
 import com.github.sol239.javafi.DataObject;
 
-import java.io.File;
-import java.nio.file.Path;
 import java.util.List;
 
 public class ConfigCommand implements Command {
@@ -27,7 +25,7 @@ public class ConfigCommand implements Command {
     public String getDescription() {
         return "Usage: config [OPTION]...\n" +
                 "The command displays the current configuration.\n" +
-                getParameters() + "\n";
+                getParameters();
     }
 
     /**
@@ -41,7 +39,7 @@ public class ConfigCommand implements Command {
                 "  -h, --help\n" +
                 "  -u=URL, --url=URL\n" +
                 "  -p=PASSWORD, --password=PASSWORD\n" +
-                "  -n=USERNAME, --username=USERNAME\n";
+                "  -n=USERNAME, --username=USERNAME";
     }
 
     /**

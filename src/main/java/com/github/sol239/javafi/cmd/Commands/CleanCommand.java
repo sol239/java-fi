@@ -24,8 +24,8 @@ public class CleanCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: clean [OPTION]...\n" +
-                getParameters() + "\n" +
-                "The command cleans the database - removes ALL strategy and indicator columns.\n";
+                "The command cleans the database - removes ALL strategy and indicator columns.\n" +
+                getParameters();
     }
 
     /**
@@ -36,7 +36,7 @@ public class CleanCommand implements Command {
     @Override
     public String getParameters() {
         return "Options:\n" +
-                "  -h, --help\n";
+                "  -h, --help";
     }
 
     /**

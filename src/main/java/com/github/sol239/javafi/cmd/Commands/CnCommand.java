@@ -23,8 +23,8 @@ public class CnCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: cn [Option]...\n" +
-               getParameters() + "\n" +
-                "Checks the connection to the server.\n";
+                "Checks the connection to the server.\n" +
+                getParameters();
     }
 
     /**
@@ -35,7 +35,7 @@ public class CnCommand implements Command {
     @Override
     public String getParameters() {
         return "Options:\n" +
-                "  -h, --help\n";
+                "  -h, --help";
     }
 
     /**

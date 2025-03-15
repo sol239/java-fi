@@ -24,8 +24,8 @@ public class DelCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: del [OPTION]... [TABLE]...\n" +
-                getParameters() + "\n" +
-                "The command to delete a TABLEs from the database.\n";
+                "The command to delete a TABLEs from the database.\n" +
+                getParameters();
     }
 
     /**
@@ -36,7 +36,7 @@ public class DelCommand implements Command {
     @Override
     public String getParameters() {
         return "Options:\n" +
-                "  -h, --help\n";
+                "  -h, --help";
     }
 
     /**

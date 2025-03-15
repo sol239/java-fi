@@ -41,7 +41,8 @@ public class HelpCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: help [OPTION]...\n" +
-                "The command prints the help to the app.\n";
+                "The command prints the help to the app.\n" +
+                getParameters();
     }
 
     /**
@@ -52,7 +53,7 @@ public class HelpCommand implements Command {
     @Override
     public String getParameters() {
         return "Options:\n" +
-                "  -h, --help\n";
+                "  -h, --help";
     }
 
     /**

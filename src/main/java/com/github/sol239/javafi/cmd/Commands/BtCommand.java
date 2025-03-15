@@ -34,8 +34,8 @@ public class BtCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: bt [OPTION]...\n" +
-                getParameters() + "\n" +
-                "The command executes back-testing logic.\n";
+                "The command executes back-testing logic.\n" +
+                getParameters();
     }
 
     /**
@@ -48,7 +48,7 @@ public class BtCommand implements Command {
         return "Options:\n" +
                 "  -h, --help\n" +
                 "  -t, --tables=TABLES\n" +
-                "  -s, --strategy=STRATEGY\n";
+                "  -s, --strategy=STRATEGY";
     }
 
     /**

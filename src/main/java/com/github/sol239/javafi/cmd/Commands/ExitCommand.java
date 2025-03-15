@@ -24,8 +24,8 @@ public class ExitCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: exit [OPTION]...\n" +
-                getParameters() + "\n" +
-                "The command to exit the application and close the connection to the server.\n";
+                "The command to exit the application and close the connection to the server.\n" +
+                getParameters();
     }
 
     /**
@@ -37,7 +37,7 @@ public class ExitCommand implements Command {
     public String getParameters() {
 
         return "Options:\n" +
-                "  -h, --help\n";
+                "  -h, --help";
     }
 
     /**

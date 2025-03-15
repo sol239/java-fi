@@ -28,8 +28,9 @@ public class InsertCommand implements Command {
     @Override
     public String getDescription() {
         return "Usage: insert [OPTION]...\n" +
-                getParameters() + "\n" +
-                "The command inserts data from a CSV file to the database.\n";
+                "The command inserts data from a CSV file to the database.\n" +
+                "Supported columns are: " +
+                getParameters();
 
     }
 
@@ -44,7 +45,7 @@ public class InsertCommand implements Command {
         return "Options:\n" +
                 "  -h, --help\n" +
                 "  -t, --table=TABLE_NAME\n" +
-                "  -p, --path=CSV_FILE_PATH\n";
+                "  -p, --path=CSV_FILE_PATH";
 
     }
 
