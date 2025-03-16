@@ -13,10 +13,10 @@ public class InstrumentsDemo {
         List<Double> vals = rsi.getColumnValues("btc_d", 15.0);
         DBHandler db = new DBHandler();
 
-        System.out.println(vals);
-
         LinkedHashMap<String, List<Double>> columns = new LinkedHashMap<>();
         columns.put("rsi", vals);
+
+        System.out.println(vals);
 
         db.insertColumns("btc_d", columns);
     }

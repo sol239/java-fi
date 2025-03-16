@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Class that handles the connection to the database.
@@ -293,9 +292,7 @@ public class DBHandler {
     public void executeQuery(String query) {
         try {
             this.conn.createStatement().execute(query);
-            System.out.println("Query executed successfully.");
         } catch (SQLException e) {
-            System.out.println("Error executing query: " + e.getMessage());
         }
     }
 
@@ -428,19 +425,15 @@ public class DBHandler {
                 // update columns in table {tableName} with values
                 List<Double> columnValues = columnMap.get(columnName);
 
-// Create the values part of the SQL query, inserting each value as a separate row
-                String valuesString = columnValues.stream()
-                        .map(value -> String.format("(%f)", value)) // Format each value inside parentheses
-                        .collect(Collectors.joining(", ")); // Join all the formatted values with commas
-
-// Construct the final insert query
-                String insertQuery = """
-                        INSERT INTO %s (%s) VALUES %s;
-                        """.formatted(tableName, columnName, valuesString);
-
-                System.out.println(insertQuery);
-
-                this.executeQuery(insertQuery);
+                for (int i = 0; i < columnValues.size(); i++) {
+                    String updateColumnQuery = """
+                            UPDATE %s
+                            SET %s = %s
+                            WHERE id = %s;
+                            """.formatted(tableName, columnName, columnValues.get(i), i + 1);
+                    System.out.println(updateColumnQuery);
+                    this.executeQuery(updateColumnQuery);
+                }
             }
             return new DataObject(200, "server", "Columns created and updated successfully.");
         } catch (Exception e) {

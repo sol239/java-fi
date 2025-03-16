@@ -87,10 +87,11 @@ public class InsertCommand implements Command {
             String[] csvHeaders = headerLine.toLowerCase().split(",");
 
             // Expected database columns
-            List<String> dbColumns = Arrays.asList("timestamp", "open", "high", "low", "close", "volume", "date");
+            List<String> dbColumns = Arrays.asList("timestamp", "open", "high", "low", "close", "volume", "date", "id");
 
             // Create table if not exists
             String createTableSQL = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
+                    + "id SERIAL PRIMARY KEY,"
                     + "timestamp BIGINT,"
                     + "open DOUBLE PRECISION,"
                     + "high DOUBLE PRECISION,"
@@ -139,7 +140,7 @@ public class InsertCommand implements Command {
                             pstmt.setNull(paramIndex, Types.NULL);
                         } else if (col.equals("timestamp")) {
                             pstmt.setLong(paramIndex, Long.parseLong(value));
-                        } else if (Arrays.asList("open", "high", "low", "close", "volume").contains(col)) {
+                        } else if (Arrays.asList("open", "high", "low", "close", "volume", "id").contains(col)) {
                             pstmt.setDouble(paramIndex, Double.parseDouble(value));
                         } else if (col.equals("date")) {
                             pstmt.setTimestamp(paramIndex, Timestamp.valueOf(value));
@@ -156,6 +157,7 @@ public class InsertCommand implements Command {
             return new DataObject(200, "server", "Data inserted to " + tableName);
 
         } catch (SQLException | IOException e) {
+            e.printStackTrace();
             return new DataObject(400, "server", "Error inserting data to " + tableName);
         }
 

@@ -5,7 +5,6 @@ import com.github.sol239.javafi.postgre.DBHandler;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Rsi {
@@ -57,9 +56,15 @@ public class Rsi {
                 rsiValues[i] = close;
                 i++;
                 if (i == rsiPeriod) {
-                    columnValues.add(calculateRSI(List.of(rsiValues), rsiPeriod - 1));
                     i = 0;
                 }
+                try {
+                    columnValues.add(calculateRSI(List.of(rsiValues), rsiPeriod - 1));
+                } catch (Exception e) {
+                    columnValues.add(0.0);
+                }
+
+
 
             }
         } catch (Exception e) {
