@@ -6,6 +6,9 @@ public class Strategy {
     public double initialBalance;
     public double balance;
 
+    private String openDate;
+    private String closeDate;
+
     double assetBalance;
 
     public double profit;

@@ -4,31 +4,23 @@ import java.sql.Date;
 
 public class Trade {
 
-    public double open;
-    public double takeProfit;
-    public double stopLoss;
+    private Class<?> strategy;
+    private Date openDate;
+    private Date closeDate;
+    private double openPrice;
+    private double closePrice;
+    private double amount;
 
-    public String openDate;
-    public String closeDate;
-
-    public Trade(double open, double takeProfit, double stopLoss) {
-        this.open = open;
-        this.takeProfit = takeProfit;
-        this.stopLoss = stopLoss;
+    public Trade(Class<?> strategy, Date openDate, Date closeDate, double openPrice, double closePrice, double amount) {
+        this.strategy = strategy;
+        this.openDate = openDate;
+        this.closeDate = closeDate;
+        this.openPrice = openPrice;
+        this.closePrice = closePrice;
+        this.amount = amount;
     }
 
-    @Override
-    public String toString() {
-        return String.format(
-                "\n" +
-                "-------------------------\n" +
-                "Open: %.2f\n" +
-                "Take Profit: %.2f\n" +
-                "Stop Loss: %.2f\n" +
-                "%s -> %s\n" +
-                "-------------------------",
-                open, takeProfit, stopLoss, openDate, closeDate);
-    }
+
 
 
 }

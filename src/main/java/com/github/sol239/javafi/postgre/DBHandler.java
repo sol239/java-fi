@@ -1,6 +1,7 @@
 package com.github.sol239.javafi.postgre;
 
 import com.github.sol239.javafi.Config;
+import com.github.sol239.javafi.DataObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -10,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class that handles the connection to the database.
@@ -402,6 +404,49 @@ public class DBHandler {
         } catch (SQLException | IOException e) {
             System.out.println("FAIL - InsertCsvData: " + e.getMessage());
         }
+    }
+
+    /**
+     * Method to insert columns into a table.
+     *
+     * @param tableName Name of the table.
+     * @param columnMap Map of column names and their values. Keys are column names, values are lists of values (double).
+     * @return DataObject with status code and message.
+     */
+    // TODO: testing
+    public DataObject insertColumns(String tableName, LinkedHashMap<String, List<Double>> columnMap) {
+
+        try {
+            for (String columnName : columnMap.keySet()) {
+                // create columns in table {tableName} if not exists
+                String createColumsQuery = """
+                        ALTER TABLE IF EXISTS %s
+                        ADD COLUMN IF NOT EXISTS %s DOUBLE PRECISION DEFAULT 0;
+                        """.formatted(tableName, columnName);
+                this.executeQuery(createColumsQuery);
+
+                // update columns in table {tableName} with values
+                List<Double> columnValues = columnMap.get(columnName);
+
+// Create the values part of the SQL query, inserting each value as a separate row
+                String valuesString = columnValues.stream()
+                        .map(value -> String.format("(%f)", value)) // Format each value inside parentheses
+                        .collect(Collectors.joining(", ")); // Join all the formatted values with commas
+
+// Construct the final insert query
+                String insertQuery = """
+                        INSERT INTO %s (%s) VALUES %s;
+                        """.formatted(tableName, columnName, valuesString);
+
+                System.out.println(insertQuery);
+
+                this.executeQuery(insertQuery);
+            }
+            return new DataObject(200, "server", "Columns created and updated successfully.");
+        } catch (Exception e) {
+            return new DataObject(500, "server", "Error creating and updating columns.");
+        }
+
     }
 
 }

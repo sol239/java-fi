@@ -82,6 +82,8 @@ public class HelpCommand implements Command {
             sb.append("\n");
             sb.append(cmd.getDescription());
             sb.append("\n");
+            sb.append("\n");
+
         }
 
         // remove last newline
