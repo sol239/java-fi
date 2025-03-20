@@ -4,7 +4,6 @@ import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.cmd.Command;
 import com.github.sol239.javafi.cmd.Shell;
 
-
 import java.util.List;
 
 /**

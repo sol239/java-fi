@@ -70,8 +70,8 @@ public class DataObject implements Serializable {
      */
     @Override
     public String toString() {
-        // return String.format("%s [%d]", cmd, number);
-        return String.format("%s", cmd);
+        return String.format("[%d]\n%s",number, cmd);
+        // return String.format("%s", cmd);
 
     }
 }

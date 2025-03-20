@@ -50,6 +50,9 @@ public class Config {
         List<String> params = getConfigParameters();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CONFIG_FILE))) {
             for (String param : params) {
+                if (param.equals("configMap")) {
+                    continue;
+                }
                 writer.write(param + " = ");
                 writer.newLine();
             }
@@ -120,6 +123,9 @@ public class Config {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (String key : configMap.keySet()) {
+            if (key.equals("configMap")) {
+                continue;
+            }
             sb.append(key).append(" = ").append(configMap.get(key)).append("\n");
         }
         sb.deleteCharAt(sb.length() - 1);
