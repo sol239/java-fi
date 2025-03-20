@@ -1,10 +1,8 @@
 package com.github.sol239.javafi.server;
 
 import com.github.sol239.javafi.DataObject;
-import com.github.sol239.javafi.backtesting.Strategy;
-import com.github.sol239.javafi.backtesting.Trade;
-import com.github.sol239.javafi.instruments.SqlHandler;
-import com.github.sol239.javafi.instruments.SqlInstruments;
+import com.github.sol239.javafi.instrument.SqlHandler;
+import com.github.sol239.javafi.instrument.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
 
 import java.io.BufferedWriter;

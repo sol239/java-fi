@@ -431,7 +431,7 @@ public class DBHandler {
                             SET %s = %s
                             WHERE id = %s;
                             """.formatted(tableName, columnName, columnValues.get(i), i + 1);
-                    System.out.println(updateColumnQuery);
+                    // System.out.println(updateColumnQuery);
                     this.executeQuery(updateColumnQuery);
                 }
             }

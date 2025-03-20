@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.instruments;
+package com.github.sol239.javafi.instrument;
 
 /**
  * A class to generate SQL queries for financial instruments

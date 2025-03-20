@@ -1,4 +1,4 @@
-import com.github.sol239.javafi.instruments.SqlInstruments;
+import com.github.sol239.javafi.instrument.SqlInstruments;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -2,8 +2,8 @@ package com.github.sol239.javafi.cmd.Commands;
 
 import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.cmd.Command;
-import com.github.sol239.javafi.instruments.SqlHandler;
-import com.github.sol239.javafi.instruments.SqlInstruments;
+import com.github.sol239.javafi.instrument.SqlHandler;
+import com.github.sol239.javafi.instrument.SqlInstruments;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;

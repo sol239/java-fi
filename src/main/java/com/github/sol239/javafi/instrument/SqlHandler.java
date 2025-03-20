@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.instruments;
+package com.github.sol239.javafi.instrument;
 
 import com.github.sol239.javafi.postgre.DBHandler;
 

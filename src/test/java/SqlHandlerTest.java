@@ -1,5 +1,5 @@
-import com.github.sol239.javafi.instruments.SqlHandler;
-import com.github.sol239.javafi.instruments.SqlInstruments;
+import com.github.sol239.javafi.instrument.SqlHandler;
+import com.github.sol239.javafi.instrument.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
 import org.junit.jupiter.api.Test;
 

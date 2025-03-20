@@ -1,0 +1,93 @@
+package com.github.sol239.javafi.instrument.java;
+
+import com.github.sol239.javafi.postgre.DBHandler;
+
+import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.util.*;
+
+public class InstrumentExecutor {
+
+    JavaInstrument[] availableInstruments;
+
+
+    public InstrumentExecutor() {
+        ServiceLoader<JavaInstrument> loader = ServiceLoader.load(JavaInstrument.class);
+        this.availableInstruments = loader.stream().map(ServiceLoader.Provider::get).toArray(JavaInstrument[]::new);
+    }
+
+    public int getInstrumentCount() {
+        return availableInstruments.length;
+    }
+
+    public JavaInstrument[] getAvailableInstruments() {
+        return availableInstruments;
+    }
+
+    public List<Double> getColumnValues(String instrumentName, String tableName, Double... params) {
+
+        // GENERAL
+        int stashSize = params[0].intValue();
+        List<Double[]> stash = new ArrayList<>();
+
+        // GENERAL
+        DBHandler dbHandler = new DBHandler();
+
+        // GENERAL
+        ResultSet rs = dbHandler.getResultSet("SELECT * FROM " + tableName);
+
+        // GENERAL
+        // Chceme naplnit List columnValues:
+
+        JavaInstrument instrument = null;
+        Double[] values;
+        List<Double> columnValues = new ArrayList<>();
+
+
+        for (JavaInstrument _instrument : availableInstruments) {
+            if (instrumentName.equals(_instrument.getName())) {
+                instrument = _instrument;
+            } else {
+                return null;
+            }}
+
+        values = new Double[instrument.getColumnNames().length];
+
+        // iterate over db
+        int id = 0;
+        int x = 0;
+        try {
+            while (rs.next()) {
+                id += 1;
+                for (int i = 0; i < instrument.getColumnNames().length; i++) {
+                    values[i] = rs.getDouble(instrument.getColumnNames()[i]);
+                }
+
+                stash.add(values.clone());
+
+                // print the stash
+
+                System.out.println("Stash["+ stash.size() +"]:");
+                for (Double[] value : stash) {
+                    System.out.println(Arrays.toString(value));
+                }
+                System.out.println("-----------------------------------------");
+
+                double value = instrument.updateRow(stash, params);
+                columnValues.add(value);
+                System.out.println(value);
+
+                if (stash.size() == stashSize) {
+                    stash.remove(0);
+                    continue;
+                }
+
+                x++;
+
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        return columnValues;
+    }
+}

@@ -14,6 +14,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4.2")
+    implementation("com.google.auto.service:auto-service-annotations:1.1.1")
+    annotationProcessor("com.google.auto.service:auto-service:1.1.1")
 
 }
 
