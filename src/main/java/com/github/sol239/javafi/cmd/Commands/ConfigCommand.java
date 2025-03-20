@@ -2,6 +2,7 @@ package com.github.sol239.javafi.cmd.Commands;
 
 import com.github.sol239.javafi.Config;
 import com.github.sol239.javafi.DataObject;
+import com.github.sol239.javafi.cmd.Command;
 
 import java.util.List;
 

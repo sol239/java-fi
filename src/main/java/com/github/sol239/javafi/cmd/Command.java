@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.cmd.Commands;
+package com.github.sol239.javafi.cmd;
 
 import com.github.sol239.javafi.DataObject;
 

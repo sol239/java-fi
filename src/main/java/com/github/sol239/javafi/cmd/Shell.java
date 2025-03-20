@@ -1,7 +1,6 @@
 package com.github.sol239.javafi.cmd;
 
 import com.github.sol239.javafi.DataObject;
-import com.github.sol239.javafi.cmd.Commands.Command;
 import com.github.sol239.javafi.cmd.Commands.HelpCommand;
 
 import java.io.IOException;
