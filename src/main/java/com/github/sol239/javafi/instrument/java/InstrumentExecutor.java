@@ -74,8 +74,8 @@ public class InstrumentExecutor {
                 System.out.println("-----------------------------------------");
 
                 */
-                double value = instrument.updateRow(stash, params);
-                columnValues.add(value);
+                // double value = instrument.updateRow(stash, params);
+                // columnValues.add(value);
 
                 if (stash.size() == stashSize) {
                     stash.remove(0);

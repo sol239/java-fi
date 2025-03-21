@@ -2,9 +2,12 @@ package com.github.sol239.javafi.postgre;
 
 import com.github.sol239.javafi.Config;
 import com.github.sol239.javafi.DataObject;
-import org.postgresql.copy.CopyManager;
+import com.github.sol239.javafi.instrument.java.instruments.IdValueRecord;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -419,14 +422,8 @@ public class DBHandler {
      * @param columnMap Map of column names and their values. Keys are column names, values are lists of values (double).
      * @return DataObject with status code and message.
      */
-    public DataObject insertColumns(String tableName, LinkedHashMap<String, List<Double>> columnMap) {
+    public DataObject insertColumns(String tableName, HashMap<String, List<IdValueRecord>> columnMap) {
         try {
-            // First, disable auto-commit for batch operations
-            boolean originalAutoCommit = this.conn.getAutoCommit();
-            this.conn.setAutoCommit(false);
-
-            // Define batch size
-            final int BATCH_SIZE = 5000;
 
             for (String columnName : columnMap.keySet()) {
                 // Create column if not exists
@@ -435,58 +432,28 @@ public class DBHandler {
                         ADD COLUMN IF NOT EXISTS %s DOUBLE PRECISION DEFAULT 0;
                         """.formatted(tableName, columnName);
                 this.executeQuery(createColumnQuery);
-
-                List<Double> columnValues = columnMap.get(columnName);
-
-                if (columnValues.isEmpty()) {
-                    continue;
-                }
-
-                // Prepare batch update statement
-                String updateSQL = """
-                        UPDATE %s
-                        SET %s = ?
-                        WHERE id = ?;
-                        """.formatted(tableName, columnName);
-
-                try (PreparedStatement pstmt = this.conn.prepareStatement(updateSQL)) {
-                    int count = 0;
-
-                    for (int i = 0; i < columnValues.size(); i++) {
-                        Double value = columnValues.get(i);
-
-                        // Set parameters
-                        if (value == null) {
-                            pstmt.setNull(1, Types.DOUBLE);
-                        } else {
-                            pstmt.setDouble(1, value);
-                        }
-                        pstmt.setInt(2, i + 1);
-
-                        // Add to batch
-                        pstmt.addBatch();
-                        count++;
-
-                        // Execute batch when batch size is reached
-                        if (count % BATCH_SIZE == 0) {
-                            pstmt.executeBatch();
-                            // System.out.println("Executed batch for column " + columnName + " - processed " + count + " of " + columnValues.size() + " rows");
-                        }
-                    }
-
-                    // Execute remaining statements in batch
-                    if (count % BATCH_SIZE != 0) {
-                        pstmt.executeBatch();
-                        // System.out.println("Executed final batch for column " + columnName + " - total processed " + count + " rows");
-                    }
-                }
             }
 
-            // Commit all changes
-            this.conn.commit();
+            // iterate over columnMap
 
-            // Restore original auto-commit setting
-            this.conn.setAutoCommit(originalAutoCommit);
+            int size = columnMap.values().stream().findFirst().get().size();
+            System.out.println("SIZE: " + size);
+
+            for (int i = 0; i < size; i++) {
+                StringBuilder updateSb = new StringBuilder();
+                updateSb.append("UPDATE ").append(tableName);
+                updateSb.append("\n");
+                updateSb.append("SET ");
+                for (String columnName : columnMap.keySet()) {
+                    updateSb.append(columnName).append(" = ").append(columnMap.get(columnName).get(i).value()).append(", ").append("\n");
+                }
+                // remove last comma ,
+                updateSb.deleteCharAt(updateSb.length() - 3);
+                updateSb.append("WHERE id = ").append(i + 1).append(";\n");
+                String updateSQL = updateSb.toString();
+                // System.out.println(updateSQL);
+                this.executeQuery(updateSQL);
+            }
 
             return new DataObject(200, "server", "Columns created and updated successfully with batch processing.");
         } catch (Exception e) {
@@ -511,6 +478,108 @@ public class DBHandler {
             }
         }
     }
-    
+
+    public DataObject insertColumnsBatch(String tableName, HashMap<String, List<IdValueRecord>> columnMap) {
+        try {
+            // First, disable auto-commit for batch operations
+            boolean originalAutoCommit = this.conn.getAutoCommit();
+            this.conn.setAutoCommit(false);
+
+            // Define batch size
+            final int BATCH_SIZE = 5000;
+
+            // Create all necessary columns first
+            for (String columnName : columnMap.keySet()) {
+                String createColumnQuery = """
+                    ALTER TABLE IF EXISTS %s
+                    ADD COLUMN IF NOT EXISTS %s DOUBLE PRECISION DEFAULT 0;
+                    """.formatted(tableName, columnName);
+                this.executeQuery(createColumnQuery);
+            }
+
+            // Validate data size
+            int size = columnMap.isEmpty() ? 0 : columnMap.values().iterator().next().size();
+            // System.out.println("Processing " + size + " records with batch size " + BATCH_SIZE);
+
+            if (size > 0) {
+                // Prepare the parameterized SQL statement for batching
+                StringBuilder sqlBuilder = new StringBuilder();
+                sqlBuilder.append("UPDATE ").append(tableName).append(" SET ");
+
+                // Add column placeholders
+                List<String> columnNames = new ArrayList<>(columnMap.keySet());
+                for (int i = 0; i < columnNames.size(); i++) {
+                    sqlBuilder.append(columnNames.get(i)).append(" = ?");
+                    if (i < columnNames.size() - 1) {
+                        sqlBuilder.append(", ");
+                    }
+                }
+                sqlBuilder.append(" WHERE id = ?");
+
+                String updateSQL = sqlBuilder.toString();
+                //System.out.println("Prepared statement: " + updateSQL);
+
+                try (PreparedStatement pstmt = this.conn.prepareStatement(updateSQL)) {
+                    int batchCount = 0;
+
+                    // Process records in batches
+                    for (int i = 0; i < size; i++) {
+                        // Set values for each column
+                        for (int colIndex = 0; colIndex < columnNames.size(); colIndex++) {
+                            String columnName = columnNames.get(colIndex);
+                            double value = columnMap.get(columnName).get(i).value();
+                            pstmt.setDouble(colIndex + 1, value);
+                        }
+
+                        // Set the id for WHERE clause
+                        pstmt.setInt(columnNames.size() + 1, i + 1);
+
+                        // Add to batch
+                        pstmt.addBatch();
+                        batchCount++;
+
+                        // Execute batch when batch size is reached or at the end
+                        if (batchCount >= BATCH_SIZE || i == size - 1) {
+                            pstmt.executeBatch();
+                            this.conn.commit();
+                            // System.out.println("Executed and committed batch of " + batchCount + " updates");
+                            batchCount = 0;
+                        }
+                    }
+                }
+            }
+
+            // Commit any remaining transactions
+            this.conn.commit();
+
+            // Restore original auto-commit setting
+            this.conn.setAutoCommit(originalAutoCommit);
+
+            return new DataObject(200, "server", "Columns created and updated successfully with batch processing.");
+        } catch (Exception e) {
+            // Rollback in case of error
+            try {
+                if (this.conn != null && !this.conn.getAutoCommit()) {
+                    this.conn.rollback();
+                }
+            } catch (SQLException rollbackEx) {
+                System.out.println("Error during rollback: " + rollbackEx.getMessage());
+            }
+
+            System.out.println("Error in batch insertColumns: " + e.getMessage());
+            e.printStackTrace();
+            return new DataObject(500, "server", "Error creating and updating columns: " + e.getMessage());
+        } finally {
+            // Ensure auto-commit is restored
+            try {
+                if (this.conn != null) {
+                    this.conn.setAutoCommit(true);
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error restoring auto-commit: " + ex.getMessage());
+            }
+        }
+    }
+
 
 }

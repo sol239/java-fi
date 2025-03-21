@@ -4,12 +4,11 @@ package com.github.sol239.javafi.instrument.java.instruments;
 import com.github.sol239.javafi.instrument.java.JavaInstrument;
 import com.google.auto.service.AutoService;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Queue;
 
 @AutoService(JavaInstrument.class)
 public class Rsi implements JavaInstrument {
-
 
     @Override
     public String[] getColumnNames() {
@@ -27,21 +26,23 @@ public class Rsi implements JavaInstrument {
     }
 
     @Override
-    public double updateRow(List<Double[]> prices, Double... params) {
+    public double updateRow(HashMap<String, List<Double>> prices, Double... params) {
         int period = params[0].intValue();
 
         if (prices == null) {
+            // System.out.println("No prices");
             return 0;
         }
 
-        if (prices.size() < period) {
+        if (prices.values().stream().findFirst().map(List::size).orElse(0) < period) {
+            // System.out.println("Not enough prices: " + prices.size());
             return 0;
         }
 
         double gainSum = 0, lossSum = 0;
 
         for (int i = 1; i < period; i++) {
-            double change = prices.get(i)[0] - prices.get(i - 1)[0];
+            double change = prices.get("close").get(i) - prices.get("close").get(i - 1);
             if (change > 0) {
                 gainSum += change;
             } else {
@@ -53,7 +54,7 @@ public class Rsi implements JavaInstrument {
         double avgLoss = lossSum / period;
 
         for (int i = period + 1; i < prices.size(); i++) {
-            double change = prices.get(i)[0] - prices.get(i - 1)[0];
+            double change = prices.get("close").get(i) - prices.get("close").get(i - 1);
             double gain = change > 0 ? change : 0;
             double loss = change < 0 ? Math.abs(change) : 0;
 
