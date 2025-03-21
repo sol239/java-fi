@@ -30,7 +30,11 @@ public class Rsi implements JavaInstrument {
     public double updateRow(List<Double[]> prices, Double... params) {
         int period = params[0].intValue();
 
-        if (prices == null || prices.size() < period) {
+        if (prices == null) {
+            return 0;
+        }
+
+        if (prices.size() < period) {
             return 0;
         }
 

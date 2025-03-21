@@ -34,7 +34,7 @@ public class InstrumentExecutor {
         DBHandler dbHandler = new DBHandler();
 
         // GENERAL
-        ResultSet rs = dbHandler.getResultSet("SELECT * FROM " + tableName);
+        ResultSet rs = dbHandler.getResultSet("SELECT * FROM " + tableName + " ORDER BY id ASC");
 
         // GENERAL
         // Chceme naplnit List columnValues:
@@ -66,16 +66,16 @@ public class InstrumentExecutor {
                 stash.add(values.clone());
 
                 // print the stash
-
+                /*
                 System.out.println("Stash["+ stash.size() +"]:");
                 for (Double[] value : stash) {
                     System.out.println(Arrays.toString(value));
                 }
                 System.out.println("-----------------------------------------");
 
+                */
                 double value = instrument.updateRow(stash, params);
                 columnValues.add(value);
-                System.out.println(value);
 
                 if (stash.size() == stashSize) {
                     stash.remove(0);

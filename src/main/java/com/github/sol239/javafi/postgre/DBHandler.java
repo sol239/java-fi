@@ -2,15 +2,15 @@ package com.github.sol239.javafi.postgre;
 
 import com.github.sol239.javafi.Config;
 import com.github.sol239.javafi.DataObject;
+import org.postgresql.copy.CopyManager;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
+
+import static java.sql.DriverManager.getConnection;
 
 /**
  * Class that handles the connection to the database.
@@ -68,7 +68,7 @@ public class DBHandler {
         this.url = "jdbc:postgresql://localhost:5432/" + APP_DB_NAME;
 
         this.connect();
-        System.out.println("Connection established: " + checkConnection(url, user, password));
+        // System.out.println("Connection established: " + checkConnection(url, user, password));
     }
 
     /**
@@ -83,7 +83,7 @@ public class DBHandler {
         Connection connection = null;
         try {
             Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection(url, user, password);
+            connection = getConnection(url, user, password);
             return connection != null;
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("Connection failed: " + e.getMessage());
@@ -128,7 +128,7 @@ public class DBHandler {
     public void connect() {
         this.conn = null;
         try {
-            this.conn = DriverManager.getConnection(url, user, password);
+            this.conn = getConnection(url, user, password);
         } catch (SQLException e) {
             System.out.println("Connection failed: " + e.getMessage());
         }
@@ -411,35 +411,106 @@ public class DBHandler {
      * @return DataObject with status code and message.
      */
     // TODO: testing
-    public DataObject insertColumns(String tableName, LinkedHashMap<String, List<Double>> columnMap) {
 
+    /**
+     * Method to insert columns into a table using batch processing for efficiency.
+     *
+     * @param tableName Name of the table.
+     * @param columnMap Map of column names and their values. Keys are column names, values are lists of values (double).
+     * @return DataObject with status code and message.
+     */
+    public DataObject insertColumns(String tableName, LinkedHashMap<String, List<Double>> columnMap) {
         try {
+            // First, disable auto-commit for batch operations
+            boolean originalAutoCommit = this.conn.getAutoCommit();
+            this.conn.setAutoCommit(false);
+
+            // Define batch size
+            final int BATCH_SIZE = 5000;
+
             for (String columnName : columnMap.keySet()) {
-                // create columns in table {tableName} if not exists
-                String createColumsQuery = """
+                // Create column if not exists
+                String createColumnQuery = """
                         ALTER TABLE IF EXISTS %s
                         ADD COLUMN IF NOT EXISTS %s DOUBLE PRECISION DEFAULT 0;
                         """.formatted(tableName, columnName);
-                this.executeQuery(createColumsQuery);
+                this.executeQuery(createColumnQuery);
 
-                // update columns in table {tableName} with values
                 List<Double> columnValues = columnMap.get(columnName);
 
-                for (int i = 0; i < columnValues.size(); i++) {
-                    String updateColumnQuery = """
-                            UPDATE %s
-                            SET %s = %s
-                            WHERE id = %s;
-                            """.formatted(tableName, columnName, columnValues.get(i), i + 1);
-                    // System.out.println(updateColumnQuery);
-                    this.executeQuery(updateColumnQuery);
+                if (columnValues.isEmpty()) {
+                    continue;
+                }
+
+                // Prepare batch update statement
+                String updateSQL = """
+                        UPDATE %s
+                        SET %s = ?
+                        WHERE id = ?;
+                        """.formatted(tableName, columnName);
+
+                try (PreparedStatement pstmt = this.conn.prepareStatement(updateSQL)) {
+                    int count = 0;
+
+                    for (int i = 0; i < columnValues.size(); i++) {
+                        Double value = columnValues.get(i);
+
+                        // Set parameters
+                        if (value == null) {
+                            pstmt.setNull(1, Types.DOUBLE);
+                        } else {
+                            pstmt.setDouble(1, value);
+                        }
+                        pstmt.setInt(2, i + 1);
+
+                        // Add to batch
+                        pstmt.addBatch();
+                        count++;
+
+                        // Execute batch when batch size is reached
+                        if (count % BATCH_SIZE == 0) {
+                            pstmt.executeBatch();
+                            // System.out.println("Executed batch for column " + columnName + " - processed " + count + " of " + columnValues.size() + " rows");
+                        }
+                    }
+
+                    // Execute remaining statements in batch
+                    if (count % BATCH_SIZE != 0) {
+                        pstmt.executeBatch();
+                        // System.out.println("Executed final batch for column " + columnName + " - total processed " + count + " rows");
+                    }
                 }
             }
-            return new DataObject(200, "server", "Columns created and updated successfully.");
-        } catch (Exception e) {
-            return new DataObject(500, "server", "Error creating and updating columns.");
-        }
 
+            // Commit all changes
+            this.conn.commit();
+
+            // Restore original auto-commit setting
+            this.conn.setAutoCommit(originalAutoCommit);
+
+            return new DataObject(200, "server", "Columns created and updated successfully with batch processing.");
+        } catch (Exception e) {
+            // Rollback in case of error
+            try {
+                this.conn.rollback();
+            } catch (SQLException rollbackEx) {
+                System.out.println("Error during rollback: " + rollbackEx.getMessage());
+            }
+
+            System.out.println("Error in batch insertColumns: " + e.getMessage());
+            e.printStackTrace();
+            return new DataObject(500, "server", "Error creating and updating columns: " + e.getMessage());
+        } finally {
+            // Ensure auto-commit is restored
+            try {
+                if (this.conn != null && !this.conn.getAutoCommit()) {
+                    this.conn.setAutoCommit(true);
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error restoring auto-commit: " + ex.getMessage());
+            }
+        }
     }
+    
 
 }
