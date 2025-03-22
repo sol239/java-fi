@@ -2,7 +2,7 @@ package com.github.sol239.javafi.postgre;
 
 import com.github.sol239.javafi.Config;
 import com.github.sol239.javafi.DataObject;
-import com.github.sol239.javafi.instrument.java.instruments.IdValueRecord;
+import com.github.sol239.javafi.instrument.java.IdValueRecord;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

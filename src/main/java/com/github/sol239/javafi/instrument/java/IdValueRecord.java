@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.instrument.java.instruments;
+package com.github.sol239.javafi.instrument.java;
 
 public record IdValueRecord(Long id, Double value) {
     @Override

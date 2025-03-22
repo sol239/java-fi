@@ -6,6 +6,10 @@ import com.google.auto.service.AutoService;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Implementation of Bollinger Bands indicator.
+ * @see <a href="https://www.investopedia.com/terms/b/bollingerbands.asp">Investopedia</a>
+ */
 @AutoService(JavaInstrument.class)
 public class BollingerBands implements JavaInstrument {
 

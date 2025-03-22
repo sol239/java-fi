@@ -35,6 +35,7 @@ public class InstrumentHelper {
         return stash.values().stream().findFirst().map(List::size).orElse(0);
     }
 
+
     @Override
     public String toString() {
         return stash.toString();

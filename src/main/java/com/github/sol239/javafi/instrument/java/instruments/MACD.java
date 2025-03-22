@@ -32,7 +32,6 @@ public class MACD implements JavaInstrument {
         int signalPeriod = params[3].intValue(); // Signal line EMA period
 
         if (prices == null || prices.get("close").size() < longPeriod) {
-            System.out.println("Not enough prices: " + prices.get("close").size() + " < " + longPeriod);
             return 0;
         }
 

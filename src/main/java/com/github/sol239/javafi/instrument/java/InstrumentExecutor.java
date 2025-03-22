@@ -2,7 +2,6 @@ package com.github.sol239.javafi.instrument.java;
 
 import com.github.sol239.javafi.postgre.DBHandler;
 
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -24,6 +23,16 @@ public class InstrumentExecutor {
         return availableInstruments;
     }
 
+    public JavaInstrument getInstrumentByName(String name) {
+        for (JavaInstrument instrument : this.getAvailableInstruments()) {
+            if (name.equals(instrument.getName())) {
+                return instrument;
+            }
+        }
+        return null;
+    }
+
+    @Deprecated
     public List<Double> getColumnValues(String instrumentName, String tableName, Double... params) {
 
         // GENERAL
