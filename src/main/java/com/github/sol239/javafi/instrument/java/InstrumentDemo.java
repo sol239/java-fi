@@ -6,14 +6,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class ServiceDemo {
+/**
+ * This class demonstrates how to run instruments on a table.
+ */
+public class InstrumentDemo {
 
+    /**
+     * Run instruments on a list of tables.
+     * @param tableNames the names of the tables
+     * @param instruments the instruments to run
+     */
     public static void runInstruments(List<String> tableNames, Map<String, Double[]> instruments ) {
         for (String tableName : tableNames) {
             runInstrument(tableName, instruments);
         }
     }
 
+    /**
+     * Run instruments on a table.
+     * @param tableName the name of the table
+     * @param instruments the instruments to run
+     */
     public static void runInstrument(String tableName, Map<String, Double[]> instruments) {
         long t1 = System.currentTimeMillis();
         long rows = 0;
@@ -111,8 +124,6 @@ public class ServiceDemo {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-
-
         // 1)
         // How to get the number of instruments:
         InstrumentExecutor ie = new InstrumentExecutor();

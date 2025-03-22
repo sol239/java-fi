@@ -5,24 +5,44 @@ import com.github.sol239.javafi.postgre.DBHandler;
 import java.sql.ResultSet;
 import java.util.*;
 
+/**
+ * This class executes instruments on a table.
+ */
 public class InstrumentExecutor {
 
+    /**
+     * The available instruments.
+     */
     JavaInstrument[] availableInstruments;
-
 
     public InstrumentExecutor() {
         ServiceLoader<JavaInstrument> loader = ServiceLoader.load(JavaInstrument.class);
+
+        // loading all available instruments using ServiceLoader
         this.availableInstruments = loader.stream().map(ServiceLoader.Provider::get).toArray(JavaInstrument[]::new);
     }
 
+    /**
+     * Get the number of available instruments.
+     * @return the number of available instruments
+     */
     public int getInstrumentCount() {
         return availableInstruments.length;
     }
 
+    /**
+     * Get the available instruments.
+     * @return the available instruments
+     */
     public JavaInstrument[] getAvailableInstruments() {
         return availableInstruments;
     }
 
+    /**
+     * Get an instrument by name.
+     * @param name the name of the instrument
+     * @return the instrument
+     */
     public JavaInstrument getInstrumentByName(String name) {
         for (JavaInstrument instrument : this.getAvailableInstruments()) {
             if (name.equals(instrument.getName())) {
@@ -32,6 +52,13 @@ public class InstrumentExecutor {
         return null;
     }
 
+    /**
+     * Run an instrument on a table - this method is deprecated. It used different approach to run instruments.
+     * @param instrumentName the name of the instrument
+     * @param tableName the name of the table
+     * @param params the parameters for the instrument
+     * @return the values of the column
+     */
     @Deprecated
     public List<Double> getColumnValues(String instrumentName, String tableName, Double... params) {
 

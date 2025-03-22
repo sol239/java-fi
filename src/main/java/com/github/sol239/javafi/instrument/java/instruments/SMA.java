@@ -6,6 +6,10 @@ import com.google.auto.service.AutoService;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Implementation of Simple Moving Average (SMA) indicator.
+ * @see <a href="https://www.investopedia.com/terms/s/sma.asp">Investopedia</a>
+ */
 @AutoService(JavaInstrument.class)
 public class SMA implements JavaInstrument {
 

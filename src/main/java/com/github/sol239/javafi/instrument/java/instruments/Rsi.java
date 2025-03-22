@@ -7,6 +7,10 @@ import com.google.auto.service.AutoService;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Implementation of Relative Strength Index (RSI) indicator.
+ * @see <a href="https://www.investopedia.com/terms/r/rsi.asp">Investopedia</a>
+ */
 @AutoService(JavaInstrument.class)
 public class Rsi implements JavaInstrument {
 
@@ -30,12 +34,10 @@ public class Rsi implements JavaInstrument {
         int period = params[0].intValue();
 
         if (prices == null) {
-            // System.out.println("No prices");
             return 0;
         }
 
         if (prices.values().stream().findFirst().map(List::size).orElse(0) < period) {
-            // System.out.println("Not enough prices: " + prices.size());
             return 0;
         }
 
