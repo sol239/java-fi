@@ -58,30 +58,6 @@ public class TradeDemo {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
         }
-
-
-        // iterate over db
-        /*
-        DBHandler db = new DBHandler();
-        db.setFetchSize(100);
-        String sql = String.format("SELECT * FROM %s ORDER BY date", tableName);
-        ResultSet rs = db.getResultSet(sql);
-
-        try {
-            while (rs.next()) {
-
-
-
-
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
-
     }
 }

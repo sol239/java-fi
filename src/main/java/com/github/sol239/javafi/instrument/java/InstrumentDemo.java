@@ -38,8 +38,11 @@ public class InstrumentDemo {
 
         InstrumentExecutor instrumentExecutor = new InstrumentExecutor();
         for (Map.Entry<String, Double[]> entry : instruments.entrySet()) {
-            String instrumentName = entry.getKey();
             Double[] params = entry.getValue();
+            String instrumentName = entry.getKey();
+
+
+            // TODO - je potřeba vyřešit ukládání názvů sloupců podle parametrl isntrumentu - každá instance instrumentu musí si vytvářet název DB sloupce podle parametrů
 
             for (JavaInstrument instrument : instrumentExecutor.getAvailableInstruments()) {
                 if (instrumentName.equals(instrument.getName())) {
@@ -80,6 +83,7 @@ public class InstrumentDemo {
 
                 for (JavaInstrument instrument : _instruments) {
                     String name = instrument.getName();
+
                     InstrumentHelper helper = columns.get(name);
 
                     for (String param : instrument.getColumnNames()) {
@@ -87,8 +91,8 @@ public class InstrumentDemo {
                     }
                     columns.put(name, helper);
 
-
-                    double val = instrument.updateRow(columns.get(name).stash, instruments.get(name));
+                    double val = 1.0;
+                    //double val = instrument.updateRow(columns.get(name).stash, instruments.get(name));
                     // System.out.println(id + ": " + name + " -> " + val);
 
                     results.putIfAbsent(name, new ArrayList<>());
@@ -105,7 +109,8 @@ public class InstrumentDemo {
         long t2 = System.currentTimeMillis();
 
         // print results columns
-        // results.forEach((name, records) -> {System.out.println(name);});
+        results.forEach((name, records) -> {System.out.println(name);});
+
 
 
         // FAST DB UPDATE
@@ -160,12 +165,26 @@ public class InstrumentDemo {
         Map<String, Double[]> instruments = new LinkedHashMap<>();
         String[] tableNames = new String[]{"btc_d"};                        // Table name/s
         instruments.put("rsi", new Double[]{14.0});                         // RSI with a 14-period sliding window
-        instruments.put("bollingerBands", new Double[]{14.0, 2.0});         // Bollinger Bands with 14-period sliding window and 2 standard deviation multiplier
+        instruments.put("bbl", new Double[]{14.0, 2.0});         // Bollinger Bands with 14-period sliding window and 2 standard deviation multiplier
+        instruments.put("bbu", new Double[]{14.0, 2.0});
         instruments.put("ema", new Double[]{14.0});                         // EMA with a 14-period sliding window
         instruments.put("sma", new Double[]{30.0});                         // SMA with a 14-period sliding window
         instruments.put("macd", new Double[]{26.0, 12.0, 26.0, 9.0});       // MACD with 12-period short EMA, 26-period long EMA, and 9-period signal EMA
 
         runInstruments(Arrays.asList(tableNames), instruments);
+        // -------------------------------------------------
+        System.out.println("-------------------------------------------------");
+
+        // 5)
+        // Are there any conflicting instrument names = two cannot have same return value of getName()
+        boolean namesValid = InstrumentValidator.areInstrumentNamesUnique(availableInstruments);
+        System.out.println("Instrument names valid = " + namesValid);
+        if (!namesValid) {
+            List<JavaInstrument> duplicates = InstrumentValidator.getInstrumentHavingDuplicateName(availableInstruments);
+            for (JavaInstrument duplicate : duplicates) {
+                System.out.println("Duplicate instrument name: " + duplicate.getName());
+            }
+        }
         // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 

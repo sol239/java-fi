@@ -14,6 +14,7 @@ import java.util.List;
 @AutoService(JavaInstrument.class)
 public class Rsi implements JavaInstrument {
 
+
     @Override
     public String[] getColumnNames() {
         return new String[]{"close"};

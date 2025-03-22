@@ -11,7 +11,7 @@ import java.util.List;
  * @see <a href="https://www.investopedia.com/terms/b/bollingerbands.asp">Investopedia</a>
  */
 @AutoService(JavaInstrument.class)
-public class BollingerBands implements JavaInstrument {
+public class BollingerBandUpper implements JavaInstrument {
 
     @Override
     public String[] getColumnNames() {
@@ -20,8 +20,9 @@ public class BollingerBands implements JavaInstrument {
 
     @Override
     public String getName() {
-        return "bollingerBands";
+        return "bbu";
     }
+
 
     @Override
     public String getDescription() {
