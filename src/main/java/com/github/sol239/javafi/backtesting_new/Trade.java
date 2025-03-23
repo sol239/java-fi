@@ -11,6 +11,7 @@ public class Trade {
     public String assetName;
     public String openTime;
     public String closeTime;
+    public double PnL;
 
     public Trade(double openPrice, double takePrice, double stopPrice, double closePrice, double amount, String assetName, String openTime, String closeTime) {
         this.openPrice = openPrice;
@@ -30,6 +31,7 @@ public class Trade {
                 "take = " + takePrice + "\n" +
                 "stop = " + stopPrice + "\n" +
                 "amount = " + amount + "\n" +
+                "profit = " + String.format("%.2f", PnL) + "\n" +
                 "assetName = " + assetName + "\n" +
                 "openTime = " + openTime + "\n" +
                 "closeTime = " + closeTime + "\n";

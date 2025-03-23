@@ -72,8 +72,8 @@ public class BackTestingDemo {
 
 
         // --> prostě transformace
-        String originalOpenClause = "WHERE rsi_14_ins_ <= 24";
-        String originalCloseClause = "WHERE rsi_14_ins_ >= 80";
+        String originalOpenClause = "WHERE rsi_14_ins_ <= 27";
+        String originalCloseClause = "WHERE rsi_14_ins_ >= 70";
 
         String tableName = "btx";
 
@@ -136,15 +136,20 @@ public class BackTestingDemo {
         ResultSet rs = db.getResultSet(String.format("SELECT * FROM %s %s ORDER BY id", tableName, fromDate));
 
 
-
-        double leverage = 1;
-        double fee = (double) 2.2 / 1000;
-        double takeProfit = fee;
-        double stopLoss = 0.02;
+        double balance = 40_00;
+        double leverage = 4;
+        double fee = (double) 2.5 / 1000;
+        double takeProfit = 0.08;
+        double stopLoss = 0.05;
         double amount = 500;
         double riskReward = (takeProfit) / (stopLoss);
+
         int maxTrades = 10;
-        int delaySeconds = 7200;
+        //int maxTrades = (int) ((int) balance / amount);
+
+        int delaySeconds = 1800;
+
+        int maxOpenedTrades = 0;
 
         System.out.println("\n****************************************");
         System.out.println("SETUP:");
@@ -184,61 +189,71 @@ public class BackTestingDemo {
                     Trade trade = iterator.next();
                     boolean tradeClosed = false;
 
-
                     if (closePrice <= trade.stopPrice) {
                         tradeClosed = true;
                     }
 
-                    /*
-                    if ((closePrice >= trade.takePrice)) {
-                        tradeClosed = true;
-                    }
-                    */
-
-                    if (close && closePrice >= trade.takePrice) {
+                    if (close &&  closePrice >= trade.openPrice * (1 + fee)) {
                         tradeClosed = true;
                     }
 
                     if (tradeClosed) {
                         trade.closeTime = rs.getString("date");
                         trade.closePrice = closePrice;
+                        trade.PnL = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * leverage * (1 - fee);
                         if (closePrice >= trade.openPrice) {
+                            //System.out.println("WINNING TRADE");
                             winningTrades.add(trade);
                         } else {
+                            //System.out.println("LOOSING TRADE");
                             loosingTrades.add(trade);
                         }
                         iterator.remove();
+
+                        double profit = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * leverage;
+
+                        balance += profit;
+                        // System.out.println("Balance: " + balance);
+
                     }
 
                 }
 
-
-
-
-                // trade opening
-                if (open && trades.size() < maxTrades) {
-
+                // long trade opening
+                if (open && trades.size() < maxTrades && balance - amount >= 0) {
                     if (!trades.isEmpty()) {
                         if (isDifferenceGreaterThan(now,trades.get(trades.size() - 1).openTime, delaySeconds)) {
-                            Trade newTrade = new Trade(closePrice, closePrice * (1 + takeProfit), closePrice * (1 - stopLoss), 0, (amount / closePrice), tableName, rs.getString("date"), "");
+                            Trade newTrade = new Trade(closePrice, closePrice * (1 + takeProfit), closePrice * (1 - stopLoss), 0, (amount * leverage / closePrice), tableName, rs.getString("date"), "");
+                            balance -= amount / closePrice;
+                            //System.out.println("Balance: " + balance);
                             trades.add(newTrade);
-                        }
 
+
+                        }
                     } else  {
-                        Trade newTrade = new Trade(closePrice, closePrice * (1 + takeProfit), closePrice * (1 - stopLoss), 0, (amount / closePrice), tableName, rs.getString("date"), "");
+                        Trade newTrade = new Trade(closePrice, closePrice * (1 + takeProfit), closePrice * (1 - stopLoss), 0, (amount * leverage / closePrice), tableName, rs.getString("date"), "");
+                        balance -= amount / closePrice;
+                        //System.out.println("Balance: " + balance);
                         trades.add(newTrade);
                     }
-                    // System.out.println("CLOSE PRICE: " + closePrice + " | " + rs.getString("rsi_14_ins_"));
+
+                    if (trades.size() > maxOpenedTrades) {
+                        maxOpenedTrades = trades.size();
+                    }
 
                     /*
                     System.out.println("-----------------------------------------");
                     System.out.println("CLOSE PRICE: " + closePrice + " | " + rs.getString("rsi_14_ins_"));
-
                     System.out.println("Trade opened: ");
                     System.out.println(newTrade);
                     System.out.println("-----------------------------------------");
                     */
                 }
+
+                // short trade opening
+                // TODO
+
+
 
 
             }
@@ -250,7 +265,7 @@ public class BackTestingDemo {
 
 
 
-        List<Trade> allTrades = evaluateTrades(winningTrades, loosingTrades, amount);
+        List<Trade> allTrades = evaluateTrades(winningTrades, loosingTrades, amount, leverage, fee);
         // Store into table
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -259,36 +274,23 @@ public class BackTestingDemo {
             File outputFile = new File("C:\\Users\\david_dyn8g78\\PycharmProjects\\elliptic\\data-preparation\\main\\trades.json");
 
             objectMapper.writeValue(outputFile, allTrades);
-            System.out.println("Trades have been written to trades.json");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        System.out.println("\n****************************************");
+        System.out.println("Balance: " + String.format("%.2f", balance) + " USD");
+        System.out.println("Max opened trades: " + maxOpenedTrades);
         System.out.println("EXECUTION TIME: " + Double.parseDouble(String.valueOf(t2 - t1)) / 1000 + " s");
+        System.out.println("****************************************");
+
         db.closeConnection();
     }
 
-    public static List<Trade> evaluateTrades(List<Trade> winningTrades, List<Trade> loosingTrades, double tradeSize) {
+    public static List<Trade> evaluateTrades(List<Trade> winningTrades, List<Trade> loosingTrades, double tradeSize, double leverage, double fee) {
         long winningTradesCount = winningTrades.size();
         long loosingTradesCount = loosingTrades.size();
-
-
-        double winningTradesSum = winningTrades.stream().mapToDouble(trade -> trade.amount * trade.closePrice).sum();
-        double loosingTradesSum = loosingTrades.stream().mapToDouble(trade -> trade.amount * trade.closePrice).sum();
-
-
-
-
         double winRate = (double) winningTradesCount / (winningTradesCount + loosingTradesCount);
-        double profit = winningTradesSum - loosingTradesSum;
-
-        System.out.println("****************************************");
-        System.out.println("Winning trades: " + winningTradesCount);
-        System.out.println("Loosing trades: " + loosingTradesCount);
-        System.out.println("Win rate: " + String.format("%.2f", winRate * 100) + "%");
-        System.out.println("Profit: " + String.format("%.2f", profit) + " USD");
-        System.out.println("Trading volume: " + (winningTradesCount + loosingTradesCount) * tradeSize + " USD");
-        System.out.println("****************************************");
 
         // Displaying trades
 
@@ -297,20 +299,27 @@ public class BackTestingDemo {
         allTrades.addAll(loosingTrades);
 
 
-
-        System.out.println("trades:");
+        double percentProfitSum = 0;
         for (Trade trade : allTrades) {
             // print % profit
-            double profitPercent = ((trade.closePrice - trade.openPrice) / trade.openPrice) * 100;
+            double profitPercent = (((trade.closePrice) / trade.openPrice) * 100) - 100;
+            //System.out.println(trade);
             //System.out.println("Profit: " + String.format("%.2f", profitPercent) + "%");
         }
-
         double _profit = 0;
         for (Trade trade : allTrades) {
-            _profit += (trade.closePrice * trade.amount - trade.openPrice * trade.amount);
+            _profit += (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * leverage * (1 - fee);
         }
 
-        System.out.println("profit: " + String.format("%.2f", _profit) + " USD");
+
+        System.out.println("****************************************");
+        System.out.println("Winning trades: " + winningTradesCount);
+        System.out.println("Loosing trades: " + loosingTradesCount);
+        System.out.println("Total trades: " + (winningTradesCount + loosingTradesCount));
+        System.out.println("Win rate: " + String.format("%.2f", winRate * 100) + "%");
+        System.out.println("Profit: " + String.format("%.2f", _profit) + " USD");
+        System.out.println("Trading volume: " + (winningTradesCount + loosingTradesCount) * tradeSize * leverage + " USD");
+        System.out.println("****************************************");
 
         return allTrades;
 
