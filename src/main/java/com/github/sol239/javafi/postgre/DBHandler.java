@@ -210,7 +210,7 @@ public class DBHandler {
 
 
             for (String column : columns) {
-                String dropSql = "ALTER TABLE " + tableName + " DROP COLUMN " + column + ";";
+                String dropSql = "ALTER TABLE " + tableName + " DROP COLUMN \"" + column + "\";";
                 this.conn.createStatement().execute(dropSql);
             }
 
@@ -298,6 +298,7 @@ public class DBHandler {
         try {
             this.conn.createStatement().execute(query);
         } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
