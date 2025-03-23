@@ -22,12 +22,30 @@ public class InstrumentDemo {
         }
     }
 
+    public static String getInstrumentDBColumnName(Map<String, Double[]> instruments, String instrumentName) {
+        StringBuilder params = new StringBuilder();
+        for (Double param : instruments.get(instrumentName)) {
+            params.append(param.intValue()).append("_");
+        }
+        params.delete(params.length() - 1, params.length());
+        return instrumentName + "_" + params.toString() + "_ins_";
+    }
+
     /**
      * Run instruments on a table.
      * @param tableName the name of the table
      * @param instruments the instruments to run
      */
     public static void runInstrument(String tableName, Map<String, Double[]> instruments) {
+
+        Map<String, Double[]> instrumentsRemapped = new LinkedHashMap<>();
+        for (Map.Entry<String, Double[]> entry : instruments.entrySet()) {
+            String key = entry.getKey();
+            Double[] value = entry.getValue();
+            key = getInstrumentDBColumnName(instruments, key);
+            instrumentsRemapped.put(key, value);
+        }
+
         long t1 = System.currentTimeMillis();
         long rows = 0;
 
@@ -63,7 +81,8 @@ public class InstrumentDemo {
         // instrument name (rsi) : InstrumentHelper ( Map : string column name, List<Double> values)
         LinkedHashMap<String, InstrumentHelper> columns = new LinkedHashMap<>();
         for (String instrumentName : instruments.keySet()) {
-            columns.put(instrumentName, new InstrumentHelper(instruments.get(instrumentName)[0].intValue()));
+            String name = getInstrumentDBColumnName(instruments, instrumentName);
+            columns.put(name, new InstrumentHelper(instruments.get(instrumentName)[0].intValue()));
         }
 
         // map column name : Double representing row
@@ -84,6 +103,8 @@ public class InstrumentDemo {
                 for (JavaInstrument instrument : _instruments) {
                     String name = instrument.getName();
 
+                    name = getInstrumentDBColumnName(instruments, name);
+
                     InstrumentHelper helper = columns.get(name);
 
                     for (String param : instrument.getColumnNames()) {
@@ -91,8 +112,10 @@ public class InstrumentDemo {
                     }
                     columns.put(name, helper);
 
-                    double val = 1.0;
-                    //double val = instrument.updateRow(columns.get(name).stash, instruments.get(name));
+                    System.out.println(name + " : " + row.get(name));
+
+                    //double val = 1.0;
+                    double val = instrument.updateRow(columns.get(name).stash, instrumentsRemapped.get(name));
                     // System.out.println(id + ": " + name + " -> " + val);
 
                     results.putIfAbsent(name, new ArrayList<>());

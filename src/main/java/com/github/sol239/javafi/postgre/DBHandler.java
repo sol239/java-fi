@@ -206,6 +206,8 @@ public class DBHandler {
             columns.remove("close");
             columns.remove("volume");
             columns.remove("date");
+            columns.remove("id");
+
 
             for (String column : columns) {
                 String dropSql = "ALTER TABLE " + tableName + " DROP COLUMN " + column + ";";
