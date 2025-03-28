@@ -10,13 +10,14 @@ public class Setup {
     public double riskReward;
     public int maxTrades;
     public int delaySeconds;
+    public String dateRestriction;
 
     /**
      * Stores the maximum number of opened trades at the same time.
      */
     public int maxOpenedTrades;
 
-    public Setup(double balance, double leverage, double fee, double takeProfit, double stopLoss, double amount, double riskReward, int maxTrades, int delaySeconds) {
+    public Setup(double balance, double leverage, double fee, double takeProfit, double stopLoss, double amount, double riskReward, int maxTrades, int delaySeconds, String dateRestriction) {
         this.balance = balance;
         this.leverage = leverage;
         this.fee = fee;

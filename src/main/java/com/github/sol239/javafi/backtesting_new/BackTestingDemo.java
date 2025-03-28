@@ -274,18 +274,18 @@ class BacktestingExecutor {
         long t2 = System.currentTimeMillis();
 
 
+        // Saving trades to JSON
         List<Trade> allTrades = evaluateTrades(winningTrades, loosingTrades, setup.amount, setup.leverage, setup.fee);
-        // Store into table
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             // Convert list of trades to JSON and write to file
             File outputFile = new File(TRADES_RESULT_JSON_PATH);
-
             objectMapper.writeValue(outputFile, allTrades);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // -------------------------------------------------
 
         System.out.println("\n****************************************");
         System.out.println("Balance: " + String.format("%.2f", setup.balance) + " USD");
@@ -389,7 +389,9 @@ class BacktestingExecutor {
 
         System.out.println("****************************************");
         System.out.println(backtestingExecutor.setup);
-        System.out.println("****************************************");
+        System.out.println("****************************************\n");
+
+
         backtestingExecutor.run(tableName, setup);
 
 
