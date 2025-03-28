@@ -40,6 +40,6 @@ public class Setup {
                 "riskReward = " + riskReward + "\n" +
                 "maxTrades = " + maxTrades + "\n" +
                 "delaySeconds = " + delaySeconds + "\n" +
-                "maxOpenedTrades = " + maxOpenedTrades + "\n";
+                "maxOpenedTrades = " + maxOpenedTrades;
     }
 }
