@@ -21,7 +21,7 @@ public class StCommand implements Command {
                 getParameters();
     }
 
-
+    @Override
     public String getParameters() {
         return "Options:\n" +
                 "  -h, --help\n" +

@@ -5,5 +5,6 @@ com.github.sol239.javafi.cmd.Commands.DelCommand
 com.github.sol239.javafi.cmd.Commands.StCommand
 com.github.sol239.javafi.cmd.Commands.InsertCommand
 com.github.sol239.javafi.cmd.Commands.ExitCommand
+com.github.sol239.javafi.cmd.Commands.BtCommand
 com.github.sol239.javafi.cmd.Commands.ConfigCommand
 com.github.sol239.javafi.cmd.Commands.TbCommand
