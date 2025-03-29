@@ -184,7 +184,7 @@ public class InstrumentDemo {
         // Run instruments on a table/s:
         // -------------------------------------------------
         Map<String, Double[]> instruments = new LinkedHashMap<>();
-        String[] tableNames = new String[]{"btx"};                        // Table name/s
+        String[] tableNames = new String[]{"solx"};                        // Table name/s
         instruments.put("rsi", new Double[]{14.0});                         // RSI with a 14-period sliding window
         instruments.put("bbl", new Double[]{14.0, 2.0});         // Bollinger Bands with 14-period sliding window and 2 standard deviation multiplier
         instruments.put("bbu", new Double[]{14.0, 2.0});

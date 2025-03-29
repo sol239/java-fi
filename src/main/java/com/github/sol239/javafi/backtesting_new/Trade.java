@@ -1,5 +1,8 @@
 package com.github.sol239.javafi.backtesting_new;
 
+/**
+ * Class to represent a trade.
+ */
 public class Trade {
     public double openPrice;
 

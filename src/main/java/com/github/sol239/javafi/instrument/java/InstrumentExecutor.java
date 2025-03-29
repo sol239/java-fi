@@ -101,18 +101,6 @@ public class InstrumentExecutor {
 
                 stash.add(values.clone());
 
-                // print the stash
-                /*
-                System.out.println("Stash["+ stash.size() +"]:");
-                for (Double[] value : stash) {
-                    System.out.println(Arrays.toString(value));
-                }
-                System.out.println("-----------------------------------------");
-
-                */
-                // double value = instrument.updateRow(stash, params);
-                // columnValues.add(value);
-
                 if (stash.size() == stashSize) {
                     stash.remove(0);
                     continue;

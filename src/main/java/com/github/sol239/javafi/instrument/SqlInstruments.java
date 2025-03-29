@@ -1,5 +1,6 @@
 package com.github.sol239.javafi.instrument;
 
+@Deprecated
 /**
  * A class to generate SQL queries for financial instruments
  */

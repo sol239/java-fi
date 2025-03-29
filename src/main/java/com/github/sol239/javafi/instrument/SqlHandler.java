@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 /**
  * Just a simple class to handle SQL queries, so sql query can be executed in one line.
  */

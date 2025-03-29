@@ -27,7 +27,6 @@ class BacktestingExecutor {
     public static final String STRATEGY_CLOSE_COLUMN_SUFFIX = "_stgC_";
 
     public static final String DATE_RESTRICTION_PATH  = "C:\\Users\\david_dyn8g78\\PycharmProjects\\elliptic\\data-preparation\\main\\date.txt";
-
     public static final String TRADES_RESULT_JSON_PATH = "C:\\Users\\david_dyn8g78\\PycharmProjects\\elliptic\\data-preparation\\main\\trades.json";
 
     private List<Trade> openedTrades = new ArrayList<>();
@@ -194,7 +193,7 @@ class BacktestingExecutor {
 
                     if (closePrice <= trade.stopPrice) {
 
-                        // System.out.println("LIQUIDATION");
+                        System.out.println("LIQUIDATION - stopPrice hit");
 
                         trade.closeTime = closeTime;
                         trade.closePrice = closePrice;
@@ -215,7 +214,7 @@ class BacktestingExecutor {
                     // - current close must be > than trade.open * (1 + takeProfit)
                     // - current close must be > than trade.open * (1 + fee)
                     if (close) {
-                        //System.out.println("CLOSE CONDITION");
+                        System.out.println("CLOSE CONDITION - stop condition hit");
 
                         trade.closeTime = closeTime;
                         trade.closePrice = closePrice;
@@ -363,15 +362,15 @@ class BacktestingExecutor {
     public static void main(String[] args) {
         String originalOpenClause = "WHERE rsi_14_ins_ <= 27";
         String originalCloseClause = "WHERE rsi_14_ins_ >= 70";
-        String tableName = "btx";
+        String tableName = "solx";
 
         // ---------------- Setup parameters ----------------
         double balance = 10000;
         double leverage = 5;
         double fee = (double) 2.5 / 1000;
-        double takeProfit = 0.02;
-        double stopLoss = 0.015;
-        double amount = 1000;
+        double takeProfit = 0.1;
+        double stopLoss = 0.4;
+        double amount = 500;
         double riskReward = (takeProfit) / (stopLoss);
         int maxTrades = 5;
         int delaySeconds = 3600 * 3;
@@ -385,7 +384,8 @@ class BacktestingExecutor {
         backtestingExecutor.createStrategyColumns(tableName);
 
         // does not have to be called if the columns were already updated
-        // backtestingExecutor.updateStrategyColumns(tableName);
+        // TODO: automatic
+        backtestingExecutor.updateStrategyColumns(tableName);
 
         System.out.println("****************************************");
         System.out.println(backtestingExecutor.setup);
