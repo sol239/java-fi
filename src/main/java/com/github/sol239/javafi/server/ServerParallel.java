@@ -35,6 +35,9 @@ public class ServerParallel {
      */
     private static Shell sh = new Shell();
 
+    /**
+     * Config instance to handle the configuration file.
+     */
     private static Config cfg = new Config();
 
     /**
@@ -46,10 +49,9 @@ public class ServerParallel {
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
+            // db config file
             cfg.createConfigFile();
             cfg.loadConfigMap();
-            cfg.printConfigMap();
-
 
             System.out.println("Server is listening on port " + PORT);
             serverSocket.setReuseAddress(true);
@@ -59,7 +61,6 @@ public class ServerParallel {
                 Socket socket = serverSocket.accept();
                 clients.add(socket);
                 System.out.println("New client connected: " + socket.getInetAddress().getHostAddress());
-                // Handle each client in a separate thread
                 executorService.execute(new ClientHandler(socket));
             }
 
@@ -92,43 +93,6 @@ public class ServerParallel {
     }
 
     /**
-     * Insert data to the database.
-     * It parses the command string and inserts the data to the database.
-     *
-     * @param cmd the command string
-     * @return the response to be sent back to the client
-     */
-    private static DataObject insertToDB(String cmd) {
-
-        String[] cmdArray = cmd.split(" X ");
-        DBHandler db = new DBHandler();
-        String tableName;
-        String csvPath;
-
-        try {
-            tableName = cmdArray[0];
-            csvPath = cmdArray[1];
-        } catch (Exception e) {
-            System.out.println("FAIL - " + e.getMessage());
-            DataObject errorObject = new DataObject(400, "server", "Invalid command format");
-            return errorObject;
-        }
-
-        try {
-            db.insertCsvData(tableName, csvPath);
-            DataObject dataObject = new DataObject(200, "server", "Data inserted to " + tableName);
-            return dataObject;
-
-        } catch (Exception e) {
-            System.out.println("FAIL - " + e.getMessage());
-            DataObject errorObject = new DataObject(400, "server", "Error inserting data to " + tableName);
-            return errorObject;
-        }
-
-
-    }
-
-    /**
      * Method used to run client commands_to_load.
      * @param cmd the command string
      * @return the response to be sent back to the client
@@ -137,8 +101,6 @@ public class ServerParallel {
         String[] cmdArray = cmd.split(" ");
 
         String cmdName = "";
-        String tables = "";
-        String operationString = "";
 
         List<String> flags = new ArrayList<>();
         List<String> args = new ArrayList<>();
@@ -160,64 +122,6 @@ public class ServerParallel {
             e.printStackTrace();
             return new DataObject(400, "server", "Error running command: " + cmdName);
         }
-
-        /*
-        try {
-            tables = cmdArray[1];
-        } catch (Exception e) {
-            System.out.println("FAIL - " + e.getMessage());
-        }
-        try {
-            operationString = cmdArray[2];
-        } catch (Exception e) {
-            System.out.println("FAIL - " + e.getMessage());
-        }
-        */
-
-        /*
-        switch (cmdName) {
-            // checks whether the client is still connected to the server
-            case "cn" -> {
-                return ServerUtil.cnCommand();
-            }
-
-            // updates db credentials
-            case "dbc" -> {
-                return ServerUtil.dbcCommand(cmdArray);
-            }
-
-            // checks if it is possible to connect to the database
-            case "db" -> {
-                return ServerUtil.dbCommand();
-            }
-
-            // deletes the table from db
-            case "del" -> {
-                return ServerUtil.delCommand(tables);
-            }
-
-            // removes everything from the database except the schema
-            case "clean" -> {
-                return ServerUtil.cleanCommand();
-            }
-
-            // insert csv into db
-            case "in" -> {
-                String dbInsertString = tables + " X " + operationString;
-                return insertToDB(dbInsertString);
-            }
-
-            // store operation for instruments
-            case "st" -> {
-                ServerUtil.stCommand(tables, operationString);
-            }
-
-            // backtest operation
-            case "bt" -> {
-                return ServerUtil.btCommand(tables, operationString, cmdArray);
-            }
-        }
-        */
     }
 
     /**

@@ -50,17 +50,28 @@ public class TbCommand implements Command {
     @Override
     public DataObject run(List<String> args, List<String> flags) {
 
+        System.out.println("Executing command: " + getName());
+        System.out.println("Arguments: " + args + "\n");
+        System.out.println("Flags: " + flags + "\n");
+
+
+        for (String flag : flags) {
+            if (flag.equals("-h") || flag.equals("--help")) {
+                return new DataObject(200, "server", this.getDescription());
+            }
+        }
+
+
         DBHandler db = new DBHandler();
         StringBuilder sb = new StringBuilder();
 
         if (args.isEmpty()) {
             String sql = """
-                SELECT table_name
-                FROM information_schema.tables
-                WHERE table_schema = 'public';
-                """;
+                    SELECT table_name
+                    FROM information_schema.tables
+                    WHERE table_schema = 'public';
+                    """;
             ResultSet rs = db.getResultSet(sql);
-
 
 
             try {

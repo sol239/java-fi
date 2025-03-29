@@ -30,7 +30,6 @@ public class InsertCommand implements Command {
     public String getDescription() {
         return "Usage: insert [OPTION]...\n" +
                 "The command inserts data from a CSV file to the database.\n" +
-                "Supported columns are: " +
                 getParameters();
 
     }

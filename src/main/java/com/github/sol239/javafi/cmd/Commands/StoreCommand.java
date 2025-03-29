@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+@Deprecated
 public class StoreCommand implements Command {
     /**
      * Method to get the name of the command.
