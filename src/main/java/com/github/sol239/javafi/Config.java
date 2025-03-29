@@ -9,24 +9,44 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * Class to handle the app's configuration.
+ * Class to handle the app's postgres database configuration file.
  */
 public class Config {
+
+    /**
+     * The name of the configuration file and also its path.
+     */
     public static final String CONFIG_FILE = "config";
 
-    public String configFileName = "";
+    /**
+     * The URL of the database.
+     */
     public String url = "";
+
+    /**
+     * The password of the database.
+     */
     public String password = "";
+
+    /**
+     * The username of the user.
+     */
     public String username = "";
 
+    /**
+     * Key is the name of the parameter, value is the value of the parameter.
+     */
     public HashMap<String, String> configMap;
 
     public Config() {
         this.configMap = new LinkedHashMap<>();
-        this.configFileName = CONFIG_FILE;
 
     }
 
+    /**
+     * Creates the configuration file.
+     * @return a DataObject with the result of the operation
+     */
     public DataObject createConfigFile() {
 
         File configFile = new File(Path.of(CONFIG_FILE).toString());
@@ -46,6 +66,9 @@ public class Config {
         }
     }
 
+    /**
+     * Creates a template for the configuration file.
+     */
     public void createConfigFileTemplate() {
         List<String> params = getConfigParameters();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CONFIG_FILE))) {
@@ -61,6 +84,10 @@ public class Config {
         }
     }
 
+    /**
+     * Get the configuration parameters.
+     * @return a list of configuration parameters
+     */
     public List<String> getConfigParameters() {
 
         List<String> configParameters = new ArrayList<>();
@@ -75,6 +102,9 @@ public class Config {
         return configParameters;
     }
 
+    /**
+     * Fills the configMap with the configuration parameters.
+     */
     public void fillConfigMap() {
         Class<?> clazz = this.getClass();
         Field[] fields = clazz.getFields();
@@ -90,6 +120,9 @@ public class Config {
         }
     }
 
+    /**
+     * Writes the configuration map to the configuration file.
+     */
     public void writeConfigMap() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CONFIG_FILE))) {
             for (String key : configMap.keySet()) {
@@ -101,6 +134,9 @@ public class Config {
         }
     }
 
+    /**
+     * Loads the configuration map from the configuration file.
+     */
     public void loadConfigMap() {
         try (BufferedReader reader = new BufferedReader(new FileReader(CONFIG_FILE))) {
             String line;
@@ -113,12 +149,19 @@ public class Config {
         }
     }
 
+    /**
+     * Prints the configuration map.
+     */
     public void printConfigMap() {
         for (String key : configMap.keySet()) {
             System.out.println(key + " = " + configMap.get(key));
         }
     }
 
+    /**
+     * Returns the configuration map as a string.
+     * @return the configuration map as a string
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
