@@ -1,4 +1,4 @@
-import com.github.sol239.javafi.postgre.DBHandler;
+import com.github.sol239.javafi.utils.database.DBHandler;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

@@ -1,15 +1,17 @@
 package com.github.sol239.javafi;
 
+import com.github.sol239.javafi.utils.files.ConfigHandler;
+
 @Deprecated
 public class Demo {
 
     public static void main(String[] args) {
-        Config cf = new Config();
+        ConfigHandler cf = new ConfigHandler();
         cf.createConfigFile();
         cf.fillConfigMap();
         cf.writeConfigMap();
 
-        Config cfg = new Config();
+        ConfigHandler cfg = new ConfigHandler();
         cfg.loadConfigMap();
         cfg.printConfigMap();
     }

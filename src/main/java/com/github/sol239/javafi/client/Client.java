@@ -1,6 +1,6 @@
 package com.github.sol239.javafi.client;
 
-import com.github.sol239.javafi.DataObject;
+import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.ClientServerUtil;
 
 import java.io.IOException;

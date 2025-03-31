@@ -1,9 +1,8 @@
 package com.github.sol239.javafi.server;
 
-import com.github.sol239.javafi.Config;
-import com.github.sol239.javafi.DataObject;
-import com.github.sol239.javafi.cmd.Shell;
-import com.github.sol239.javafi.postgre.DBHandler;
+import com.github.sol239.javafi.utils.files.ConfigHandler;
+import com.github.sol239.javafi.utils.DataObject;
+import com.github.sol239.javafi.utils.cmd.Shell;
 import com.github.sol239.javafi.utils.ClientServerUtil;
 
 import java.io.IOException;
@@ -38,7 +37,7 @@ public class ServerParallel {
     /**
      * Config instance to handle the configuration file.
      */
-    private static Config cfg = new Config();
+    private static ConfigHandler cfg = new ConfigHandler();
 
     /**
      * Main method.

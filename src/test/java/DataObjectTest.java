@@ -1,4 +1,4 @@
-import com.github.sol239.javafi.DataObject;
+import com.github.sol239.javafi.utils.DataObject;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
