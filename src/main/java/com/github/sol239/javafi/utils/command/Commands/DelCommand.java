@@ -1,11 +1,12 @@
-package com.github.sol239.javafi.utils.cmd.Commands;
+package com.github.sol239.javafi.utils.command.Commands;
 
 import com.github.sol239.javafi.utils.DataObject;
-import com.github.sol239.javafi.utils.cmd.Command;
+import com.github.sol239.javafi.utils.command.Command;
+import com.github.sol239.javafi.utils.database.DBHandler;
 
 import java.util.List;
 
-public class CnCommand implements Command {
+public class DelCommand implements Command {
     /**
      * Method to get the name of the command.
      *
@@ -13,7 +14,7 @@ public class CnCommand implements Command {
      */
     @Override
     public String getName() {
-        return "cn";
+        return "del";
     }
 
     /**
@@ -23,8 +24,8 @@ public class CnCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "Usage: cn [Option]...\n" +
-                "Checks the connection to the server.\n" +
+        return "Usage: del [OPTION]... [TABLE]...\n" +
+                "The command to delete a TABLEs from the database.\n" +
                 getParameters();
     }
 
@@ -54,7 +55,21 @@ public class CnCommand implements Command {
             }
         }
 
-        DataObject dataObject = new DataObject(200, "server", "Connection Open");
-        return dataObject;
+        DBHandler db = new DBHandler();
+        try {
+            db.connect();
+
+            for (String table : args) {
+                db.deleteTable(table);
+            }
+
+            DataObject dataObject = new DataObject(200, "server", "Table deleted");
+            return dataObject;
+        } catch (Exception e) {
+            DataObject errorObject = new DataObject(400, "server", "Table deletion failed");
+            return errorObject;
+        } finally {
+            db.closeConnection();
+        }
     }
 }

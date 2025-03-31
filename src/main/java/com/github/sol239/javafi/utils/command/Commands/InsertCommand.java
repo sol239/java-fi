@@ -1,7 +1,7 @@
-package com.github.sol239.javafi.utils.cmd.Commands;
+package com.github.sol239.javafi.utils.command.Commands;
 
 import com.github.sol239.javafi.utils.DataObject;
-import com.github.sol239.javafi.utils.cmd.Command;
+import com.github.sol239.javafi.utils.command.Command;
 import com.github.sol239.javafi.utils.database.DBHandler;
 
 import java.io.BufferedReader;

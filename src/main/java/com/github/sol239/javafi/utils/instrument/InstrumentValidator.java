@@ -1,7 +1,12 @@
-package com.github.sol239.javafi.utils.instrument.java;
+package com.github.sol239.javafi.utils.instrument;
 
 import java.util.ArrayList;
 import java.util.List;
+
+// TODO: More of validation will be added as part of advanced java course
+//  - validation of instruments
+//  - validation before instrument is created
+//  - name validation, ...
 
 /**
  * Instrument validator.

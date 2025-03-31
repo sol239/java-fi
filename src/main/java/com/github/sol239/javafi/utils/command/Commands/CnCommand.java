@@ -1,12 +1,11 @@
-package com.github.sol239.javafi.utils.cmd.Commands;
+package com.github.sol239.javafi.utils.command.Commands;
 
 import com.github.sol239.javafi.utils.DataObject;
-import com.github.sol239.javafi.utils.cmd.Command;
+import com.github.sol239.javafi.utils.command.Command;
 
 import java.util.List;
 
-public class ExitCommand implements Command {
-
+public class CnCommand implements Command {
     /**
      * Method to get the name of the command.
      *
@@ -14,7 +13,7 @@ public class ExitCommand implements Command {
      */
     @Override
     public String getName() {
-        return "exit";
+        return "cn";
     }
 
     /**
@@ -24,8 +23,8 @@ public class ExitCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "Usage: exit [OPTION]...\n" +
-                "The command to exit the application and close the connection to the server.\n" +
+        return "Usage: cn [Option]...\n" +
+                "Checks the connection to the server.\n" +
                 getParameters();
     }
 
@@ -36,7 +35,6 @@ public class ExitCommand implements Command {
      */
     @Override
     public String getParameters() {
-
         return "Options:\n" +
                 "  -h, --help";
     }
@@ -44,8 +42,7 @@ public class ExitCommand implements Command {
     /**
      * Method to run the command.
      *
-     * @param args  arguments
-     * @param flags flags
+     * @param args arguments
      * @return result
      */
     @Override
@@ -57,6 +54,7 @@ public class ExitCommand implements Command {
             }
         }
 
-        return new DataObject(0, "server", "exit");
+        DataObject dataObject = new DataObject(200, "server", "Connection Open");
+        return dataObject;
     }
 }

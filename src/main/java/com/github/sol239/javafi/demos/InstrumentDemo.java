@@ -1,8 +1,12 @@
 package com.github.sol239.javafi.demos;
 
+import com.github.sol239.javafi.utils.instrument.InstrumentExecutor;
+import com.github.sol239.javafi.utils.instrument.InstrumentValidator;
+import com.github.sol239.javafi.utils.instrument.JavaInstrument;
+
 import java.util.*;
 
-import static com.github.sol239.javafi.utils.instrument.java.InstrumentExecutor.runInstruments;
+import static com.github.sol239.javafi.utils.instrument.InstrumentExecutor.runInstruments;
 
 /**
  * This class demonstrates how to run instruments on a table.
@@ -15,12 +19,12 @@ public class InstrumentDemo {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        /*
+
         // 1)
         // How to get the number of instruments:
         InstrumentExecutor ie = new InstrumentExecutor();
         int instrumentCount = ie.getInstrumentCount();
-        System.out.println(instrumentCount);
+        System.out.println("Number of instruments = " + instrumentCount);
         // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 
@@ -38,17 +42,16 @@ public class InstrumentDemo {
         String instrumentName = "rsi";
         JavaInstrument instrument = ie.getInstrumentByName(instrumentName);
         if (instrument != null) {
-            System.out.println(instrument.getDescription());
+            System.out.println(instrumentName + ": " +  instrument.getDescription());
         } else {
-            System.out.println("Instrument not found");
+            System.out.println(instrumentName + " :Instrument not found");
         }
         // -------------------------------------------------
         System.out.println("-------------------------------------------------");
-        */
+
 
         // 4)
         // Run instruments on a table/s:
-        // -------------------------------------------------
         Map<String, Double[]> instruments = new LinkedHashMap<>();
         String[] tableNames = new String[]{"btc_d"};                        // Table name/s
         instruments.put("rsi", new Double[]{14.0});                         // RSI with a 14-period sliding window
@@ -62,7 +65,8 @@ public class InstrumentDemo {
         // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 
-        /*
+
+
         // 5)
         // Are there any conflicting instrument names = two cannot have same return value of getName()
         boolean namesValid = InstrumentValidator.areInstrumentNamesUnique(availableInstruments);
@@ -75,7 +79,7 @@ public class InstrumentDemo {
         }
         // -------------------------------------------------
         System.out.println("-------------------------------------------------");
-        */
+
 
 
     }

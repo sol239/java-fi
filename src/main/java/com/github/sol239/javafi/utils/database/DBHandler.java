@@ -2,7 +2,7 @@ package com.github.sol239.javafi.utils.database;
 
 import com.github.sol239.javafi.utils.files.ConfigHandler;
 import com.github.sol239.javafi.utils.DataObject;
-import com.github.sol239.javafi.utils.instrument.java.IdValueRecord;
+import com.github.sol239.javafi.utils.instrument.IdValueRecord;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

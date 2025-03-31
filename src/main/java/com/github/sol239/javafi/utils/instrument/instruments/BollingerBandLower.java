@@ -1,6 +1,6 @@
-package com.github.sol239.javafi.utils.instrument.java.instruments;
+package com.github.sol239.javafi.utils.instrument.instruments;
 
-import com.github.sol239.javafi.utils.instrument.java.JavaInstrument;
+import com.github.sol239.javafi.utils.instrument.JavaInstrument;
 import com.google.auto.service.AutoService;
 
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import java.util.List;
  * @see <a href="https://www.investopedia.com/terms/b/bollingerbands.asp">Investopedia</a>
  */
 @AutoService(JavaInstrument.class)
-public class BollingerBandUpper implements JavaInstrument {
+public class BollingerBandLower implements JavaInstrument {
 
     @Override
     public String[] getColumnNames() {
@@ -20,7 +20,7 @@ public class BollingerBandUpper implements JavaInstrument {
 
     @Override
     public String getName() {
-        return "bbu";
+        return "bbl";
     }
 
 
@@ -59,6 +59,6 @@ public class BollingerBandUpper implements JavaInstrument {
         double lowerBand = sma - multiplier * standardDeviation;
 
         // Returning upper band as the result
-        return upperBand;
+        return lowerBand;
     }
 }

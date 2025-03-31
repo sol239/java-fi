@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.utils.instrument.java;
+package com.github.sol239.javafi.utils.instrument;
 
 import com.github.sol239.javafi.utils.database.DBHandler;
 

@@ -1,4 +1,4 @@
-package com.github.sol239.javafi.utils.instrument.java;
+package com.github.sol239.javafi.utils.instrument;
 
 import java.util.ArrayList;
 import java.util.HashMap;
