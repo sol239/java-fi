@@ -2,7 +2,6 @@ package com.github.sol239.javafi.cmd.Commands;
 
 import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.cmd.Command;
-import com.github.sol239.javafi.instrument.SqlHandler;
 import com.github.sol239.javafi.instrument.SqlInstruments;
 import com.github.sol239.javafi.postgre.DBHandler;
 
