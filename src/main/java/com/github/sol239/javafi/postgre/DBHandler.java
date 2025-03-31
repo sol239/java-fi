@@ -584,5 +584,12 @@ public class DBHandler {
         }
     }
 
+    public static void executeQueryStatic(String query) {
+        DBHandler dbHandler = new DBHandler();
+        dbHandler.executeQuery(query);
+        dbHandler.closeConnection();
+    }
+
+
 
 }

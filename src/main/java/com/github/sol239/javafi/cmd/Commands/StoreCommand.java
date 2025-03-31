@@ -4,6 +4,7 @@ import com.github.sol239.javafi.DataObject;
 import com.github.sol239.javafi.cmd.Command;
 import com.github.sol239.javafi.instrument.SqlHandler;
 import com.github.sol239.javafi.instrument.SqlInstruments;
+import com.github.sol239.javafi.postgre.DBHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -128,7 +129,7 @@ public class StoreCommand implements Command {
                         e.printStackTrace();
                     }
 
-                    SqlHandler.executeQuery(result);
+                    DBHandler.executeQueryStatic(result);
                 }
             }
         }
