@@ -37,6 +37,6 @@ public class BacktestingDemo {
         System.out.println("****************************************\n");
 
 
-        backtestingExecutor.run(tableName, setup);
+        backtestingExecutor.run(tableName, setup, 0, false, true);
     }
 }

@@ -144,7 +144,7 @@ public class BacktestingExecutor {
         System.out.println("Strategy columns updated.");
     }
 
-    public void run(String tableName, Setup setup, long delaySeconds ) {
+    public void run(String tableName, Setup setup, long tradeLifeSpanSeconds, boolean takeProfit, boolean stopLoss) {
 
         long t1 = System.currentTimeMillis();
 
@@ -190,7 +190,7 @@ public class BacktestingExecutor {
                     Trade trade = iterator.next();
                     boolean tradeClosed = false;
 
-                    if (closePrice <= trade.stopPrice) {
+                    if ((closePrice <= trade.stopPrice) && stopLoss) {
 
                         //System.out.println("LIQUIDATION - stopPrice hit");
 
@@ -213,11 +213,18 @@ public class BacktestingExecutor {
                     // - current close must be > than trade.open * (1 + takeProfit)
                     // - current close must be > than trade.open * (1 + fee)
                     if (close) {
-                        //System.out.println("CLOSE CONDITION - stop condition hit");
+
+                        // If takeProfit is set, takePrice must reached to close the trade.
+                        if (takeProfit) {
+                            if (!(closePrice >= trade.takePrice)) {
+                                continue;
+                            }
+                        }
 
                         trade.closeTime = closeTime;
                         trade.closePrice = closePrice;
                         trade.PnL = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * setup.leverage * (1 - setup.fee);
+
                         if (closePrice >= trade.openPrice) {
                             winningTrades.add(trade);
                         } else {
@@ -233,28 +240,22 @@ public class BacktestingExecutor {
                 Iterator<Trade> openedTradesIterator = this.openedTrades.iterator();
 
                 // TRADE TIME LIFESPAN CLOSER
-                if (delaySeconds > 0) {
-                    this.closeTrades(openedTradesIterator, setup, closePrice, closeTime, delaySeconds);
+                if (tradeLifeSpanSeconds > 0) {
+                    this.closeTrades(openedTradesIterator, setup, closePrice, closeTime, tradeLifeSpanSeconds);
                 }
 
-
-                // long trade opening
+                // LONG TRADE OPENING
                 if (open && this.openedTrades.size() < setup.maxTrades && setup.balance - setup.amount >= 0) {
                     if (!this.openedTrades.isEmpty()) {
                         if (isDifferenceGreaterThan(now,this.openedTrades.get(this.openedTrades.size() - 1).openTime, setup.delaySeconds)) {
                             Trade newTrade = new Trade(closePrice, closePrice * (1 + setup.takeProfit), closePrice * (1 - setup.stopLoss), 0, (setup.amount * setup.leverage / closePrice), tableName, rs.getString("date"), "");
                             setup.balance -= setup.amount / closePrice;
                             this.openedTrades.add(newTrade);
-                            //System.out.println(newTrade);
-
-
                         }
                     } else  {
                         Trade newTrade = new Trade(closePrice, closePrice * (1 + setup.takeProfit), closePrice * (1 - setup.stopLoss), 0, (setup.amount * setup.leverage / closePrice), tableName, rs.getString("date"), "");
                         setup.balance -= setup.amount / closePrice;
                         this.openedTrades.add(newTrade);
-                        //System.out.println(newTrade);
-
                     }
 
                     if (this.openedTrades.size() > setup.maxOpenedTrades) {
@@ -269,7 +270,7 @@ public class BacktestingExecutor {
                     System.out.println("-----------------------------------------");
                     */
                 }
-                // TODO: SHORT TRADES
+                // TODO: SHORT TRADE OPENING
             }
         } catch (Exception e) {
             e.printStackTrace();
