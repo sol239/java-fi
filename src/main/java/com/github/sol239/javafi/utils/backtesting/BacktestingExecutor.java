@@ -144,7 +144,7 @@ public class BacktestingExecutor {
         System.out.println("Strategy columns updated.");
     }
 
-    public void run(String tableName, Setup setup) {
+    public void run(String tableName, Setup setup, long delaySeconds ) {
 
         long t1 = System.currentTimeMillis();
 
@@ -231,7 +231,13 @@ public class BacktestingExecutor {
                 }
 
                 Iterator<Trade> openedTradesIterator = this.openedTrades.iterator();
-                this.closeTrades(openedTradesIterator, setup, closePrice, closeTime);
+
+                // TRADE TIME LIFESPAN CLOSER
+                if (delaySeconds > 0) {
+                    this.closeTrades(openedTradesIterator, setup, closePrice, closeTime, delaySeconds);
+                }
+
+
                 // long trade opening
                 if (open && this.openedTrades.size() < setup.maxTrades && setup.balance - setup.amount >= 0) {
                     if (!this.openedTrades.isEmpty()) {
@@ -273,9 +279,12 @@ public class BacktestingExecutor {
 
 
         // Saving trades to JSON
+
+        String strategiesDirPath = "C:\\Users\\david_dyn8g78\\Desktop\\java-fi\\strategies\\";
+        String strategyName = "";
+
         List<Trade> allTrades = evaluateTrades(winningTrades, loosingTrades, setup.amount, setup.leverage, setup.fee);
         ObjectMapper objectMapper = new ObjectMapper();
-
         try {
             // Convert list of trades to JSON and write to file
             File outputFile = new File(TRADES_RESULT_JSON_PATH);
@@ -297,7 +306,7 @@ public class BacktestingExecutor {
         this.setup = setup;
     }
 
-    public void closeTrades(Iterator<Trade> iterator, Setup setup, double closePrice, String closeTime) {
+    public void closeTrades(Iterator<Trade> iterator, Setup setup, double closePrice, String closeTime, long delaySeconds) {
 
 
         //System.out.println("closeTrades");
@@ -307,7 +316,7 @@ public class BacktestingExecutor {
             // 1) close if trade lifetime is greater than 2 days
             //System.out.println(closeTime);
             //System.out.println(trade.openTime);
-            if (isDifferenceGreaterThan(closeTime, trade.openTime, 3600 * 12
+            if (isDifferenceGreaterThan(closeTime, trade.openTime, delaySeconds
             )) {
                 System.out.println("CLOSING - TIME LIMIT");
                 trade.closeTime = closeTime;
