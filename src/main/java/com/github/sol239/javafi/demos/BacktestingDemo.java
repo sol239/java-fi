@@ -24,6 +24,7 @@ public class BacktestingDemo {
         double riskReward = (takeProfit) / (stopLoss);
         int maxTrades = 5;
         int delaySeconds = 3600 * 3;
+        int tradeLifespanSeconds = 3600 * 24;
         Setup longSetup = new Setup(balance, leverage, fee, takeProfit, stopLoss, amount, riskReward, maxTrades, delaySeconds);
         Setup shortSetup = new Setup(balance, leverage, fee, 0.98, 1.01, amount, riskReward, maxTrades, delaySeconds);
 
@@ -51,6 +52,6 @@ public class BacktestingDemo {
         System.out.println("****************************************");
 
 
-        backtestingExecutor.run(tableName, 0, true, true);
+        backtestingExecutor.run(tableName, tradeLifespanSeconds, false, true);
     }
 }
