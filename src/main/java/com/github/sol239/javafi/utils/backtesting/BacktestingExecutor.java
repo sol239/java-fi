@@ -36,27 +36,20 @@ public class BacktestingExecutor {
 
     private DBHandler db;
 
-    public Setup setup;
+    public List<Strategy> strategies;
 
-    /**
-     * Clause that defines the conditions for opening a long trade (closing a short trade)
-     * e.g. "WHERE rsi_14_ins_ <= 27"
-     */
-    public String originalOpenClause;
+    public BacktestingExecutor() {
 
-    /**
-     * Clause that defines the conditions for closing a long trade (opening a short trade)
-     * e.g. "WHERE rsi_14_ins_ >= 70"
-     */
-    public String originalCloseClause;
-    public BacktestingExecutor(String originalOpenClause, String originalCloseClause) {
-        this.originalOpenClause = originalOpenClause;
-        this.originalCloseClause = originalCloseClause;
+        this.strategies = new ArrayList<>();
 
         this.db = new DBHandler();
         this.db.setFetchSize(1000);
-
     }
+
+    public void addStrategy(Strategy strategy) {
+        this.strategies.add(strategy);
+    }
+
 
     /**
      * Calculates the difference between two dates and returns true if the difference is greater than 'n' seconds.
@@ -86,11 +79,11 @@ public class BacktestingExecutor {
      * @param open True if the column stores the open signals, false if it stores the close signals
      * @return The name of the column that stores the signals for the strategy
      */
-    public String getStrategyColumnName(boolean open) {
+    public String getStrategyColumnName(Strategy strategy, boolean open) {
         if (open) {
-            return "\"" + originalOpenClause + " - " + originalCloseClause + STRATEGY_OPEN_COLUMN_SUFFIX + "\"";
+            return "\"" + strategy.openClause + " - " + strategy.closeClause + STRATEGY_OPEN_COLUMN_SUFFIX + "\"";
         } else {
-            return "\"" + originalOpenClause + " - " + originalCloseClause + STRATEGY_CLOSE_COLUMN_SUFFIX + "\"";
+            return "\"" + strategy.openClause + " - " + strategy.closeClause + STRATEGY_CLOSE_COLUMN_SUFFIX + "\"";
         }
     }
 
@@ -98,9 +91,9 @@ public class BacktestingExecutor {
      * Creates the columns in the database table that store the signals for the strategy.
      * @param tableName The name of the database table
      */
-    public void createStrategyColumns(String tableName) {
-        String openColumnName = getStrategyColumnName(true);
-        String closeColumnName = getStrategyColumnName(false);
+    public void createStrategyColumns(Strategy strategy, String tableName) {
+        String openColumnName = getStrategyColumnName(strategy, true);
+        String closeColumnName = getStrategyColumnName(strategy, false);
 
         // Creating open/false boolean columns
         String createOpenColumn = """
@@ -118,33 +111,46 @@ public class BacktestingExecutor {
         System.out.println("Strategy columns created.");
     }
 
+    public void createStrategiesColumns(String tableName) {
+        for (Strategy strategy : strategies) {
+            this.createStrategyColumns(strategy, tableName);
+        }
+    }
+
     /**
      * Updates the columns in the database table that store the signals for the strategy.
      * @param tableName The name of the database table
      */
-    public void updateStrategyColumns(String tableName) {
-        String openColumnName = getStrategyColumnName(true);
-        String closeColumnName = getStrategyColumnName(false);
+    public void updateStrategyColumns(Strategy strategy, String tableName) {
+        String openColumnName = getStrategyColumnName(strategy, true);
+        String closeColumnName = getStrategyColumnName(strategy, false);
 
         // Update open/close columns based on the original clauses
         String updateOpenColumn = """
                 UPDATE %s
                 SET %s = TRUE
                 %s;
-                """.formatted(tableName, openColumnName, originalOpenClause);
+                """.formatted(tableName, openColumnName, strategy.openClause);
 
         String updateCloseColumn = """
                 UPDATE %s
                 SET %s = TRUE
                 %s;
-                """.formatted(tableName, closeColumnName, originalCloseClause);
+                """.formatted(tableName, closeColumnName, strategy.closeClause);
 
         db.executeQuery(updateOpenColumn);
         db.executeQuery(updateCloseColumn);
         System.out.println("Strategy columns updated.");
     }
 
-    public void run(String tableName, Setup setup, long tradeLifeSpanSeconds, boolean takeProfit, boolean stopLoss) {
+    public void updateStrategiesColumns(String tableName) {
+        for (Strategy strategy : strategies) {
+            this.updateStrategyColumns(strategy, tableName);
+        }
+
+    }
+
+    public void run(String tableName, long tradeLifeSpanSeconds, boolean takeProfit, boolean stopLoss) {
 
         long t1 = System.currentTimeMillis();
 
@@ -167,8 +173,6 @@ public class BacktestingExecutor {
         }
 
 
-        String openX = this.getStrategyColumnName(true).substring(1, this.getStrategyColumnName(true).length() - 1);
-        String closeX = this.getStrategyColumnName(false).substring(1, this.getStrategyColumnName(false).length() - 1);
 
         int skipRows = 1;
         int c = 0;
@@ -178,89 +182,92 @@ public class BacktestingExecutor {
                 if (c < skipRows) {
                     continue;
                 }
-                boolean open = rs.getBoolean(openX);
-                boolean close = rs.getBoolean(closeX);
-                double closePrice = rs.getDouble("close");
-                String closeTime = rs.getString("date");
-                String now = rs.getString("date");
+                for (Strategy strategy : strategies) {
+                    String openX = this.getStrategyColumnName(strategy, true).substring(1, this.getStrategyColumnName(strategy ,true).length() - 1);
+                    String closeX = this.getStrategyColumnName(strategy,false).substring(1, this.getStrategyColumnName(strategy, false).length() - 1);
+                    boolean open = rs.getBoolean(openX);
+                    boolean close = rs.getBoolean(closeX);
+                    double closePrice = rs.getDouble("close");
+                    String closeTime = rs.getString("date");
+                    String now = rs.getString("date");
 
-                // trade closing
-                Iterator<Trade> iterator = this.openedTrades.iterator();
-                while (iterator.hasNext()) {
-                    Trade trade = iterator.next();
-                    boolean tradeClosed = false;
+                    // trade closing
+                    Iterator<Trade> iterator = this.openedTrades.iterator();
+                    while (iterator.hasNext()) {
+                        Trade trade = iterator.next();
+                        boolean tradeClosed = false;
 
-                    if ((closePrice <= trade.stopPrice) && stopLoss) {
+                        if (closePrice <= trade.stopPrice) {
 
-                        //System.out.println("LIQUIDATION - stopPrice hit");
 
-                        trade.closeTime = closeTime;
-                        trade.closePrice = closePrice;
-                        trade.PnL = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * setup.leverage * (1 - setup.fee);
-                        if (closePrice >= trade.openPrice) {
-                            winningTrades.add(trade);
-                        } else {
-                            loosingTrades.add(trade);
-                        }
-                        iterator.remove();
 
-                        double profit = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * setup.leverage;
-                        setup.balance += profit;
-                        continue;
-                    }
-
-                    // It is generally good to specify that:
-                    // - current close must be > than trade.open * (1 + takeProfit)
-                    // - current close must be > than trade.open * (1 + fee)
-                    if (close) {
-
-                        // If takeProfit is set, takePrice must reached to close the trade.
-                        if (takeProfit) {
-                            if (!(closePrice >= trade.takePrice)) {
-                                continue;
+                            trade.closeTime = closeTime;
+                            trade.closePrice = closePrice;
+                            trade.PnL = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * strategy.setup.leverage * (1 - strategy.setup.fee);
+                            if (closePrice >= trade.openPrice) {
+                                winningTrades.add(trade);
+                            } else {
+                                loosingTrades.add(trade);
                             }
+                            iterator.remove();
+
+                            double profit = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * strategy.setup.leverage;
+                            strategy.setup.balance += profit;
+                            continue;
                         }
 
-                        trade.closeTime = closeTime;
-                        trade.closePrice = closePrice;
-                        trade.PnL = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * setup.leverage * (1 - setup.fee);
+                        // It is generally good to specify that:
+                        // - current close must be > than trade.open * (1 + takeProfit)
+                        // - current close must be > than trade.open * (1 + fee)
+                        if (close) {
 
-                        if (closePrice >= trade.openPrice) {
-                            winningTrades.add(trade);
-                        } else {
-                            loosingTrades.add(trade);
+                            // If takeProfit is set, takePrice must reached to close the trade.
+                            if (takeProfit) {
+                                if (!(closePrice >= trade.takePrice)) {
+                                    continue;
+                                }
+                            }
+
+                            trade.closeTime = closeTime;
+                            trade.closePrice = closePrice;
+                            trade.PnL = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * strategy.setup.leverage * (1 - strategy.setup.fee);
+
+                            if (closePrice >= trade.openPrice) {
+                                winningTrades.add(trade);
+                            } else {
+                                loosingTrades.add(trade);
+                            }
+                            iterator.remove();
+
+                            double profit = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * strategy.setup.leverage;
+                            strategy.setup.balance += profit;
                         }
-                        iterator.remove();
-
-                        double profit = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * setup.leverage;
-                        setup.balance += profit;
                     }
-                }
 
-                Iterator<Trade> openedTradesIterator = this.openedTrades.iterator();
+                    Iterator<Trade> openedTradesIterator = this.openedTrades.iterator();
 
-                // TRADE TIME LIFESPAN CLOSER
-                if (tradeLifeSpanSeconds > 0) {
-                    this.closeTrades(openedTradesIterator, setup, closePrice, closeTime, tradeLifeSpanSeconds);
-                }
+                    // TRADE TIME LIFESPAN CLOSER
+                    if (tradeLifeSpanSeconds > 0) {
+                        this.closeTrades(openedTradesIterator, strategy.setup, closePrice, closeTime, tradeLifeSpanSeconds);
+                    }
 
-                // LONG TRADE OPENING
-                if (open && this.openedTrades.size() < setup.maxTrades && setup.balance - setup.amount >= 0) {
-                    if (!this.openedTrades.isEmpty()) {
-                        if (isDifferenceGreaterThan(now,this.openedTrades.get(this.openedTrades.size() - 1).openTime, setup.delaySeconds)) {
-                            Trade newTrade = new Trade(closePrice, closePrice * (1 + setup.takeProfit), closePrice * (1 - setup.stopLoss), 0, (setup.amount * setup.leverage / closePrice), tableName, rs.getString("date"), "");
-                            setup.balance -= setup.amount / closePrice;
+                    // LONG TRADE OPENING
+                    if (open && this.openedTrades.size() < strategy.setup.maxTrades && strategy.setup.balance - strategy.setup.amount >= 0) {
+                        if (!this.openedTrades.isEmpty()) {
+                            if (isDifferenceGreaterThan(now,this.openedTrades.get(this.openedTrades.size() - 1).openTime, strategy.setup.delaySeconds)) {
+                                Trade newTrade = new Trade(closePrice, closePrice * (strategy.setup.takeProfit), closePrice * (strategy.setup.stopLoss), 0, (strategy.setup.amount * strategy.setup.leverage / closePrice), tableName, rs.getString("date"), "", strategy);
+                                strategy.setup.balance -= strategy.setup.amount / closePrice;
+                                this.openedTrades.add(newTrade);
+                            }
+                        } else  {
+                            Trade newTrade = new Trade(closePrice, closePrice * (strategy.setup.takeProfit), closePrice * (strategy.setup.stopLoss), 0, (strategy.setup.amount * strategy.setup.leverage / closePrice), tableName, rs.getString("date"), "", strategy);
+                            strategy.setup.balance -= strategy.setup.amount / closePrice;
                             this.openedTrades.add(newTrade);
                         }
-                    } else  {
-                        Trade newTrade = new Trade(closePrice, closePrice * (1 + setup.takeProfit), closePrice * (1 - setup.stopLoss), 0, (setup.amount * setup.leverage / closePrice), tableName, rs.getString("date"), "");
-                        setup.balance -= setup.amount / closePrice;
-                        this.openedTrades.add(newTrade);
-                    }
 
-                    if (this.openedTrades.size() > setup.maxOpenedTrades) {
-                        setup.maxOpenedTrades = this.openedTrades.size();
-                    }
+                        if (this.openedTrades.size() > strategy.setup.maxOpenedTrades) {
+                            strategy.setup.maxOpenedTrades = this.openedTrades.size();
+                        }
 
                     /*
                     System.out.println("-----------------------------------------");
@@ -269,8 +276,9 @@ public class BacktestingExecutor {
                     System.out.println(newTrade);
                     System.out.println("-----------------------------------------");
                     */
+                    }
+                    // TODO: SHORT TRADE OPENING
                 }
-                // TODO: SHORT TRADE OPENING
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -284,7 +292,7 @@ public class BacktestingExecutor {
         String strategiesDirPath = "C:\\Users\\david_dyn8g78\\Desktop\\java-fi\\strategies\\";
         String strategyName = "";
 
-        List<Trade> allTrades = evaluateTrades(winningTrades, loosingTrades, setup.amount, setup.leverage, setup.fee);
+        List<Trade> allTrades = evaluateTrades(winningTrades, loosingTrades);
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             // Convert list of trades to JSON and write to file
@@ -298,13 +306,10 @@ public class BacktestingExecutor {
         // TODO: return DataObject
 
         System.out.println("\n****************************************");
-        System.out.println("Balance: " + String.format("%.2f", setup.balance) + " USD");
-        System.out.println("Max opened trades: " + setup.maxOpenedTrades);
         System.out.println("EXECUTION TIME: " + Double.parseDouble(String.valueOf(t2 - t1)) / 1000 + " s");
         System.out.println("Trade Counts: " + this.openedTrades.size() + " | " + winningTrades.size() + " | " + loosingTrades.size());
         System.out.println("****************************************");
 
-        this.setup = setup;
     }
 
     public void closeTrades(Iterator<Trade> iterator, Setup setup, double closePrice, String closeTime, long delaySeconds) {
@@ -335,7 +340,7 @@ public class BacktestingExecutor {
         }
     }
 
-    public static List<Trade> evaluateTrades(List<Trade> winningTrades, List<Trade> loosingTrades, double tradeSize, double leverage, double fee) {
+    public static List<Trade> evaluateTrades(List<Trade> winningTrades, List<Trade> loosingTrades) {
         long winningTradesCount = winningTrades.size();
         long loosingTradesCount = loosingTrades.size();
         double winRate = (double) winningTradesCount / (winningTradesCount + loosingTradesCount);
@@ -355,7 +360,17 @@ public class BacktestingExecutor {
         }
         double _profit = 0;
         for (Trade trade : allTrades) {
-            _profit += (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * leverage * (1 - fee);
+            // LONG TRADE
+            if (trade.takePrice > trade.openPrice) {
+                double tradeProfit = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * (1 - trade.strategy.setup.fee);
+                _profit += tradeProfit;
+                System.out.println("CLOSE: " + trade.closePrice + " | OPEN: " + trade.openPrice + " | PROFIT: " + tradeProfit);
+            }
+            // SHORT TRADE
+            else if (trade.takePrice < trade.openPrice) {
+                _profit += -((trade.closePrice * trade.amount - trade.openPrice * trade.amount)  * (1 - trade.strategy.setup.fee));
+            }
+
         }
 
         System.out.println("****************************************");
@@ -364,7 +379,6 @@ public class BacktestingExecutor {
         System.out.println("Total trades: " + (winningTradesCount + loosingTradesCount));
         System.out.println("Win rate: " + String.format("%.2f", winRate * 100) + "%");
         System.out.println("Profit: " + String.format("%.2f", _profit) + " USD");
-        System.out.println("Trading volume: " + (winningTradesCount + loosingTradesCount) * tradeSize * leverage + " USD");
         System.out.println("****************************************");
 
         return allTrades;

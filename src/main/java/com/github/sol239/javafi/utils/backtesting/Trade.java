@@ -16,7 +16,9 @@ public class Trade {
     public String closeTime;
     public double PnL;
 
-    public Trade(double openPrice, double takePrice, double stopPrice, double closePrice, double amount, String assetName, String openTime, String closeTime) {
+    public Strategy strategy;
+
+    public Trade(double openPrice, double takePrice, double stopPrice, double closePrice, double amount, String assetName, String openTime, String closeTime, Strategy strategy) {
         this.openPrice = openPrice;
         this.takePrice = takePrice;
         this.stopPrice = stopPrice;
@@ -25,6 +27,7 @@ public class Trade {
         this.assetName = assetName;
         this.openTime = openTime;
         this.closeTime = closeTime;
+        this.strategy = strategy;
     }
 
     @Override
