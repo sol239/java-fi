@@ -1,10 +1,15 @@
 package com.github.sol239.javafi.utils.command.Commands;
 
 import com.github.sol239.javafi.utils.DataObject;
+import com.github.sol239.javafi.utils.backtesting.BacktestingExecutor;
+import com.github.sol239.javafi.utils.backtesting.Setup;
+import com.github.sol239.javafi.utils.backtesting.Strategy;
 import com.github.sol239.javafi.utils.command.Command;
+import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+@AutoService(Command.class)
 public class BtCommand implements Command {
     @Override
     public String getName() {
@@ -25,11 +30,55 @@ public class BtCommand implements Command {
         return "Options:\n" +
                 "  -h, --help\n" +
                 "  -t=TABLE_NAME, --tables=TABLE_NAME\n" +
-                "  -s=STRATEGY_PATH, --strategy=STRATEGY_PATH\n";
+                "  -s=STRATEGY_PATH, --strategy=STRATEGY_PATH\n" +
+                "  -st=SETUP_PATH, --setup=SETUP_PATH\n" +
+                "  -r=RESULT_JSON_PATH, --result=RESULT_JSON_PATH";
     }
 
     @Override
     public DataObject run(List<String> args, List<String> flags) {
-        return new DataObject(200, "server", "Not implemented yet.");
+
+        String tableName = null;
+        String strategyPath = null;
+        String setupPath = null;
+        String resultJsonPath = null;
+
+        for (String flag : flags) {
+            if (flag.startsWith("-h") || flag.startsWith("--help")) {
+                return new DataObject(200, "server", getDescription());
+            }
+            else if (flag.startsWith("-t=")) {
+                tableName = flag.substring(3);
+            } else if (flag.startsWith("-s=")) {
+                strategyPath = flag.substring(3);
+            } else if (flag.startsWith("-st=")) {
+                setupPath = flag.substring(4);
+            } else if (flag.startsWith("-r=")) {
+                resultJsonPath = flag.substring(3);
+            }
+        }
+
+        try {
+
+            // print paths
+            System.out.println("Table name: " + tableName);
+            System.out.println("Setup path: " + setupPath);
+            System.out.println("Strategy path: " + strategyPath);
+            System.out.println("Result path: " + resultJsonPath);
+
+            Setup longSetup = Setup.fromJson(setupPath);
+            Strategy strategy = new Strategy(longSetup);
+            strategy.loadClausesFromJson(strategyPath);
+
+            BacktestingExecutor backtestingExecutor = new BacktestingExecutor();
+            backtestingExecutor.addStrategy(strategy);
+            backtestingExecutor.createStrategiesColumns(tableName);
+
+            backtestingExecutor.updateStrategiesColumns(tableName);   // TODO: does not have to be executed each time
+            DataObject result = backtestingExecutor.run(tableName, longSetup.tradeLifeSpanSeconds, false, true, resultJsonPath, longSetup.dateRestriction);
+            return result;
+        } catch (Exception e) {
+            return new DataObject(400, "server", "Backtesting failed." );
+        }
     }
 }

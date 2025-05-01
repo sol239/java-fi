@@ -3,9 +3,11 @@ package com.github.sol239.javafi.utils.command.Commands;
 import com.github.sol239.javafi.utils.files.ConfigHandler;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Command;
+import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+@AutoService(Command.class)
 public class ConfigCommand implements Command {
     /**
      * Method to get the name of the command.

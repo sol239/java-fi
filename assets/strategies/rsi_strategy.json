@@ -1,0 +1,4 @@
+{
+    "openClause": "WHERE rsi_15_ins_ <= 30",
+    "closeClause": "WHERE rsi_15_ins_ >= 80"
+}

@@ -1,6 +1,7 @@
 package com.github.sol239.javafi.utils.backtesting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.database.DBHandler;
 
 import java.io.File;
@@ -25,8 +26,6 @@ public class BacktestingExecutor {
      */
     public static final String STRATEGY_CLOSE_COLUMN_SUFFIX = "_stgC_";
 
-    public static final String DATE_RESTRICTION_PATH  = "C:\\Users\\david_dyn8g78\\PycharmProjects\\elliptic\\data-preparation\\main\\date.txt";
-    public static final String TRADES_RESULT_JSON_PATH = "C:\\Users\\david_dyn8g78\\PycharmProjects\\elliptic\\data-preparation\\main\\trades.json";
 
     private List<Trade> openedTrades = new ArrayList<>();
     private List<Trade> loosingTrades = new ArrayList<>();
@@ -108,7 +107,7 @@ public class BacktestingExecutor {
 
         db.executeQuery(createOpenColumn);
         db.executeQuery(createCloseColumn);
-        System.out.println("Strategy columns created.");
+        //System.out.println("Strategy columns created.");
     }
 
     public void createStrategiesColumns(String tableName) {
@@ -140,7 +139,7 @@ public class BacktestingExecutor {
 
         db.executeQuery(updateOpenColumn);
         db.executeQuery(updateCloseColumn);
-        System.out.println("Strategy columns updated.");
+        //System.out.println("Strategy columns updated.");
     }
 
     public void updateStrategiesColumns(String tableName) {
@@ -150,26 +149,17 @@ public class BacktestingExecutor {
 
     }
 
-    public void run(String tableName, long tradeLifeSpanSeconds, boolean takeProfit, boolean stopLoss) {
+    public DataObject run(String tableName, long tradeLifeSpanSeconds, boolean takeProfit, boolean stopLoss, String saveResultPath, String dateRestriction) {
 
         long t1 = System.currentTimeMillis();
 
         List<String> lines;
-        String dateRestriction;
-        try {
-            lines = Files.readAllLines(Path.of(DATE_RESTRICTION_PATH));
-            dateRestriction = lines.get(0);
-        } catch (IOException e) {
-            lines = null;
-            dateRestriction = "";
-        }
 
         ResultSet rs;
         try {
             rs = this.db.getResultSet(String.format("SELECT * FROM %s %s ORDER BY id", tableName, dateRestriction));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return;
+            return new DataObject(400, "backtesting", "Error getting the data from the database");
         }
 
 
@@ -286,30 +276,35 @@ public class BacktestingExecutor {
 
         long t2 = System.currentTimeMillis();
 
+        DataObject result = evaluateTrades(winningTrades, loosingTrades);
+        List<Trade> allTrades = new ArrayList<>();
+        allTrades.addAll(winningTrades);
+        allTrades.addAll(loosingTrades);
 
-        // Saving trades to JSON
 
-        String strategiesDirPath = "C:\\Users\\david_dyn8g78\\Desktop\\java-fi\\strategies\\";
-        String strategyName = "";
-
-        List<Trade> allTrades = evaluateTrades(winningTrades, loosingTrades);
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            // Convert list of trades to JSON and write to file
-            File outputFile = new File(TRADES_RESULT_JSON_PATH);
-            objectMapper.writeValue(outputFile, allTrades);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!saveResultPath.isEmpty()) {
+            saveBacktesting(saveResultPath, allTrades);
         }
-        // -------------------------------------------------
 
-        // TODO: return DataObject
+        return result;
 
+
+        /*
         System.out.println("\n****************************************");
         System.out.println("EXECUTION TIME: " + Double.parseDouble(String.valueOf(t2 - t1)) / 1000 + " s");
         System.out.println("Trade Counts: " + this.openedTrades.size() + " | " + winningTrades.size() + " | " + loosingTrades.size());
         System.out.println("****************************************");
+        */
+    }
 
+    public void saveBacktesting(String path, List<Trade> trades ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            File outputFile = new File(path);
+            objectMapper.writeValue(outputFile, trades);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void closeTrades(Iterator<Trade> iterator, Setup setup, double closePrice, String closeTime, long delaySeconds) {
@@ -324,7 +319,7 @@ public class BacktestingExecutor {
             //System.out.println(trade.openTime);
             if (isDifferenceGreaterThan(closeTime, trade.openTime, delaySeconds
             )) {
-                System.out.println("CLOSING - TIME LIMIT");
+                //System.out.println("CLOSING - TIME LIMIT");
                 trade.closeTime = closeTime;
                 trade.closePrice = closePrice;
                 trade.PnL = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * setup.leverage * (1 - setup.fee);
@@ -340,7 +335,7 @@ public class BacktestingExecutor {
         }
     }
 
-    public static List<Trade> evaluateTrades(List<Trade> winningTrades, List<Trade> loosingTrades) {
+    public static DataObject evaluateTrades(List<Trade> winningTrades, List<Trade> loosingTrades) {
         long winningTradesCount = winningTrades.size();
         long loosingTradesCount = loosingTrades.size();
         double winRate = (double) winningTradesCount / (winningTradesCount + loosingTradesCount);
@@ -364,7 +359,7 @@ public class BacktestingExecutor {
             if (trade.takePrice > trade.openPrice) {
                 double tradeProfit = (trade.closePrice * trade.amount - trade.openPrice * trade.amount) * (1 - trade.strategy.setup.fee);
                 _profit += tradeProfit;
-                System.out.println("CLOSE: " + trade.closePrice + " | OPEN: " + trade.openPrice + " | PROFIT: " + tradeProfit);
+                // System.out.println("CLOSE: " + trade.closePrice + " | OPEN: " + trade.openPrice + " | PROFIT: " + tradeProfit);
             }
             // SHORT TRADE
             else if (trade.takePrice < trade.openPrice) {
@@ -373,15 +368,19 @@ public class BacktestingExecutor {
 
         }
 
-        System.out.println("****************************************");
-        System.out.println("Winning trades: " + winningTradesCount);
-        System.out.println("Loosing trades: " + loosingTradesCount);
-        System.out.println("Total trades: " + (winningTradesCount + loosingTradesCount));
-        System.out.println("Win rate: " + String.format("%.2f", winRate * 100) + "%");
-        System.out.println("Profit: " + String.format("%.2f", _profit) + " USD");
-        System.out.println("****************************************");
 
-        return allTrades;
+        String summary = String.format(
+                "Winning trades: %d | Losing trades: %d | Total trades: %d | Win rate: %.2f%% | Profit: %.2f USD",
+                winningTradesCount,
+                loosingTradesCount,
+                (winningTradesCount + loosingTradesCount),
+                winRate * 100,
+                _profit
+        );
+
+        DataObject dataObject = new DataObject(200, "backtesting", "Backtesting completed:\n" + summary);
+
+        return dataObject;
     }
 
 }

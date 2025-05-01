@@ -3,12 +3,14 @@ package com.github.sol239.javafi.utils.command.Commands;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Command;
 import com.github.sol239.javafi.utils.command.Shell;
+import com.google.auto.service.AutoService;
 
 import java.util.List;
 
 /**
  * Class for help command which prints all available commands_to_load.
  */
+@AutoService(Command.class)
 public class HelpCommand implements Command {
 
     private static final String HELP_MSG = """
@@ -71,8 +73,8 @@ public class HelpCommand implements Command {
             }
         }
 
-        String path = Shell.COMMANDS_TO_LOAD;
-        List<Command> cmds = Shell.loadPlugins(Command.class, path);
+        Shell shell = new Shell();
+        List<Command> cmds = shell.getAvailableCommands();
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n");

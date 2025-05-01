@@ -66,6 +66,7 @@ public class DBHandler {
 
 
         if (!checkConnection("jdbc:postgresql://localhost:5432/" + APP_DB_NAME, user, password)) {
+            System.out.println("Trying to create database...");
             createAppDb();
         }
         this.url = "jdbc:postgresql://localhost:5432/" + APP_DB_NAME;
@@ -306,9 +307,11 @@ public class DBHandler {
      * Creates the application database.
      */
     public void createAppDb() {
-        String sql = String.format("CREATE DATABASE %s;", APP_DB_NAME);
-        try {
-            this.conn.createStatement().execute(sql);
+        String adminUrl = "jdbc:postgresql://localhost:5432/postgres";
+        try (Connection adminConn = DriverManager.getConnection(adminUrl, user, password);
+             Statement stmt = adminConn.createStatement()) {
+            String sql = String.format("CREATE DATABASE %s;", APP_DB_NAME);
+            stmt.execute(sql);
             System.out.println("Database created successfully.");
         } catch (SQLException e) {
             System.out.println("Error creating database: " + e.getMessage());

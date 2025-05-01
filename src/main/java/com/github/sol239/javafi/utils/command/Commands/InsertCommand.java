@@ -3,6 +3,7 @@ package com.github.sol239.javafi.utils.command.Commands;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Command;
 import com.github.sol239.javafi.utils.database.DBHandler;
+import com.google.auto.service.AutoService;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
+@AutoService(Command.class)
 public class InsertCommand implements Command {
     /**
      * Method to get the name of the command.
@@ -44,8 +46,8 @@ public class InsertCommand implements Command {
 
         return "Options:\n" +
                 "  -h, --help\n" +
-                "  -t, --table=TABLE_NAME\n" +
-                "  -p, --path=CSV_FILE_PATH";
+                "  -t=TABLE_NAME, --table=TABLE_NAME\n" +
+                "  -p=CSV_FILE_PATH, --path=CSV_FILE_PATH";
 
     }
 

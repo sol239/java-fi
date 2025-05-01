@@ -3,9 +3,11 @@ package com.github.sol239.javafi.utils.command.Commands;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Command;
 import com.github.sol239.javafi.utils.database.DBHandler;
+import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+@AutoService(Command.class)
 public class DelCommand implements Command {
     /**
      * Method to get the name of the command.

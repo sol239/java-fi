@@ -3,10 +3,12 @@ package com.github.sol239.javafi.utils.command.Commands;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Command;
 import com.github.sol239.javafi.utils.database.DBHandler;
+import com.google.auto.service.AutoService;
 
 import java.sql.ResultSet;
 import java.util.List;
 
+@AutoService(Command.class)
 public class TbCommand implements Command {
     /**
      * Method to get the name of the command.

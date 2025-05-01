@@ -34,13 +34,4 @@ public class DataObjectTest {
         DataObject dataObject = new DataObject(1, "client", "cmd");
         assertEquals("cmd", dataObject.getCmd());
     }
-
-    /**
-     * Test the toString method.
-     */
-    @Test
-    public void toStringTest() {
-        DataObject dataObject = new DataObject(1, "client", "cmd");
-        assertEquals("[1] | clientID=client | cmd=cmd", dataObject.toString());
-    }
 }

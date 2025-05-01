@@ -1,5 +1,6 @@
 package com.github.sol239.javafi.server;
 
+import com.github.sol239.javafi.utils.database.DBHandler;
 import com.github.sol239.javafi.utils.files.ConfigHandler;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Shell;
@@ -45,6 +46,14 @@ public class ServerParallel {
      * @param args command line arguments
      */
     public static void main(String[] args) {
+
+        // Check DB connection
+        try {
+            DBHandler db = new DBHandler();
+        } catch (Exception e) {
+            System.out.println("Error connecting to the database: " + e.getMessage());
+            return;
+        }
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 

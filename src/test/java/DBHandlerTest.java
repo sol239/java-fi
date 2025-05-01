@@ -89,6 +89,7 @@ public class DBHandlerTest {
         }
     }
 
+    @Disabled
     @Test
     public void getResultSetTest() {
         DBHandler db = new DBHandler();

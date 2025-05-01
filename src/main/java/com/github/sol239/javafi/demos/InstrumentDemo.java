@@ -25,7 +25,6 @@ public class InstrumentDemo {
         InstrumentExecutor ie = new InstrumentExecutor();
         int instrumentCount = ie.getInstrumentCount();
         System.out.println("Number of instruments = " + instrumentCount);
-        // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 
         // 2)
@@ -34,7 +33,6 @@ public class InstrumentDemo {
         for (JavaInstrument instrument : availableInstruments) {
             System.out.println(instrument.getName());
         }
-        // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 
         // 3)
@@ -46,7 +44,6 @@ public class InstrumentDemo {
         } else {
             System.out.println(instrumentName + " :Instrument not found");
         }
-        // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 
 
@@ -55,14 +52,13 @@ public class InstrumentDemo {
         Map<String, Double[]> instruments = new LinkedHashMap<>();
         String[] tableNames = new String[]{"btc_d"};                        // Table name/s
         instruments.put("rsi", new Double[]{14.0});                         // RSI with a 14-period sliding window
-        instruments.put("bbl", new Double[]{14.0, 2.0});         // Bollinger Bands with 14-period sliding window and 2 standard deviation multiplier
+        instruments.put("bbl", new Double[]{14.0, 2.0});                    // Bollinger Bands with 14-period sliding window and 2 standard deviation multiplier
         instruments.put("bbu", new Double[]{14.0, 2.0});
         instruments.put("ema", new Double[]{14.0});                         // EMA with a 14-period sliding window
         instruments.put("sma", new Double[]{30.0});                         // SMA with a 14-period sliding window
         instruments.put("macd", new Double[]{26.0, 12.0, 26.0, 9.0});       // MACD with 12-period short EMA, 26-period long EMA, and 9-period signal EMA
 
         runInstruments(Arrays.asList(tableNames), instruments);
-        // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 
 
@@ -77,7 +73,6 @@ public class InstrumentDemo {
                 System.out.println("Duplicate instrument name: " + duplicate.getName());
             }
         }
-        // -------------------------------------------------
         System.out.println("-------------------------------------------------");
 
 
