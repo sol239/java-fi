@@ -56,7 +56,7 @@ public class ConfigCommand implements Command {
     public DataObject run(List<String> args, List<String> flags) {
 
         ConfigHandler cfg = new ConfigHandler();
-        cfg.loadConfigMap();
+        cfg.loadConfigMap(ConfigHandler.CONFIG_FILE);
 
         for (String flag : flags) {
             if (flag.equals("-h") || flag.equals("--help")) {
@@ -72,12 +72,8 @@ public class ConfigCommand implements Command {
                 cfg.configMap.put("username", cfg.username);
             }
         }
-        cfg.writeConfigMap();
-
+        cfg.writeConfigMap(ConfigHandler.CONFIG_FILE);
         return new DataObject(200, "server", cfg.toString());
-
-
-
 
     }
 }

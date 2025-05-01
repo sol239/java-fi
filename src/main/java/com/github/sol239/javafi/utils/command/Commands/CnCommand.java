@@ -52,6 +52,8 @@ public class CnCommand implements Command {
         for (String flag : flags) {
             if (flag.startsWith("-h") || flag.startsWith("--help")) {
                 return new DataObject(200, "server", getDescription());
+            } else {
+                return new DataObject(400, "server", "Unknown flag.");
             }
         }
 

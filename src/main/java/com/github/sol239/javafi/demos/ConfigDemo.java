@@ -23,11 +23,11 @@ public class ConfigDemo {
         cf.fillConfigMap();
 
         // writes the config map to the config file
-        cf.writeConfigMap();
+        cf.writeConfigMap(ConfigHandler.CONFIG_FILE);
 
         // loads the config map from the config file
         ConfigHandler cfg = new ConfigHandler();
-        cfg.loadConfigMap();
+        cfg.loadConfigMap(ConfigHandler.CONFIG_FILE);
         cfg.printConfigMap();
     }
 }

@@ -59,7 +59,7 @@ public class ServerParallel {
 
             // db config file
             cfg.createConfigFile();
-            cfg.loadConfigMap();
+            cfg.loadConfigMap(ConfigHandler.CONFIG_FILE);
 
             System.out.println("Server is listening on port " + PORT);
             serverSocket.setReuseAddress(true);

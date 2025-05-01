@@ -41,7 +41,23 @@ public class CnCommandTest {
         String expectedResult = "Connection Open";
         String actualResult = cnCommand.run(List.of(), List.of()).getCmd();
         assertEquals(expectedResult, actualResult);
+
+        expectedResult = "Usage: cn [Option]...\n" +
+                "Checks the connection to the server.\n" +
+                "Options:\n" +
+                "  -h, --help";
+        actualResult = cnCommand.run(List.of(), List.of("-h")).getCmd();
+        assertEquals(expectedResult, actualResult);
+
+        expectedResult = "Usage: cn [Option]...\n" +
+                "Checks the connection to the server.\n" +
+                "Options:\n" +
+                "  -h, --help";
+        actualResult = cnCommand.run(List.of(), List.of("--help")).getCmd();
+        assertEquals(expectedResult, actualResult);
+
+        expectedResult = "Unknown flag.";
+        actualResult = cnCommand.run(List.of(), List.of("-x")).getCmd();
+        assertEquals(expectedResult, actualResult);
     }
-
-
 }

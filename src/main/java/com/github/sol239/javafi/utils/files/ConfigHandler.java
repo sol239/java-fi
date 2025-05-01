@@ -58,7 +58,7 @@ public class ConfigHandler {
         } else {
             try {
                 if (configFile.createNewFile()) {
-                    createConfigFileTemplate();
+                    createConfigFileTemplate(CONFIG_FILE);
                     return new DataObject(200, "server", "Configuration file created successfully");
                 }
                 return new DataObject(400, "server", "Error creating configuration file");
@@ -70,10 +70,11 @@ public class ConfigHandler {
 
     /**
      * Creates a template for the configuration file.
+     * @param path the path to the configuration file
      */
-    public void createConfigFileTemplate() {
+    public void createConfigFileTemplate(String path) {
         List<String> params = getConfigParameters();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CONFIG_FILE))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
             for (String param : params) {
                 if (param.equals("configMap")) {
                     continue;
@@ -125,8 +126,8 @@ public class ConfigHandler {
     /**
      * Writes the configuration map to the configuration file.
      */
-    public void writeConfigMap() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CONFIG_FILE))) {
+    public void writeConfigMap(String path) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
             for (String key : configMap.keySet()) {
                 writer.write(key + " = " + configMap.get(key));
                 writer.newLine();
@@ -139,8 +140,8 @@ public class ConfigHandler {
     /**
      * Loads the configuration map from the configuration file.
      */
-    public void loadConfigMap() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(CONFIG_FILE))) {
+    public void loadConfigMap(String path) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("=");

@@ -59,7 +59,7 @@ public class DBHandler {
     public DBHandler() {
 
         this.cfg = new ConfigHandler();
-        this.cfg.loadConfigMap();
+        this.cfg.loadConfigMap(ConfigHandler.CONFIG_FILE);
 
         this.credentials = loadConfig();
         this.checkCredentials(credentials);
