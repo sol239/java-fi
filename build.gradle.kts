@@ -21,7 +21,12 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        // Exclude @Tag("local-only") when running in CI
+        if (System.getenv("CI") == "true") {
+            excludeTags("local-only")
+        }
+    }
     finalizedBy(tasks.jacocoTestReport)
 }
 
@@ -33,12 +38,10 @@ tasks.jacocoTestReport {
         csv.required.set(false)
         html.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("reports/coverage"))
-
     }
 
     val mainSourceSet = sourceSets.main.get()
     sourceDirectories.setFrom(mainSourceSet.allSource.srcDirs)
     classDirectories.setFrom(mainSourceSet.output.classesDirs)
-
     executionData.setFrom(fileTree(buildDir).include("jacoco/test.exec"))
 }

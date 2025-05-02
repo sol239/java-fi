@@ -1,12 +1,14 @@
 package commands;
 
 import com.github.sol239.javafi.utils.command.Commands.CnCommand;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("local-only")
 public class CnCommandTest {
     private CnCommand cnCommand = new CnCommand();
 

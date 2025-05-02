@@ -2,12 +2,14 @@ package commands;
 
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Commands.DbCommand;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("local-only")
 public class DbCommandTest {
 
     private final DbCommand dbCommand = new DbCommand();
