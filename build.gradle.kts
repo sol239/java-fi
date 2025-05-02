@@ -20,6 +20,22 @@ dependencies {
     annotationProcessor("com.google.auto.service:auto-service:1.1.1")
 }
 
+tasks.register<JavaExec>("server") {
+    group = "application"
+    description = "Run ServerParallel main class"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.github.sol239.javafi.server.ServerParallel")
+}
+
+tasks.register<JavaExec>("client") {
+    group = "application"
+    description = "Run Client main class"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.github.sol239.javafi.client.Client")
+    standardInput = System.`in`
+}
+
+
 tasks.test {
     useJUnitPlatform {
         // Exclude @Tag("local-only") when running in CI

@@ -17,7 +17,7 @@ public class Client {
     /**
      * Server port.
      */
-    public static final int PORT = 12345;
+    public static final int PORT = 1100;
 
     /**
      * Reconnect delay in milliseconds.
@@ -27,7 +27,7 @@ public class Client {
     /**
      * Maximum number of reconnect tries before exiting the app.
      */
-    public static final int MAX_RECONNECT_TRIES = 5;
+    public static final int MAX_RECONNECT_TRIES = 10;
 
     /**
      * Server hostname.

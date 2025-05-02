@@ -22,7 +22,7 @@ public class ServerParallel {
     /**
      * Server port.
      */
-    public static final int PORT = 12345;
+    public static final int PORT = 1100;
 
     /**
      * List of clients.
