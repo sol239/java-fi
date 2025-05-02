@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -62,11 +59,7 @@ public class Shell {
      * @return a list of available commands
      */
     public List<Command> getAvailableCommands() {
-        List<Command> availableCommands = new ArrayList<>();
-        for (Command command : this.availableCommands) {
-            availableCommands.add(command);
-        }
-        return availableCommands;
+        return new ArrayList<>(Arrays.asList(this.availableCommands));
     }
 
     /**

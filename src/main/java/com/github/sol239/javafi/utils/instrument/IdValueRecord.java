@@ -6,6 +6,11 @@ package com.github.sol239.javafi.utils.instrument;
  * @param value represents the value on the given row - id
  */
 public record IdValueRecord(Long id, Double value) {
+
+    /**
+     * Returns a string representation of the IdValueRecord.
+     * @return a string representation of the IdValueRecord
+     */
     @Override
     public String toString() {
         return "ID=" + id + ", VALUE=" + value;

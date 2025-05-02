@@ -25,6 +25,11 @@ public class InstrumentValidator {
         return duplicates;
     }
 
+    /**
+     * Check if instrument names are unique.
+     * @param instrumentNames the instrument names
+     * @return true if instrument names are unique, false otherwise
+     */
     public static boolean areInstrumentNamesUnique(JavaInstrument[] instrumentNames) {
         List<JavaInstrument> duplicates = getInstrumentHavingDuplicateName(instrumentNames);
         return duplicates.isEmpty();

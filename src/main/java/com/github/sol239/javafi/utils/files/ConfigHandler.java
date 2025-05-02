@@ -40,6 +40,9 @@ public class ConfigHandler {
      */
     public HashMap<String, String> configMap;
 
+    /**
+     * The default constructor.
+     */
     public ConfigHandler() {
         this.configMap = new LinkedHashMap<>();
 

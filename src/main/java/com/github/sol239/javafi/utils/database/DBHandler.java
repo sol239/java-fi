@@ -51,7 +51,11 @@ public class DBHandler {
      * Database's password.
      */
     private String password;
-    private ConfigHandler cfg;
+
+    /**
+     * Configuration handler to load the database credentials from the configuration file.
+     */
+    private final ConfigHandler cfg;
 
     /**
      * Constructor that loads the database credentials from the configuration file and establishes a connection to the database.
@@ -485,6 +489,12 @@ public class DBHandler {
         }
     }
 
+    /**
+     * Method to insert columns into a table using batch processing for efficiency.
+     * @param tableName Name of the table.
+     * @param columnMap Map of column names and their values. Keys are column names, values are lists of values (double).
+     * @return DataObject with status code and message.
+     */
     public DataObject insertColumnsBatch(String tableName, HashMap<String, List<IdValueRecord>> columnMap) {
         try {
             // First, disable auto-commit for batch operations
@@ -586,13 +596,5 @@ public class DBHandler {
             }
         }
     }
-
-    public static void executeQueryStatic(String query) {
-        DBHandler dbHandler = new DBHandler();
-        dbHandler.executeQuery(query);
-        dbHandler.closeConnection();
-    }
-
-
 
 }

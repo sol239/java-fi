@@ -232,11 +232,12 @@ public class InstrumentExecutor {
 
         long t3 = System.currentTimeMillis();
 
-
+        /*
         System.out.println("Columns[" + columnNames.size() + "]: " + columnNames);
         System.out.println("Instruments[" + _instruments.size() + "]: " + _instruments.stream().map(JavaInstrument::getName).toList());
         System.out.println("INSTRUMENT EXECUTION TIME: " + Double.parseDouble(String.valueOf(t2 - t1)) / 1000 + " s");
         System.out.println("DB INSERTION TIME: " + Double.parseDouble(String.valueOf(t3 - t2)) / 1000 + " s");
         System.out.println("Total Rows: " + rows);
+         */
     }
 }
