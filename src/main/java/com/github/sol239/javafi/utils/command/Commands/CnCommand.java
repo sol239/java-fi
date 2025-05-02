@@ -5,6 +5,10 @@ import com.github.sol239.javafi.utils.command.Command;
 import com.google.auto.service.AutoService;
 
 import java.util.List;
+
+/**
+ * A command to check the connection to the server.
+ */
 @AutoService(Command.class)
 public class CnCommand implements Command {
     /**

@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
+/**
+ * A command to insert data into the database.
+ */
 @AutoService(Command.class)
 public class InsertCommand implements Command {
     /**

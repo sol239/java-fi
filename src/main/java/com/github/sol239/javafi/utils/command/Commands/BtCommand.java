@@ -11,11 +11,21 @@ import java.util.List;
 
 @AutoService(Command.class)
 public class BtCommand implements Command {
+
+    /**
+     * Method to get the name of the command.
+     * @return name of the command
+     */
     @Override
     public String getName() {
         return "bt";
     }
 
+    /**
+     * Method to get the description of the command.
+     *
+     * @return description of the command
+     */
     @Override
     public String getDescription() {
         return "Usage: bt [OPTION]...\n" +
@@ -25,6 +35,11 @@ public class BtCommand implements Command {
                 getParameters();
     }
 
+    /**
+     * Method to get the parameters of the command.
+     *
+     * @return parameters of the command
+     */
     @Override
     public String getParameters() {
         return "Options:\n" +
@@ -35,6 +50,12 @@ public class BtCommand implements Command {
                 "  -r=RESULT_JSON_PATH, --result=RESULT_JSON_PATH";
     }
 
+    /**
+     * Method to run the command.
+     *
+     * @param args arguments
+     * @return result
+     */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
 

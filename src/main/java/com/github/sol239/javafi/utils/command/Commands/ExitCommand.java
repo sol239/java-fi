@@ -6,6 +6,9 @@ import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+/**
+ * A command to exit the client application.
+ */
 @AutoService(Command.class)
 public class ExitCommand implements Command {
 

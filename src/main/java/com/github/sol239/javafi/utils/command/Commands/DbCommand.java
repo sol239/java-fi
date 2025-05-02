@@ -7,6 +7,9 @@ import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+/**
+ * A command to check the connection to the database.
+ */
 @AutoService(Command.class)
 public class DbCommand implements Command {
     /**

@@ -15,13 +15,28 @@ import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
 /**
- * Shell class.
+ * A Shell class that manages commands.
  */
 public class Shell {
-    private HashMap<String, Command> commands;
-    private HelpCommand help;
-    private Command[] availableCommands;
 
+    /**
+     * A HashMap that stores the commands.
+     */
+    private final HashMap<String, Command> commands;
+
+    /**
+     * A HelpCommand object that provides help information.
+     */
+    private HelpCommand help;
+
+    /**
+     * An array of available commands.
+     */
+    private final Command[] availableCommands;
+
+    /**
+     * A constructor that initializes the Shell object.
+     */
     public Shell() {
         commands = new HashMap<>();
         help = new HelpCommand();
@@ -33,13 +48,19 @@ public class Shell {
         this.addCommandsToHashMap();
     }
 
-
+    /**
+     * A method that loads commands to the hashmap.
+     */
     private void addCommandsToHashMap() {
         for (Command command : this.availableCommands) {
             commands.put(command.getName(), command);
         }
     }
 
+    /**
+     * A method that returns a list of available commands.
+     * @return a list of available commands
+     */
     public List<Command> getAvailableCommands() {
         List<Command> availableCommands = new ArrayList<>();
         for (Command command : this.availableCommands) {
@@ -48,10 +69,21 @@ public class Shell {
         return availableCommands;
     }
 
+    /**
+     * A method that returns a hashmap of commands.
+     * @return a hashmap of commands
+     */
     public HashMap<String, Command> getCommands() {
         return commands;
     }
 
+    /**
+     * A method that runs a command.
+     * @param commandName the name of the command
+     * @param args the arguments
+     * @param flags the flags
+     * @return the result of the command
+     */
     public DataObject runCommand(String commandName, List<String> args, List<String> flags) {
         try {
             Command cmd = this.commands.get(commandName);

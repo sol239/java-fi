@@ -13,6 +13,9 @@ import java.util.List;
 @AutoService(Command.class)
 public class HelpCommand implements Command {
 
+    /**
+     * Simple logo for the app.
+     */
     private static final String HELP_MSG = """
                //     ////  //    //     ////              ////////   //
               //    // //  //    //    // //              //         //

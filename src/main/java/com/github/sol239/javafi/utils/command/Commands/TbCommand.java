@@ -8,6 +8,9 @@ import com.google.auto.service.AutoService;
 import java.sql.ResultSet;
 import java.util.List;
 
+/**
+ *  A command to show all available tables in the database.
+ */
 @AutoService(Command.class)
 public class TbCommand implements Command {
     /**

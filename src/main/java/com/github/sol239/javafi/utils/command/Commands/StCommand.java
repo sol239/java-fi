@@ -7,13 +7,27 @@ import com.google.auto.service.AutoService;
 
 import java.util.*;
 
+/**
+ * A command to update the tables with calculated instrument values.
+ */
 @AutoService(Command.class)
 public class StCommand implements Command {
+
+    /**
+     * Method to get the name of the command.
+     *
+     * @return name of the command
+     */
     @Override
     public String getName() {
         return "st";
     }
 
+    /**
+     * Method to get the description of the command.
+     *
+     * @return description of the command
+     */
     @Override
     public String getDescription() {
         return "Usage: st [OPTION]...\n" +
@@ -22,6 +36,11 @@ public class StCommand implements Command {
                 getParameters();
     }
 
+    /**
+     * Method to get the parameters of the command.
+     *
+     * @return parameters of the command
+     */
     @Override
     public String getParameters() {
         return "Options:\n" +
@@ -30,6 +49,13 @@ public class StCommand implements Command {
                 "  -i=INS_CMD1,INS_CMD2,... , --instruments=INS_CMD1,INS_CMD2,...";
     }
 
+    /**
+     * Method to run the command.
+     *
+     * @param args  arguments
+     * @param flags flags
+     * @return result
+     */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
 

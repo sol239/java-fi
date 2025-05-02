@@ -7,6 +7,9 @@ import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+/**
+ * A command to configure the database connection.
+ */
 @AutoService(Command.class)
 public class ConfigCommand implements Command {
     /**

@@ -7,6 +7,9 @@ import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+/**
+ * A command to delete tables from the database.
+ */
 @AutoService(Command.class)
 public class DelCommand implements Command {
     /**
