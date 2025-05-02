@@ -31,7 +31,6 @@ public class BtCommand implements Command {
         return "Usage: bt [OPTION]...\n" +
                 "The command to backtest strategies. For more info look into USER.md\n" +
                 "Does not support backtesting multiple tables at once.\n" +
-                "Example: TODO\n" +
                 getParameters();
     }
 

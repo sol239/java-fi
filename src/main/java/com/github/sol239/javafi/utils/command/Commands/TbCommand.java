@@ -30,8 +30,9 @@ public class TbCommand implements Command {
      */
     @Override
     public String getDescription() {
-        return "Usage: tb \n" +
+        return "Usage: tb [OPTIONAL]\n" +
                 "The command to show all available tables\n" +
+                "If table name is provided, it will show the data in the table.\n" +
                 getParameters();
     }
 

@@ -71,6 +71,7 @@ The commands below will create a column with the RSI indicator with a period of 
   <strong>⚠️ Warning:</strong> Strategy columns must be present in the table before running the backtest commands. Otherwise, the backtest will not work.
 </div>
 
+
 ---
 
 ## Commands
