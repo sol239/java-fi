@@ -49,16 +49,16 @@ public class ConfigHandler {
      * Creates the configuration file.
      * @return a DataObject with the result of the operation
      */
-    public DataObject createConfigFile() {
+    public DataObject createConfigFile(String path) {
 
-        File configFile = new File(Path.of(CONFIG_FILE).toString());
+        File configFile = new File(Path.of(path).toString());
 
         if (configFile.exists()) {
             return new DataObject(200, "server", "Configuration file already exists");
         } else {
             try {
                 if (configFile.createNewFile()) {
-                    createConfigFileTemplate(CONFIG_FILE);
+                    createConfigFileTemplate(path);
                     return new DataObject(200, "server", "Configuration file created successfully");
                 }
                 return new DataObject(400, "server", "Error creating configuration file");

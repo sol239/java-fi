@@ -50,7 +50,7 @@ to add their own indicators and strategies.
 
 ### Example 2 - creating columns with indicators
 
-The command below will create a column with the RSI indicator with a period of 14 for the table btc_1min.
+The commands below will create a column with the RSI indicator with a period of 14 for the table btc_1min.
 
 > run ServerParalel.java
 
@@ -68,7 +68,7 @@ The command below will create a column with the RSI indicator with a period of 1
 > bt -t=btc -st=C:\Users\david_dyn8g78\IdeaProjects\java-fi\assets\setups\setup_1.json -s=C:\Users\david_dyn8g78\IdeaProjects\java-fi\assets\strategies\rsi_strategy.json -r=C:\Users\david_dyn8g78\IdeaProjects\java-fi\assets\results\trades.json
 
 <div style="border-left: 4px solid orange; padding: 10px;">
-  <strong>⚠️ Warning:</strong> Strategy columns must be present in the table before running the backtest command. Otherwise, the backtest will not work.
+  <strong>⚠️ Warning:</strong> Strategy columns must be present in the table before running the backtest commands. Otherwise, the backtest will not work.
 </div>
 
 ---
@@ -77,7 +77,7 @@ The command below will create a column with the RSI indicator with a period of 1
 
 ### `bt`
 **Usage:** `bt [OPTION]...`
-The command to backtest strategies. For more info look into `USER.md`.
+The commands to backtest strategies. For more info look into `USER.md`.
 Does not support backtesting multiple tables at once.
 **Example:** `TODO`
 **Options:**
@@ -87,7 +87,7 @@ Does not support backtesting multiple tables at once.
 
 ### `clean`
 **Usage:** `clean [OPTION]...`
-The command cleans the database - removes ALL strategy and indicator columns.
+The commands cleans the database - removes ALL strategy and indicator columns.
 **Options:**
 * `-h`, `--help`: Show help message.
 
@@ -99,7 +99,7 @@ Checks the connection to the server.
 
 ### `config`
 **Usage:** `config [OPTION]...`
-The command displays the current configuration.
+The commands displays the current configuration.
 **Options:**
 * `-h`, `--help`: Show help message.
 * `-u=URL`, `--url=URL`: Set the server URL.
@@ -108,31 +108,31 @@ The command displays the current configuration.
 
 ### `db`
 **Usage:** `db [OPTION]...`
-The command to check connection to the database.
+The commands to check connection to the database.
 **Options:**
 * `-h`, `--help`: Show help message.
 
 ### `del`
 **Usage:** `del [OPTION]... [TABLE]...`
-The command to delete specified `TABLE`(s) from the database.
+The commands to delete specified `TABLE`(s) from the database.
 **Options:**
 * `-h`, `--help`: Show help message.
 
 ### `exit`
 **Usage:** `exit [OPTION]...`
-The command to exit the application and close the connection to the server.
+The commands to exit the application and close the connection to the server.
 **Options:**
 * `-h`, `--help`: Show help message.
 
 ### `help`
 **Usage:** `help [OPTION]...`
-The command prints the help information for the application.
+The commands prints the help information for the application.
 **Options:**
 * `-h`, `--help`: Show help message.
 
 ### `insert`
 **Usage:** `insert [OPTION]...`
-The command inserts data from a CSV file to the database.
+The commands inserts data from a CSV file to the database.
 **Options:**
 * `-h`, `--help`: Show help message.
 * `-t`, `--table=TABLE_NAME`: Specify the target table name.
@@ -140,7 +140,7 @@ The command inserts data from a CSV file to the database.
 
 ### `st`
 **Usage:** `st [OPTION]...`
-The command updates the tables with calculated instrument values.
+The commands updates the tables with calculated instrument values.
 **Example:** `st -t=btc_d,solx -i=rsi:14;sma:30`
 **Options:**
 * `-h`, `--help`: Show help message.
@@ -149,5 +149,5 @@ The command updates the tables with calculated instrument values.
 
 ### `tb`
 **Usage:** `tb`
-The command to show all available tables.
+The commands to show all available tables.
 

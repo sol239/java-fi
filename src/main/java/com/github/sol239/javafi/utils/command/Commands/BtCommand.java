@@ -59,13 +59,6 @@ public class BtCommand implements Command {
         }
 
         try {
-
-            // print paths
-            System.out.println("Table name: " + tableName);
-            System.out.println("Setup path: " + setupPath);
-            System.out.println("Strategy path: " + strategyPath);
-            System.out.println("Result path: " + resultJsonPath);
-
             Setup longSetup = Setup.fromJson(setupPath);
             Strategy strategy = new Strategy(longSetup);
             strategy.loadClausesFromJson(strategyPath);

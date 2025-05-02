@@ -13,7 +13,7 @@ public class ConfigDemo {
 
         // creates a new config file
         ConfigHandler cf = new ConfigHandler();
-        cf.createConfigFile();
+        cf.createConfigFile(ConfigHandler.CONFIG_FILE);
 
         cf.url = "jdbc:postgresql://localhost:5432/javafi";
         cf.password = "password";

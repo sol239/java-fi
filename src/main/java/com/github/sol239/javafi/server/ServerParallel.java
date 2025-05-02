@@ -58,7 +58,7 @@ public class ServerParallel {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
             // db config file
-            cfg.createConfigFile();
+            cfg.createConfigFile(ConfigHandler.CONFIG_FILE);
             cfg.loadConfigMap(ConfigHandler.CONFIG_FILE);
 
             System.out.println("Server is listening on port " + PORT);

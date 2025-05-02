@@ -1,4 +1,4 @@
-package command;
+package commands;
 
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Commands.DbCommand;

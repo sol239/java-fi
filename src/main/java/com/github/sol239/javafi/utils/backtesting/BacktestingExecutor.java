@@ -6,8 +6,6 @@ import com.github.sol239.javafi.utils.database.DBHandler;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.time.Duration;
 import java.time.LocalDateTime;

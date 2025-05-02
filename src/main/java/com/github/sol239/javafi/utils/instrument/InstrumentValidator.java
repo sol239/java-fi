@@ -12,7 +12,6 @@ import java.util.List;
  * Instrument validator.
  */
 public class InstrumentValidator {
-
     public static List<JavaInstrument> getInstrumentHavingDuplicateName(JavaInstrument[] instrumentNames) {
         List<JavaInstrument> duplicates = new ArrayList<>();
         for (int i = 0; i < instrumentNames.length; i++) {

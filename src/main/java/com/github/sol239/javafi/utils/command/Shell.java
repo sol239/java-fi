@@ -48,16 +48,19 @@ public class Shell {
         return availableCommands;
     }
 
+    public HashMap<String, Command> getCommands() {
+        return commands;
+    }
+
     public DataObject runCommand(String commandName, List<String> args, List<String> flags) {
         try {
             Command cmd = this.commands.get(commandName);
             DataObject result = cmd.run(args, flags);
             return result;
         } catch (Exception e) {
-            e.printStackTrace();
-            // TODO: Is this the correct way to handle this?
             return new DataObject(400, "server", "Command not found.");
         }
     }
+
 
 }

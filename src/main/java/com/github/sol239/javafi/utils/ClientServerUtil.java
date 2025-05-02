@@ -17,11 +17,8 @@ public class ClientServerUtil {
     public static void sendObject(ObjectOutputStream objectOutputStream, Object dataObject) {
         try {
             objectOutputStream.writeObject(dataObject);
-            // objectOutputStream.flush();
-            // return true;
         } catch (IOException e) {
             System.out.println("Error sending command to server: " + e.getMessage());
-            // return false;
         }
     }
 

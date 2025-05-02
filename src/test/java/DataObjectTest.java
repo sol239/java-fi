@@ -34,4 +34,12 @@ public class DataObjectTest {
         DataObject dataObject = new DataObject(1, "client", "cmd");
         assertEquals("cmd", dataObject.getCmd());
     }
+
+    @Test
+    public void toStringTest() {
+        DataObject dataObject = new DataObject(1, "client", "cmd");
+        String actual = dataObject.toString();
+        String expected = String.format("[%d]\n%s", 1, "cmd");
+        assertEquals(expected, dataObject.toString());
+    }
 }
