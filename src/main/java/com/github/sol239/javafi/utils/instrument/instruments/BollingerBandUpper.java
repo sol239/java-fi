@@ -38,7 +38,8 @@ public class BollingerBandUpper implements JavaInstrument {
      */
     @Override
     public String getDescription() {
-        return "Bollinger Bands consist of a middle band (SMA) and two outer bands that are two standard deviations away from the middle band.";
+        return "Bollinger Bands consist of a middle band (SMA) and two outer bands that are two standard deviations away from the middle band." + "\n" +
+                "Usage: bbu:period,multiplier\n";
     }
 
     /**

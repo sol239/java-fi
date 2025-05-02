@@ -38,7 +38,8 @@ public class SMA implements JavaInstrument {
      */
     @Override
     public String getDescription() {
-        return "The Simple Moving Average (SMA) is the unweighted mean of the previous n data points.";
+        return "The Simple Moving Average (SMA) is the unweighted mean of the previous n data points." + "\n" +
+                "Usage: sma:period\n";
     }
 
     /**

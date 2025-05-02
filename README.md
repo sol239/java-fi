@@ -1,7 +1,7 @@
 # java-fi
 
-java-fi is a client-server application that allows backtesting of trading strategies using historical data. 
-Various indicators are available for use, and the application is designed to be extensible, allowing users 
+java-fi is a client-server application that allows backtesting of trading strategies using historical data.
+Various indicators are available for use, and the application is designed to be extensible, allowing users
 to add their own indicators and strategies.
 
 The application is built using Java and PostgreSQL, and it provides a command-line interface for interacting
@@ -25,11 +25,12 @@ with the server.
 
 ### Prerequisites
 
-- Java 17 or higher
+- Java 23
 - PostgreSQL
 - Gradle
 
 ### Installation & Usage
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/sol239/java-fi
@@ -42,7 +43,7 @@ with the server.
     ```bash
     gradle clean build
     ```
-   - Some of the tests will fail because of missing database credentials.
+    - Some of the tests will fail because of missing database credentials.
 4. Run the server using:
     ```bash
     gradle server
@@ -65,11 +66,11 @@ with the server.
 
 ### Example 1 - inserting historical data
 
-> run ServerParalel.java
+> gradle server
 
-> run Client.java
+> gradle client
 
-> insert -t=btc_1min -p=C:\csv\PROCESSED\BTCUSD_1MIN.csv
+> insert -t=btc_1min -p=path_to_csv_dir\BTCUSD_1MIN.csv
 
 ---
 
@@ -77,103 +78,134 @@ with the server.
 
 The commands below will create a column with the RSI indicator with a period of 14 for the table btc_1min.
 
-> run ServerParalel.java
+> gradle server
 
-> run Client.java
+> gradle client
+
 > st -t=btc_1min -i=rsi:14
 
 ---
 
 ### Example 3 - backtesting a strategy
 
-> run ServerParalel.java
+> gradle server
 
-> run Client.java
+> gradle client
 
-> bt -t=btc -st=C:\Users\david_dyn8g78\IdeaProjects\java-fi\assets\setups\setup_1.json -s=C:\Users\david_dyn8g78\IdeaProjects\java-fi\assets\strategies\rsi_strategy.json -r=C:\Users\david_dyn8g78\IdeaProjects\java-fi\assets\results\trades.json
+> bt -t=btc -st=path_to_json_setup_dir\setup_1.json -s=path_to_strategy_dir\rsi_strategy.json
+> -r=path_to_result_dir\trades.json
 
-<div style="border-left: 4px solid orange; padding: 10px;">
-  <strong>⚠️ Warning:</strong> Strategy columns must be present in the table before running the backtest commands. Otherwise, the backtest will not work.
-</div>
+> [!IMPORTANT]
+> Strategy columns must be present in the table before running the backtest commands. Otherwise, the backtest will not work.
 
+### Example 4 - setting up the database configuration
+
+> gradle server
+
+> gradle client
+
+> config -u=URL -p=PASSWORD -n=USERNAME
+
+- Without this step, the application will not be able to connect to the database.
 
 ---
 
-## Commands
+### CSV Format
 
-### `bt`
-**Usage:** `bt [OPTION]...`
-The commands to backtest strategies. For more info look into `USER.md`.
-Does not support backtesting multiple tables at once.
-**Example:** `TODO`
-**Options:**
-* `-h`, `--help`: Show help message.
-* `-t=TABLE_NAME`, `--tables=TABLE_NAME`: Specify the table to backtest.
-* `-s=STRATEGY_PATH`, `--strategy=STRATEGY_PATH`: Specify the path to the strategy file.
+- You can find an example in ./assets/csv/BTCUSD_1D.csv
 
-### `clean`
-**Usage:** `clean [OPTION]...`
-The commands cleans the database - removes ALL strategy and indicator columns.
-**Options:**
-* `-h`, `--help`: Show help message.
+**Schema**
 
-### `cn`
-**Usage:** `cn [OPTION]...`
-Checks the connection to the server.
-**Options:**
-* `-h`, `--help`: Show help message.
+| id INT | timestamp BIGINT | open DOUBLE PRECISION | high DOUBLE PRECISION | low DOUBLE PRECISION | close DOUBLE PRECISION | volume DOUBLE PRECISION | date TIMESTAMP |
+|--------|------------------|-----------------------|-----------------------|----------------------|------------------------|-------------------------|----------------|
 
-### `config`
-**Usage:** `config [OPTION]...`
-The commands displays the current configuration.
-**Options:**
-* `-h`, `--help`: Show help message.
-* `-u=URL`, `--url=URL`: Set the server URL.
-* `-p=PASSWORD`, `--password=PASSWORD`: Set the server password.
-* `-n=USERNAME`, `--username=USERNAME`: Set the server username.
+**Example**
 
-### `db`
-**Usage:** `db [OPTION]...`
-The commands to check connection to the database.
-**Options:**
-* `-h`, `--help`: Show help message.
+| id  | date                | open   | high   | low    | close  | volume     | timestamp  |
+|-----|---------------------|--------|--------|--------|--------|------------|------------|
+| 1   | 2014-11-28 00:00:00 | 363.59 | 381.34 | 360.57 | 376.28 | 3220878.18 | 1417132800 |
+| 2   | 2014-11-29 00:00:00 | 376.42 | 386.60 | 372.25 | 376.72 | 2746157.05 | 1417219200 |
+| ... | ...                 | ...    | ...    | ...    | ...    | ...        | ...        |
 
-### `del`
-**Usage:** `del [OPTION]... [TABLE]...`
-The commands to delete specified `TABLE`(s) from the database.
-**Options:**
-* `-h`, `--help`: Show help message.
+---
 
-### `exit`
-**Usage:** `exit [OPTION]...`
-The commands to exit the application and close the connection to the server.
-**Options:**
-* `-h`, `--help`: Show help message.
+## Creating instrument columns
 
-### `help`
-**Usage:** `help [OPTION]...`
-The commands prints the help information for the application.
-**Options:**
-* `-h`, `--help`: Show help message.
+- If you want to backtest a strategy based on an instrument, you need to create a column with the instrument values.
+- You can do this by using the command:
+    - `st -t=btc_1min -i=rsi:14`
+    - `st -t=btc_1min -i=sma:30`
+    - `st -t=btc_1min -i=macd:12,26,9,10` - instrument arguments are separated by commas
 
-### `insert`
-**Usage:** `insert [OPTION]...`
-The commands inserts data from a CSV file to the database.
-**Options:**
-* `-h`, `--help`: Show help message.
-* `-t`, `--table=TABLE_NAME`: Specify the target table name.
-* `-p`, `--path=CSV_FILE_PATH`: Specify the path to the CSV file.
+---
 
-### `st`
-**Usage:** `st [OPTION]...`
-The commands updates the tables with calculated instrument values.
-**Example:** `st -t=btc_d,solx -i=rsi:14;sma:30`
-**Options:**
-* `-h`, `--help`: Show help message.
-* `-t=TABLE_NAME1,TABLE_NAME2,...`, `--tables=TABLE_NAME1,TABLE_NAME2,...`: Specify the tables to update.
-* `-i=INS_CMD1,INS_CMD2,...`, `--instruments=INS_CMD1,INS_CMD2,...`: Specify the instruments to calculate (e.g., `rsi:14`, `sma:30`).
+## Backtesting a strategy
 
-### `tb`
-**Usage:** `tb`
-The commands to show all available tables.
+### Running a backtest
 
+- You can run a backtest using the command:
+    `bt -t=btc_1min -st=path_to_json_setup_dir\setup_1.json -s=path_to_strategy_dir\rsi_strategy.json -r=path_to_result_dir\trades.json`
+
+### Setup file
+
+- You can find an example in ./assets/setup/setup_1.json
+- Below is an example of a setup file:
+    ```json
+    {
+        "balance": 10000.0,
+        "leverage": 12.0,
+        "fee": 0.0025,
+        "takeProfit": 1.01,
+        "stopLoss": 0.99,
+        "amount": 500.0,
+        "maxTrades": 5,
+        "delaySeconds": 10800,
+        "dateRestriction": "",
+        "tradeLifeSpanSeconds": 90000
+    }
+    ```
+- All the field are mandatory.
+- **Fields**:
+  - balance: The initial balance of the trading account.
+  - leverage: The leverage to be used for trading.
+  - fee: The trading fee charged by the broker. It is multiplier of the price. e.g. 0.0025 means 0.25% fee.
+  - takeProfit: The take profit level for each trade (as a multiplier of the entry price).
+  - stopLoss: The stop loss level for each trade (as a multiplier of the entry price).
+  - amount: The amount to be traded in each trade.
+  - maxTrades: The maximum number of concurrent open trades.
+  - delaySeconds: The delay in seconds between each trade.
+  - dateRestriction: A date restriction for trading. It is a SQL WHERE clause. 
+    e.g. `WHERE date >= '2023-07-19 00:00:00.000000' AND date <= '2023-07-30 00:00:00.000000'`
+  - tradeLifeSpanSeconds: The maximum lifespan of a trade in seconds. After this time, the trade will be closed for actual price.
+
+---
+
+### Strategy file
+- You can find an example in ./assets/strategy/rsi_strategy.json
+- Below is an example of a strategy file:
+    ```json
+    {
+      "openClause": "WHERE rsi_14_ins_ <= 30",
+      "closeClause": "WHERE rsi_14_ins_ >= 80"
+    }
+    ```
+
+- **Fields**: 
+- openClause: The SQL WHERE clause for opening a trade. It is used to filter the rows in the table.
+- closeClause: The SQL WHERE clause for closing a trade. It is used to filter the rows in the table.
+
+> [!IMPORTANT] 
+> The instrument names in clauses are in format: `<instrument_name>_<arguments>_ins_`. You can always check column names
+> in the database to see the correct names.
+
+---
+
+### Result file
+- You can find an example in ./assets/result/trades.json
+- It is a simple serialization of a List of instances of `Trade` class.
+
+---
+
+## Contact
+
+- If you have any questions or suggestions, feel free to contact me at email: `david.valek17@gmail.com`

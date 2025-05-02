@@ -38,7 +38,8 @@ public class MACD implements JavaInstrument {
      */
     @Override
     public String getDescription() {
-        return "The Moving Average Convergence Divergence (MACD) is a trend-following momentum indicator that shows the relationship between two moving averages of a security's price.";
+        return "The Moving Average Convergence Divergence (MACD) is a trend-following momentum indicator that shows the relationship between two moving averages of a security's price." + "\n" +
+                "Usage: macd:slidingWindow,shortPeriod,longPeriod,signalPeriod\n";
     }
 
     /**

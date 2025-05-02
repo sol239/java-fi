@@ -38,7 +38,8 @@ public class EMA implements JavaInstrument {
      */
     @Override
     public String getDescription() {
-        return "The Exponential Moving Average (EMA) gives more weight to recent prices, making it more responsive to new information.";
+        return "The Exponential Moving Average (EMA) gives more weight to recent prices, making it more responsive to new information." + "\n" +
+                "Usage: ema:period\n";
     }
 
     /**

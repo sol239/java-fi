@@ -39,7 +39,8 @@ public class Rsi implements JavaInstrument {
      */
     @Override
     public String getDescription() {
-        return "The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.";
+        return "The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset." + "\n" +
+                "Usage: rsi:period\n";
     }
 
     /**
