@@ -27,7 +27,7 @@ class TradeTest {
         assertEquals("2023-01-01 10:00:00", trade.openTime);
         assertEquals("2023-01-01 12:00:00", trade.closeTime);
         assertEquals(strategy, trade.strategy);
-        assertEquals(0.0, trade.PnL); // default value
+        assertEquals(0.0, trade.PnL);
     }
 
     @Test
@@ -47,7 +47,7 @@ class TradeTest {
         assertTrue(str.contains("take = 210.0"));
         assertTrue(str.contains("stop = 190.0"));
         assertTrue(str.contains("amount = 10.0"));
-        assertTrue(str.contains("profit = 12.35")); // rounded to 2 decimals
+        assertTrue(str.contains("profit = 12.35"));
         assertTrue(str.contains("assetName = ETHUSDT"));
         assertTrue(str.contains("openTime = 2023-02-01 09:00:00"));
         assertTrue(str.contains("closeTime = 2023-02-01 11:00:00"));

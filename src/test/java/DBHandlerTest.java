@@ -92,6 +92,7 @@ public class DBHandlerTest {
     @Disabled
     @Test
     public void getResultSetTest() {
+        // adding mock data into database would be mandatory to test this method
         DBHandler db = new DBHandler();
         try {
             db.insertCsvData("test_table", "src/test/java/eth-daily.csv");
@@ -137,13 +138,6 @@ public class DBHandlerTest {
         } finally {
             db.deleteTable("test_table");
         }
-    }
-
-    @Disabled
-    @Test
-    public void createAppDbTest() {
-        String sql = "SELECT datname FROM pg_database WHERE datistemplate = false;";
-        // Unit testing method requires hardwiring db connection credentials.
     }
 
     @Test
