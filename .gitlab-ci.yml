@@ -1,0 +1,10 @@
+stages:
+  - test
+
+run-junit-tests:
+  stage: test
+  image: gradle:8.0-jdk17
+  script:
+    - gradle test
+  only:
+    - branches
