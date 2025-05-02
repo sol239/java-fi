@@ -1,3 +1,6 @@
+/**
+ * The package provides the utils for communication between the client and the server.
+ */
 package com.github.sol239.javafi.utils;
 
 import java.io.Serial;

@@ -1,3 +1,6 @@
+/**
+ * The package provides the instrument utils.
+ */
 package com.github.sol239.javafi.utils.instrument.instruments;
 
 import com.github.sol239.javafi.utils.instrument.JavaInstrument;

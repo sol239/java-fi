@@ -1,3 +1,6 @@
+/**
+ * The package provides command utils.
+ */
 package com.github.sol239.javafi.utils.command;
 
 import com.github.sol239.javafi.utils.DataObject;

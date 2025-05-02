@@ -1,3 +1,6 @@
+/**
+ * Package providing multiple demos.
+ */
 package com.github.sol239.javafi.demos;
 
 import com.github.sol239.javafi.utils.DataObject;

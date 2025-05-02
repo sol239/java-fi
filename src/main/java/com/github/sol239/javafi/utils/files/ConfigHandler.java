@@ -1,3 +1,6 @@
+/**
+ * The package provides the config file handling.
+ */
 package com.github.sol239.javafi.utils.files;
 
 import com.github.sol239.javafi.utils.DataObject;

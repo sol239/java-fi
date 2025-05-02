@@ -1,3 +1,6 @@
+/**
+ * The package provides the database handling.
+ */
 package com.github.sol239.javafi.utils.database;
 
 import com.github.sol239.javafi.utils.files.ConfigHandler;

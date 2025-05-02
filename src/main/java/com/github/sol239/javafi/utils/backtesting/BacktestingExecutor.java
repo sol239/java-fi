@@ -1,3 +1,6 @@
+/**
+ * The package provides backtesting utils.
+ */
 package com.github.sol239.javafi.utils.backtesting;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

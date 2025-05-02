@@ -1,3 +1,6 @@
+/**
+ * Provides with a client for the java-fi application.
+ */
 package com.github.sol239.javafi.client;
 
 import com.github.sol239.javafi.utils.DataObject;

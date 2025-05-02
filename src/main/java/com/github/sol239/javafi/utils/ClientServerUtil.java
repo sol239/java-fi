@@ -1,3 +1,6 @@
+/**
+ * The package provides client server communication utils.
+ */
 package com.github.sol239.javafi.utils;
 
 import java.io.IOException;

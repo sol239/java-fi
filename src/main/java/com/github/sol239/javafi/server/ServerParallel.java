@@ -1,3 +1,6 @@
+/**
+ * The package provides the server for the java-fi application.
+ */
 package com.github.sol239.javafi.server;
 
 import com.github.sol239.javafi.utils.database.DBHandler;

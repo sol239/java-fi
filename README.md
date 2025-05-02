@@ -4,6 +4,9 @@ java-fi is a client-server application that allows backtesting of trading strate
 Various indicators are available for use, and the application is designed to be extensible, allowing users 
 to add their own indicators and strategies.
 
+The application is built using Java and PostgreSQL, and it provides a command-line interface for interacting
+with the server.
+
 ---
 
 ## Features
@@ -26,17 +29,39 @@ to add their own indicators and strategies.
 - PostgreSQL
 - Gradle
 
-### Installation
+### Installation & Usage
 1. Clone the repository:
    ```bash
    git clone https://github.com/sol239/java-fi
    ```
+2. Navigate to the project directory:
+   ```bash
+    cd java-fi
+    ```
+3. Build the project using Gradle:
+    ```bash
+    gradle clean build
+    ```
+   - Some of the tests will fail because of missing database credentials.
+4. Run the server using:
+    ```bash
+    gradle server
    
-## Usage
+    # or
+   
+   ./gradlew server
+    ```
 
-1. run ServerParalel.java
-2. run Client.java
-3. run the commands in the client by typing them in the console and then pressing enter.
+5. Run the client using:
+    ```bash
+    gradle client
+   
+    # or
+   
+    ./gradlew client
+    ```
+
+---
 
 ### Example 1 - inserting historical data
 

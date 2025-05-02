@@ -3,8 +3,14 @@ plugins {
     id("jacoco")
 }
 
-group = "org.example"
+group = "com.github.sol239.javafi"
 version = "1.0-SNAPSHOT"
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of("23"))
+    }
+}
 
 repositories {
     mavenCentral()
