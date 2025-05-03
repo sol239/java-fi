@@ -106,6 +106,8 @@ The commands below will create a column with the RSI indicator with a period of 
 
 > config -u=URL -p=PASSWORD -n=USERNAME
 
+- The URL should be in the format: `jdbc:postgresql://<host>:<port>/<database_name>`
+- For example: `jdbc:postgresql://localhost:5432/postgres`
 - Without this step, the application will not be able to connect to the database.
 
 ---
