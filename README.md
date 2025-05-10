@@ -148,6 +148,22 @@ The commands below will create a column with the RSI indicator with a period of 
 - You can run a backtest using the command:
     `bt -t=btc_1min -st=path_to_json_setup_dir\setup_1.json -s=path_to_strategy_dir\rsi_strategy.json -r=path_to_result_dir\trades.json`
 
+---
+
+### .env file
+
+- `.env` is located in the root directory of the project.
+
+    ```text
+    PORT=1100
+    DB_URL=jdbc:h2:./java_fi
+    ```
+- **Fields**:
+  - `PORT`: The port on which the server will run. Default is 1100.
+  - `DB_URL`: The URL of the database. Default is `jdbc:h2:./java_fi`. You can change it to your PostgreSQL database URL.
+
+---
+
 ### Setup file
 
 - You can find an example in ./assets/setup/setup_1.json
