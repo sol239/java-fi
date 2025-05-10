@@ -22,6 +22,16 @@ public class Strategy {
     public String closeClause;
 
     /**
+     * Flag to indicate if the strategy uses take profit.
+     */
+    public boolean takeProfit;
+
+    /**
+     * Flag to indicate if the strategy uses stop loss.
+     */
+    public boolean stopLoss;
+
+    /**
      * Setup for the strategy.
      */
     public Setup setup;
@@ -57,6 +67,9 @@ public class Strategy {
             JsonNode jsonNode = objectMapper.readTree(new File(jsonPath));
             this.openClause = jsonNode.get("openClause").asText();
             this.closeClause = jsonNode.get("closeClause").asText();
+            this.takeProfit = jsonNode.get("takeProfit").asBoolean();
+            this.stopLoss = jsonNode.get("stopLoss").asBoolean();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,6 +83,8 @@ public class Strategy {
     public String toString() {
         return "Strategy:\nopenClause = " + openClause + "\n" +
                 "closeClause = " + closeClause + "\n" +
-                "setup = " + setup.toString() + "\n";
+                "setup = " + setup.toString() + "\n" +
+                "takeProfit = " + takeProfit + "\n" +
+                "stopLoss = " + stopLoss + "\n";
     }
 }

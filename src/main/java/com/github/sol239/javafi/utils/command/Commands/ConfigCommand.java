@@ -7,6 +7,7 @@ import com.google.auto.service.AutoService;
 
 import java.util.List;
 
+@Deprecated
 /**
  * A command to configure the database connection.
  */

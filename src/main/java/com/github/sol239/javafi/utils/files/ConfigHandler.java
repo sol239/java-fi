@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Deprecated
 /**
  * Class to handle the app's postgres database configuration file.
  */

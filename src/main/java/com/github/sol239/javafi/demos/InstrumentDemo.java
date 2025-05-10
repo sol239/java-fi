@@ -22,7 +22,7 @@ public class InstrumentDemo {
 
         // 1)
         // How to get the number of instruments:
-        InstrumentExecutor ie = new InstrumentExecutor();
+            InstrumentExecutor ie = new InstrumentExecutor();
         int instrumentCount = ie.getInstrumentCount();
         System.out.println("Number of instruments = " + instrumentCount);
         System.out.println("-------------------------------------------------");

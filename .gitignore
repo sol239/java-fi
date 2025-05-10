@@ -44,3 +44,6 @@ bin/
 
 .idea
 /.idea/
+
+java_fi.mv.db
+java_fi.trace.db

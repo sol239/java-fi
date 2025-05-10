@@ -188,13 +188,17 @@ The commands below will create a column with the RSI indicator with a period of 
     ```json
     {
       "openClause": "WHERE rsi_14_ins_ <= 30",
-      "closeClause": "WHERE rsi_14_ins_ >= 80"
+      "closeClause": "WHERE rsi_14_ins_ >= 80",
+      "stopLoss": false,
+      "takeProfit": true
     }
     ```
 
 - **Fields**: 
-- openClause: The SQL WHERE clause for opening a trade. It is used to filter the rows in the table.
-- closeClause: The SQL WHERE clause for closing a trade. It is used to filter the rows in the table.
+- `openClause`: The SQL WHERE clause for opening a trade. It is used to filter the rows in the table.
+- `closeClause`: The SQL WHERE clause for closing a trade. It is used to filter the rows in the table.
+- `stopLoss`: A boolean value indicating whether to use stop loss or not.
+- `takeProfit`: A boolean value indicating whether to use take profit or not.
 
 > [!IMPORTANT] 
 > The instrument names in clauses are in format: `<instrument_name>_<arguments>_ins_`. You can always check column names

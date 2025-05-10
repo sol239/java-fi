@@ -4,10 +4,10 @@
 package com.github.sol239.javafi.server;
 
 import com.github.sol239.javafi.utils.database.DBHandler;
-import com.github.sol239.javafi.utils.files.ConfigHandler;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.command.Shell;
 import com.github.sol239.javafi.utils.ClientServerUtil;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -23,11 +23,6 @@ import java.util.concurrent.ExecutorService;
 public class ServerParallel {
 
     /**
-     * Server port.
-     */
-    public static final int PORT = 1100;
-
-    /**
      * List of clients.
      * Synchronized for improved safety.
      */
@@ -39,16 +34,14 @@ public class ServerParallel {
     private static Shell sh = new Shell();
 
     /**
-     * Config instance to handle the configuration file.
-     */
-    private static ConfigHandler cfg = new ConfigHandler();
-
-    /**
      * Main method.
      *
      * @param args command line arguments
      */
     public static void main(String[] args) {
+
+        Dotenv dotenv = Dotenv.load();
+        final int PORT = Integer.parseInt(dotenv.get("PORT", "1111"));
 
         // Check DB connection
         try {
@@ -59,11 +52,6 @@ public class ServerParallel {
         }
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-
-            // db config file
-            cfg.createConfigFile(ConfigHandler.CONFIG_FILE);
-            cfg.loadConfigMap(ConfigHandler.CONFIG_FILE);
-
             System.out.println("Server is listening on port " + PORT);
             serverSocket.setReuseAddress(true);
             ExecutorService executorService = java.util.concurrent.Executors.newCachedThreadPool();

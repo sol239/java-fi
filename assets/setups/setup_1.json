@@ -1,12 +1,12 @@
 {
     "balance": 10000.0,
-    "leverage": 12.0,
+    "leverage": 1.0,
     "fee": 0.0025,
-    "takeProfit": 1.01,
-    "stopLoss": 0.99,
-    "amount": 500.0,
-    "maxTrades": 5,
+    "takeProfit": 1.3,
+    "stopLoss": 0.85,
+    "amount": 4000.0,
+    "maxTrades": 1,
     "delaySeconds": 10800,
     "dateRestriction": "",
-    "tradeLifeSpanSeconds": 90000
+    "tradeLifeSpanSeconds": 90000000
 }

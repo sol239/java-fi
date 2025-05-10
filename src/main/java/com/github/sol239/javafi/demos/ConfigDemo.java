@@ -6,6 +6,7 @@ import com.github.sol239.javafi.utils.files.ConfigHandler;
  * Class for demonstrating the ConfigHandler class.
  * Caution: the execution of this class will rewrite the config file.
  */
+@Deprecated
 public class ConfigDemo {
 
     public static void main(String[] args) {

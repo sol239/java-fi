@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.util.List;
 
 /**
- *  A command to show all available tables in the database.
+ * A command to show all available tables in the database.
  */
 @AutoService(Command.class)
 public class TbCommand implements Command {
@@ -55,11 +55,9 @@ public class TbCommand implements Command {
      */
     @Override
     public DataObject run(List<String> args, List<String> flags) {
-
         System.out.println("Executing command: " + getName());
         System.out.println("Arguments: " + args + "\n");
         System.out.println("Flags: " + flags + "\n");
-
 
         for (String flag : flags) {
             if (flag.equals("-h") || flag.equals("--help")) {
@@ -67,36 +65,27 @@ public class TbCommand implements Command {
             }
         }
 
-
         DBHandler db = new DBHandler();
         StringBuilder sb = new StringBuilder();
 
         if (args.isEmpty()) {
-            String sql = """
-                    SELECT table_name
-                    FROM information_schema.tables
-                    WHERE table_schema = 'public';
-                    """;
-            ResultSet rs = db.getResultSet(sql);
-
-
-            try {
-                while (rs.next()) {
-                    sb.append(rs.getString("table_name")).append("\n");
-                }
-            } catch (Exception e) {
-                return new DataObject(400, "server", "Error fetching all table names from DB.");
+            List<String> tables = db.getAllTables();
+            if (tables == null || tables.isEmpty()) {
+                return new DataObject(400, "server", "No tables found in DB.");
             }
-
+            for (String table : tables) {
+                sb.append(table).append("\n");
+            }
             sb.deleteCharAt(sb.length() - 1);
         } else if (args.size() == 1) {
             String tableName = args.get(0);
-            String sql = """
-                    SELECT * FROM %s;
-                    """.formatted(tableName);
+            String sql = "SELECT * FROM " + tableName + ";";
             ResultSet rs = db.getResultSet(sql);
 
             try {
+                if (rs == null) {
+                    return new DataObject(400, "server", "Table not found or error executing query.");
+                }
                 // COLUMN NAMES
                 for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                     sb.append(rs.getMetaData().getColumnName(i)).append(" ");
@@ -109,7 +98,6 @@ public class TbCommand implements Command {
                         sb.append(rs.getString(i)).append(" ");
                     }
                     sb.append("\n");
-
                 }
             } catch (Exception e) {
                 return new DataObject(400, "server", "Error printing the table.");
@@ -117,6 +105,5 @@ public class TbCommand implements Command {
         }
 
         return new DataObject(200, "server", sb.toString());
-
     }
 }

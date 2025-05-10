@@ -1,4 +1,6 @@
 {
     "openClause": "WHERE rsi_14_ins_ <= 30",
-    "closeClause": "WHERE rsi_14_ins_ >= 80"
+    "closeClause": "WHERE rsi_14_ins_ >= 70",
+    "stopLoss": false,
+    "takeProfit": true
 }

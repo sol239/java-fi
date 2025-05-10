@@ -90,8 +90,10 @@ public class BtCommand implements Command {
             backtestingExecutor.addStrategy(strategy);
             backtestingExecutor.createStrategiesColumns(tableName);
 
+            System.out.println(strategy);
+
             backtestingExecutor.updateStrategiesColumns(tableName);   // TODO: does not have to be executed each time
-            DataObject result = backtestingExecutor.run(tableName, longSetup.tradeLifeSpanSeconds, false, true, resultJsonPath, longSetup.dateRestriction);
+            DataObject result = backtestingExecutor.run(tableName, longSetup.tradeLifeSpanSeconds, strategy.takeProfit, strategy.stopLoss, resultJsonPath, longSetup.dateRestriction);
             return result;
         } catch (Exception e) {
             return new DataObject(400, "server", "Backtesting failed." );

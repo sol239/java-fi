@@ -6,6 +6,7 @@ package com.github.sol239.javafi.client;
 import com.github.sol239.javafi.utils.DataObject;
 import com.github.sol239.javafi.utils.ClientServerUtil;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,11 +17,6 @@ import java.util.Scanner;
  * Client class.
  */
 public class Client {
-
-    /**
-     * Server port.
-     */
-    public static final int PORT = 1100;
 
     /**
      * Reconnect delay in milliseconds.
@@ -48,10 +44,13 @@ public class Client {
      * @param args command line arguments
      */
     public static void main(String[] args) {
+        Dotenv dotenv = Dotenv.load();
 
         int tries = 0;
         Scanner scanner = new Scanner(System.in);
         boolean reconnect = true;
+
+        final int PORT = Integer.parseInt(dotenv.get("PORT", "1111"));
 
         while (reconnect) {
 
