@@ -47,3 +47,6 @@ bin/
 
 java_fi.mv.db
 java_fi.trace.db
+
+gradlew
+gradlew.bat
