@@ -65,6 +65,10 @@ gradle server
 gradle client
 ```
 
+> [!TIP]
+> Use this instead to not print gradle additional information: `gradle client --console=plain`
+
+
 ---
 
 > [!NOTE]
