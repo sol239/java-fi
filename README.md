@@ -4,9 +4,6 @@ java-fi is a client-server application that allows backtesting of trading strate
 Various indicators are available for use, and the application is designed to be extensible, allowing users
 to add their own indicators and strategies.
 
-The application is built using Java and PostgreSQL, and it provides a command-line interface for interacting
-with the server.
-
 ---
 
 ## Features
@@ -26,7 +23,6 @@ with the server.
 ### Prerequisites
 
 - Java 23
-- PostgreSQL
 - Gradle
 
 ### Installation & Usage
@@ -47,69 +43,100 @@ with the server.
 4. Run the server using:
     ```bash
     gradle server
-   
-    # or
-   
-   ./gradlew server
     ```
 
 5. Run the client using:
     ```bash
     gradle client
-   
-    # or
-   
-    ./gradlew client
     ```
 
 ---
 
-### Example 1 - inserting historical data
+### Example 0 - running the server and client
 
-> gradle server
+> [!IMPORTANT]  
+> The client will not connect to the server neither it will start server if the server is not running.
 
-> gradle client
+```bash
+gradle server
+```
 
-> insert -t=btc_1min -p=path_to_csv_dir\BTCUSD_1MIN.csv
-
----
-
-### Example 2 - creating columns with indicators
-
-The commands below will create a column with the RSI indicator with a period of 14 for the table btc_1min.
-
-> gradle server
-
-> gradle client
-
-> st -t=btc_1min -i=rsi:14
+```bash
+gradle client
+```
 
 ---
 
-### Example 3 - backtesting a strategy
+> [!NOTE]
+> All examples below are run in the client console. The server must be running before running the client.
+> Examples below use the demo data located in the `assets` directory. You can use your own data by replacing the paths.
 
-> gradle server
+---
 
-> gradle client
+### Example 1 - help command
 
-> bt -t=btc -st=path_to_json_setup_dir\setup_1.json -s=path_to_strategy_dir\rsi_strategy.json
-> -r=path_to_result_dir\trades.json
+> help 
+
+### Example 2 - inserting historical data
+
+> insert -t=btc -p=assets/csv/BTCUSD_1MIN.csv
+
+---
+
+### Example 3 - printing the table
+
+> tb btc
+
+---
+
+### Example 4 - checking the connection to the server
+
+> cn
+
+---
+
+### Example 5 - checking the connection to the database
+
+> db
+
+---
+
+### Example 6 - printing available instruments
+
+> inst
+
+---
+
+### Example 7 - printing the help for a specific command
+
+> insert -h
+
+or:
+
+> insert --help
+
+---
+
+### Example 8 - creating columns with indicators
+
+The commands below will create a column with the RSI indicator with a period of 14 for the table btc.
+
+> st -t=btc -i=rsi:14
+
+---
+
+### Example 9 - backtesting a strategy
+
+
+> bt -t=btc -st=assets\setups\setup_1.json -s=assets\strategies\rsi_strategy.json -r=assets\trades\trades.json
+
+The output of the given command should be:
+```text
+Winning trades: 18 | Losing trades: 23 | Total trades: 41 | Win rate: 43.90% | Profit: 11165.89 USD
+```
 
 > [!IMPORTANT]
 > Strategy columns must be present in the table before running the backtest commands. Otherwise, the backtest will not work.
-
-### Example 4 - setting up the database configuration
-
-> gradle server
-
-> gradle client
-
-> config -u=URL -p=PASSWORD -n=USERNAME
-
-- The URL should be in the format: `jdbc:postgresql://<host>:<port>/<database_name>`
-- For example: `jdbc:postgresql://localhost:5432/postgres`
-- Without this step, the application will not be able to connect to the database.
-
 ---
 
 ### CSV Format
@@ -135,10 +162,10 @@ The commands below will create a column with the RSI indicator with a period of 
 
 - If you want to backtest a strategy based on an instrument, you need to create a column with the instrument values.
 - You can do this by using the command:
-    - `st -t=btc_1min -i=rsi:14`
-    - `st -t=btc_1min -i=sma:30`
-    - `st -t=btc_1min -i=macd:12,26,9,10` - instrument arguments are separated by commas
-
+    - `st -t=btc -i=rsi:14`
+    - `st -t=btc -i=sma:30`
+    - `st -t=btc -i=macd:12,26,9,10` - instrument arguments are separated by commas
+- You can see how to correctly use instruments by using the command `inst` in the client console.
 ---
 
 ## Backtesting a strategy
@@ -146,8 +173,13 @@ The commands below will create a column with the RSI indicator with a period of 
 ### Running a backtest
 
 - You can run a backtest using the command:
-    `bt -t=btc_1min -st=path_to_json_setup_dir\setup_1.json -s=path_to_strategy_dir\rsi_strategy.json -r=path_to_result_dir\trades.json`
-
+    `bt -t=btc -st=assets\setups\setup_1.json -s=assets\strategies\rsi_strategy.json -r=assets\trades\trades.json`
+- **Fields**:
+  - `-t`: The name of the table to be used for backtesting.
+  - `-st`: The path to the setup file.
+  - `-s`: The path to the strategy file.
+  - `-r`: The path to the result file.
+- Below you can find the description of the setup and strategy files.
 ---
 
 ### .env file
@@ -160,7 +192,7 @@ The commands below will create a column with the RSI indicator with a period of 
     ```
 - **Fields**:
   - `PORT`: The port on which the server will run. Default is 1100.
-  - `DB_URL`: The URL of the database. Default is `jdbc:h2:./java_fi`. You can change it to your PostgreSQL database URL.
+  - `DB_URL`: The URL of the database. Default is `jdbc:h2:./java_fi`.
 
 ---
 
@@ -231,3 +263,14 @@ The commands below will create a column with the RSI indicator with a period of 
 ## Contact
 
 - If you have any questions or suggestions, feel free to contact me at email: `david.valek17@gmail.com`
+
+> [!IMPORTANT]  
+> To be implemented in Advanced Java course.
+> - Spring Boot Backend as server
+> - JavaScript Frontend as client
+>   - Better visualization
+>   - Better user experience
+> - Using Advanced Java course techniques (Annotations, Modules, etc.)
+> - Focus on performance - reworking the entire codebase where necessary
+> - Dockerize the application
+> - and more ...
