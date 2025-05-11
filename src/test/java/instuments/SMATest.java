@@ -30,7 +30,8 @@ public class SMATest {
     @Test
     public void getDescriptionTest() {
         SMA sma = new SMA();
-        String expected = "The Simple Moving Average (SMA) is the unweighted mean of the previous n data points.";
+        String expected = "The Simple Moving Average (SMA) is the unweighted mean of the previous n data points.\n" +
+                "Usage: sma:period\n";
         String actual = sma.getDescription();
         assertEquals(expected, actual);
     }

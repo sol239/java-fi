@@ -20,7 +20,7 @@ public class ShellTest {
         List<String> actual = availableCommands.stream()
                 .map(Command::getName)
                 .toList();
-        List<String> expected = List.of("bt", "clean", "cn", "config", "db", "del", "exit", "help", "insert", "st", "tb");
+        List<String> expected = List.of("bt", "clean", "cn", "config", "db", "del", "exit", "help", "insert", "inst", "st", "tb");
         assertEquals(expected, actual);
     }
 
@@ -30,7 +30,7 @@ public class ShellTest {
         HashMap<String, Command> availableCommands = shell.getCommands();
         List<String> actual = new ArrayList<>(availableCommands.keySet());
         actual.sort(String::compareTo);
-        List<String> expected = List.of("bt", "clean", "cn", "config", "db", "del", "exit", "help", "insert", "st", "tb");
+        List<String> expected = List.of("bt", "clean", "cn", "config", "db", "del", "exit", "help", "insert", "inst", "st", "tb");
         assertEquals(expected, actual);
     }
 

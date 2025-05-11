@@ -47,7 +47,9 @@ class StrategyTest {
         String json = """
         {
           "openClause": "price > 100",
-          "closeClause": "price < 90"
+          "closeClause": "price < 90",
+          "stopLoss": false,
+          "takeProfit": true
         }
         """;
         Path tempFile = Files.createTempFile("strategy", ".json");

@@ -30,7 +30,8 @@ public class EMATest {
     @Test
     public void getDescriptionTest() {
         EMA ema = new EMA();
-        String expected = "The Exponential Moving Average (EMA) gives more weight to recent prices, making it more responsive to new information.";
+        String expected = "The Exponential Moving Average (EMA) gives more weight to recent prices, making it more responsive to new information.\n" +
+                "Usage: ema:period\n";
         String actual = ema.getDescription();
         assertEquals(expected, actual);
     }

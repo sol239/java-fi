@@ -30,7 +30,8 @@ public class BollingerBandLowerTest {
     @Test
     public void getDescriptionTest() {
         BollingerBandLower bbl = new BollingerBandLower();
-        String expected = "Bollinger Bands consist of a middle band (SMA) and two outer bands that are two standard deviations away from the middle band.";
+        String expected = "Bollinger Bands consist of a middle band (SMA) and two outer bands that are two standard deviations away from the middle band.\n" +
+                "Usage: bbl:period,multiplier\n";
         String actual = bbl.getDescription();
         assertEquals(expected, actual);
     }

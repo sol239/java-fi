@@ -53,15 +53,15 @@ class SetupTest {
         Setup setup = Setup.fromJson(jsonPath);
         assertNotNull(setup);
         assertEquals(10000.0, setup.balance);
-        assertEquals(12.0, setup.leverage);
+        assertEquals(1.0, setup.leverage);
         assertEquals(0.0025, setup.fee);
-        assertEquals(1.01, setup.takeProfit);
-        assertEquals(0.99, setup.stopLoss);
-        assertEquals(500.0, setup.amount);
-        assertEquals(5, setup.maxTrades);
+        assertEquals(1.3, setup.takeProfit);
+        assertEquals(0.85, setup.stopLoss);
+        assertEquals(4000.0, setup.amount);
+        assertEquals(1, setup.maxTrades);
         assertEquals(10800, setup.delaySeconds);
         assertEquals("", setup.dateRestriction);
-        assertEquals(90000, setup.tradeLifeSpanSeconds);
+        assertEquals(90000000, setup.tradeLifeSpanSeconds);
     }
 
     @Test

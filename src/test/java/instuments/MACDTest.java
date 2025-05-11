@@ -30,7 +30,8 @@ public class MACDTest {
     @Test
     public void getDescriptionTest() {
         MACD macd = new MACD();
-        String expected = "The Moving Average Convergence Divergence (MACD) is a trend-following momentum indicator that shows the relationship between two moving averages of a security's price.";
+        String expected = "The Moving Average Convergence Divergence (MACD) is a trend-following momentum indicator that shows the relationship between two moving averages of a security's price.\n" +
+                "Usage: macd:slidingWindow,shortPeriod,longPeriod,signalPeriod\n";
         String actual = macd.getDescription();
         assertEquals(expected, actual);
     }

@@ -30,7 +30,8 @@ public class RsiTest {
     @Test
     public void getDescriptionTest() {
         Rsi rsi = new Rsi();
-        String expected = "The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.";
+        String expected = "The relative strength index (RSI) is a momentum indicator that measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.\n" +
+                "Usage: rsi:period\n";
         String actual = rsi.getDescription();
         assertEquals(expected, actual);
     }
